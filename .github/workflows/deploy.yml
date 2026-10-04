@@ -33,7 +33,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           # CHANGE THIS: Point this to the folder containing your index.html
-          path: './online' 
+          path: '/online' 
 
       - name: Deploy to GitHub Pages
         id: deployment
