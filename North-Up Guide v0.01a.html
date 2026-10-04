@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>港深通 · 深圳交通旅遊指南</title>
+<style>
+  :root{
+    --primary:#2B5CFF;
+    --primary-2:#4C8DFF;
+    --accent:#FF6B35;
+    --bg:#F4F5F9;
+    --text:#141824;
+    --muted:#8A90A2;
+    --line:#E6E9F2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    font-family:-apple-system,"PingFang TC","Hiragino Sans TC","Microsoft JhengHei","Noto Sans TC",sans-serif;
+    background:#0d1224;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--text);
+  }
+
+  /* ===== 手機外框 ===== */
+  .phone{
+    width:400px;height:860px;
+    background:var(--bg);
+    border:9px solid #11141f;
+    border-radius:46px;
+    overflow:hidden;
+    display:flex;flex-direction:column;
+    box-shadow:0 40px 90px rgba(0,0,0,.65), 0 0 0 1px rgba(255,255,255,.06);
+    position:relative;
+  }
+  .statusbar{
+    height:44px;flex-shrink:0;
+    background:#fff;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:0 24px;
+    font-size:13.5px;font-weight:700;letter-spacing:.3px;
+    color:#141824;z-index:30;
+  }
+  .sb-icons{display:flex;gap:5px;font-size:12px;opacity:.9;}
+
+  /* ===== 畫面容器 ===== */
+  .screens{flex:1;position:relative;overflow:hidden;}
+  .screen{
+    position:absolute;inset:0;
+    overflow-y:auto;overflow-x:hidden;
+    opacity:0;pointer-events:none;transform:translateY(8px);
+    transition:opacity .22s ease, transform .22s ease;
+    -webkit-overflow-scrolling:touch;
+  }
+  .screen.active{opacity:1;pointer-events:auto;transform:none;}
+  .screen::-webkit-scrollbar{width:0;}
+
+  /* ===== 底部導航 ===== */
+  .tabbar{
+    height:70px;flex-shrink:0;background:#fff;
+    border-top:1px solid #EDEFF5;
+    display:flex;padding-bottom:6px;z-index:30;
+  }
+  .tab{
+    flex:1;border:none;background:none;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+    font-size:11px;color:var(--muted);font-family:inherit;
+    transition:color .18s;
+  }
+  .tab .ico{font-size:19px;line-height:1;filter:grayscale(1);opacity:.55;transition:.18s;}
+  .tab.active{color:var(--primary);font-weight:700;}
+  .tab.active .ico{filter:none;opacity:1;transform:translateY(-1px);}
+
+  /* ===== 通用 ===== */
+  .body{padding:16px 16px 26px;}
+  .sec-head{display:flex;align-items:baseline;justify-content:space-between;margin:20px 2px 11px;}
+  .sec-head:first-child{margin-top:6px;}
+  .sec-head h2{font-size:16px;font-weight:700;letter-spacing:.2px;}
+  .sec-head span{font-size:11px;color:var(--muted);}
+
+  /* ===== 首頁 Hero ===== */
+  .hero{
+    background:linear-gradient(135deg,#1E3FCC 0%,#2B5CFF 52%,#5B8CFF 100%);
+    padding:16px 20px 24px;color:#fff;
+    border-radius:0 0 26px 26px;
+    position:relative;overflow:hidden;
+  }
+  .hero::after{
+    content:'';position:absolute;width:220px;height:220px;border-radius:50%;
+    background:rgba(255,255,255,.08);top:-110px;right:-70px;
+  }
+  .hero-row{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1;}
+  .hero-hi{font-size:13px;opacity:.85;margin-bottom:5px;}
+  .hero-title{font-size:22px;font-weight:800;letter-spacing:.4px;}
+  .avatar{
+    width:40px;height:40px;border-radius:50%;
+    background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.45);
+    display:grid;place-items:center;font-weight:800;font-size:15px;
+  }
+  .avatar.lg{width:62px;height:62px;font-size:24px;background:#EEF3FF;border:none;color:var(--primary);}
+  .searchbox{
+    margin-top:16px;position:relative;z-index:1;
+    background:rgba(255,255,255,.97);border-radius:14px;height:46px;
+    display:flex;align-items:center;gap:9px;padding:0 15px;
+    color:var(--muted);font-size:14px;
+    box-shadow:0 8px 22px rgba(0,20,80,.18);
+  }
+
+  /* ===== 時間膠囊 ===== */
+  .chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 6px;}
+  .chips::-webkit-scrollbar{display:none;}
+  .chip{
+    padding:9px 15px;border-radius:999px;background:#fff;
+    border:1px solid var(--line);font-size:13px;color:#4B5163;
+    white-space:nowrap;cursor:pointer;font-family:inherit;font-weight:600;
+    transition:.18s;
+  }
+  .chip.on{
+    background:linear-gradient(135deg,#2B5CFF,#4C8DFF);
+    border-color:transparent;color:#fff;
+    box-shadow:0 7px 16px rgba(43,92,255,.3);
+  }
+
+  /* ===== 口岸橫向卡 ===== */
+  .hscroll{display:flex;gap:10px;overflow-x:auto;padding:2px 16px 8px;margin:0 -16px;}
+  .hscroll::-webkit-scrollbar{display:none;}
+  .port-card{
+    min-width:124px;background:#fff;border-radius:16px;padding:13px 14px;
+    box-shadow:0 5px 16px rgba(20,30,80,.07);flex-shrink:0;
+  }
+  .port-name{font-size:13.5px;font-weight:700;}
+  .port-time{font-size:21px;font-weight:800;color:var(--primary);margin:7px 0 3px;letter-spacing:-.5px;}
+  .port-time small{font-size:11px;font-weight:600;color:var(--muted);margin-left:2px;}
+  .port-tag{font-size:10.5px;display:inline-block;padding:2.5px 9px;border-radius:999px;font-weight:700;}
+  .port-tag.ok{background:#E6F8EF;color:#0E9F6E;}
+  .port-tag.mid{background:#FFF4E5;color:#E08A00;}
+  .port-tag.bad{background:#FFECEC;color:#E5484D;}
+
+  /* ===== 路線卡 ===== */
+  .route-card{
+    display:flex;gap:12px;background:#fff;border-radius:18px;padding:12px;
+    margin-bottom:12px;box-shadow:0 5px 18px rgba(20,30,80,.07);
+    cursor:pointer;transition:transform .16s ease;
+  }
+  .route-card:active{transform:scale(.975);}
+  .rc-thumb{
+    width:74px;height:74px;border-radius:15px;flex-shrink:0;
+    display:grid;place-items:center;font-size:30px;
+    background:linear-gradient(135deg,#EEF3FF,#DCE6FF);
+  }
+  .rc-thumb.a2{background:linear-gradient(135deg,#FFF1E8,#FFE0CC);}
+  .rc-thumb.a3{background:linear-gradient(135deg,#E8FBF3,#D0F5E5);}
+  .rc-thumb.a4{background:linear-gradient(135deg,#F3EEFF,#E3D8FF);}
+  .rc-info{flex:1;min-width:0;padding-top:1px;}
+  .rc-badge{
+    display:inline-block;font-size:10px;font-weight:800;color:var(--primary);
+    background:#EEF3FF;padding:2.5px 9px;border-radius:7px;margin-bottom:6px;
+    letter-spacing:.3px;
+  }
+  .rc-badge.b2{background:#FFF1E8;color:#E8590C;}
+  .rc-badge.b3{background:#E8FBF3;color:#0E9F6E;}
+  .rc-badge.b4{background:#F3EEFF;color:#6741D9;}
+  .rc-info h3{font-size:15px;font-weight:700;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .rc-info p{font-size:11.5px;color:var(--muted);margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .rc-meta{display:flex;gap:11px;font-size:11px;color:#5C6478;font-weight:600;}
+
+  /* ===== 路線詳情 ===== */
+  .detail-hero{
+    background:linear-gradient(135deg,#1E3FCC 0%,#2B5CFF 55%,#5B8CFF 100%);
+    padding:14px 20px 24px;color:#fff;border-radius:0 0 26px 26px;
+    position:relative;overflow:hidden;
+  }
+  .detail-hero::after{
+    content:'';position:absolute;width:200px;height:200px;border-radius:50%;
+    background:rgba(255,255,255,.07);bottom:-120px;left:-60px;
+  }
+  .back{
+    width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;
+    background:rgba(255,255,255,.18);color:#fff;font-size:17px;
+    margin-bottom:14px;display:grid;place-items:center;font-family:inherit;
+    position:relative;z-index:1;
+  }
+  .dh-badge{
+    display:inline-block;background:rgba(255,255,255,.2);font-size:11px;
+    font-weight:700;padding:3.5px 11px;border-radius:999px;margin-bottom:9px;
+    position:relative;z-index:1;
+  }
+  .detail-hero h1{font-size:20px;font-weight:800;margin-bottom:5px;position:relative;z-index:1;}
+  .detail-hero .sub{font-size:12px;opacity:.85;position:relative;z-index:1;}
+  .dh-stats{display:flex;gap:30px;margin-top:18px;position:relative;z-index:1;}
+  .dh-stats div{display:flex;flex-direction:column;gap:2px;}
+  .dh-stats strong{font-size:18px;font-weight:800;letter-spacing:-.3px;}
+  .dh-stats span{font-size:11px;opacity:.82;}
+
+  /* ===== 時間軸 ===== */
+  .timeline{padding-left:2px;}
+  .tl-item{position:relative;display:flex;gap:14px;padding-bottom:20px;}
+  .tl-item:last-child{padding-bottom:4px;}
+  .tl-item:not(:last-child)::before{
+    content:'';position:absolute;left:17px;top:36px;bottom:0;
+    width:2px;background:#E3E7F0;border-radius:2px;
+  }
+  .tl-dot{
+    width:35px;height:35px;border-radius:50%;flex-shrink:0;
+    background:#EEF3FF;display:grid;place-items:center;font-size:16px;
+    z-index:1;
+  }
+  .tl-dot.hi{background:#2B5CFF;color:#fff;}
+  .tl-body{flex:1;padding-top:1px;min-width:0;}
+  .tl-time{font-size:11.5px;font-weight:800;color:var(--primary);letter-spacing:.4px;}
+  .tl-body h4{font-size:14.5px;font-weight:700;margin:3px 0 4px;}
+  .tl-body p{font-size:12px;color:var(--muted);line-height:1.55;}
+  .tl-transit{
+    display:inline-flex;align-items:center;gap:6px;
+    background:#F2F5FF;color:#2B5CFF;font-size:11px;font-weight:700;
+    padding:5px 10px;border-radius:9px;margin-top:8px;
+  }
+
+  /* ===== 底部操作 ===== */
+  .detail-actions{
+    position:sticky;bottom:0;
+    display:flex;gap:10px;padding:14px 16px 18px;
+    background:linear-gradient(to top,#F4F5F9 62%,rgba(244,245,249,0));
+  }
+  .btn-ghost{
+    flex:0 0 98px;height:50px;border-radius:15px;cursor:pointer;
+    border:1px solid #DDE2EE;background:#fff;color:#3A4055;
+    font-size:14px;font-weight:700;font-family:inherit;
+  }
+  .btn-primary{
+    flex:1;height:50px;border-radius:15px;border:none;cursor:pointer;
+    background:linear-gradient(135deg,#2B5CFF,#4C8DFF);
+    color:#fff;font-size:15px;font-weight:800;font-family:inherit;
+    box-shadow:0 10px 24px rgba(43,92,255,.33);letter-spacing:.5px;
+  }
+  .btn-primary:active{transform:scale(.98);}
+
+  /* ===== 頁面標題 ===== */
+  .page-head{padding:18px 20px 6px;}
+  .page-head h1{font-size:23px;font-weight:800;letter-spacing:.3px;}
+  .page-head p{font-size:12px;color:var(--muted);margin-top:5px;}
+
+  /* ===== 口岸列表 ===== */
+  .port-row{
+    display:flex;align-items:center;justify-content:space-between;
+    background:#fff;border-radius:16px;padding:15px 16px;margin-bottom:10px;
+    box-shadow:0 5px 16px rgba(20,30,80,.055);
+  }
+  .pr-name{font-size:14.5px;font-weight:700;display:flex;align-items:center;gap:7px;}
+  .dot{width:7px;height:7px;border-radius:50%;display:inline-block;}
+  .dot.ok{background:#0E9F6E;box-shadow:0 0 0 3px rgba(14,159,110,.15);}
+  .dot.mid{background:#E08A00;box-shadow:0 0 0 3px rgba(224,138,0,.15);}
+  .dot.bad{background:#E5484D;box-shadow:0 0 0 3px rgba(229,72,77,.15);}
+  .pr-left p{font-size:11.5px;color:var(--muted);margin-top:5px;}
+  .pr-right{text-align:right;}
+  .pr-right strong{font-size:22px;font-weight:800;color:var(--primary);letter-spacing:-.5px;}
+  .pr-right span{font-size:11px;color:var(--muted);font-weight:600;display:block;margin-top:-2px;}
+
+  /* ===== 我的 ===== */
+  .me-head{
+    background:linear-gradient(135deg,#1E3FCC,#2B5CFF 60%,#5B8CFF);
+    padding:26px 20px 30px;color:#fff;border-radius:0 0 26px 26px;
+    display:flex;flex-direction:column;align-items:center;gap:10px;
+    position:relative;overflow:hidden;
+  }
+  .me-head::after{
+    content:'';position:absolute;width:200px;height:200px;border-radius:50%;
+    background:rgba(255,255,255,.08);top:-100px;right:-60px;
+  }
+  .me-head h2{font-size:19px;font-weight:800;position:relative;z-index:1;}
+  .me-head p{font-size:12px;opacity:.85;position:relative;z-index:1;}
+  .list-card{background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 5px 18px rgba(20,30,80,.06);}
+  .list-row{
+    display:flex;align-items:center;gap:13px;padding:16px 17px;
+    font-size:14px;font-weight:600;cursor:pointer;
+    border-bottom:1px solid #F1F3F8;
+  }
+  .list-row:last-child{border-bottom:none;}
+  .list-row:active{background:#FAFBFF;}
+  .li-ico{font-size:17px;width:24px;text-align:center;}
+  .li-arrow{margin-left:auto;color:#C7CDDB;font-size:17px;font-weight:400;}
+  .version{text-align:center;font-size:11px;color:#B4BAC8;margin-top:22px;}
+
+  /* ===== 手機適配 ===== */
+  @media (max-width:430px){
+    body{background:#fff;}
+    .phone{width:100vw;height:100vh;border:none;border-radius:0;box-shadow:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+  <!-- 狀態列 -->
+  <div class="statusbar">
+    <span>9:41</span>
+    <div class="sb-icons"><span>📶</span><span>📡</span><span>🔋</span></div>
+  </div>
+
+  <div class="screens">
+
+    <!-- ================= 首頁 ================= -->
+    <section class="screen active" id="screen-home">
+      <div class="hero">
+        <div class="hero-row">
+          <div>
+            <p class="hero-hi">你好，Sam 👋</p>
+            <h1 class="hero-title">今日想去深圳邊度？</h1>
+          </div>
+          <div class="avatar">S</div>
+        </div>
+        <div class="searchbox">
+          <span>🔍</span>
+          <span>搜尋景點、口岸、地鐵站</span>
+        </div>
+      </div>
+
+      <div class="body">
+        <div class="sec-head">
+          <h2>按時間規劃</h2>
+          <span>港人視角・最直接路線</span>
+        </div>
+        <div class="chips">
+          <button class="chip on" onclick="pickChip(this)">⚡ 2小時快閃</button>
+          <button class="chip" onclick="pickChip(this)">🚶 4小時半日</button>
+          <button class="chip" onclick="pickChip(this)">🗺️ 一日遊</button>
+          <button class="chip" onclick="pickChip(this)">🧳 三日兩夜</button>
+        </div>
+
+        <div class="sec-head">
+          <h2>熱門口岸即時狀態</h2>
+          <span>更新於 09:12</span>
+        </div>
+        <div class="hscroll">
+          <div class="port-card">
+            <div class="port-name">福田口岸</div>
+            <div class="port-time">15<small>分鐘</small></div>
+            <div class="port-tag ok">暢通</div>
+          </div>
+          <div class="port-card">
+            <div class="port-name">深圳灣口岸</div>
+            <div class="port-time">10<small>分鐘</small></div>
+            <div class="port-tag ok">暢通</div>
+          </div>
+          <div class="port-card">
+            <div class="port-name">羅湖口岸</div>
+            <div class="port-time">28<small>分鐘</small></div>
+            <div class="port-tag mid">略擠</div>
+          </div>
+          <div class="port-card">
+            <div class="port-name">高鐵西九龍</div>
+            <div class="port-time">14<small>分鐘</small></div>
+            <div class="port-tag ok">暢通</div>
+          </div>
+        </div>
+
+        <div class="sec-head">
+          <h2>精選路線</h2>
+          <span onclick="go('routes','routes')" style="cursor:pointer;color:#2B5CFF;font-weight:700;">查看全部</span>
+        </div>
+
+        <div class="route-card" onclick="go('route','home')">
+          <div class="rc-thumb">⚡</div>
+          <div class="rc-info">
+            <div class="rc-badge">2小時快閃</div>
+            <h3>福田 COCO Park・喜茶＋手信</h3>
+            <p>福田口岸 → 購物公園站</p>
+            <div class="rc-meta"><span>⏱ 2小時10分</span><span>💰 ¥80</span><span>🚇 2個站</span></div>
+          </div>
+        </div>
+
+        <div class="route-card" onclick="go('route','home')">
+          <div class="rc-thumb a2">🚶</div>
+          <div class="rc-info">
+            <div class="rc-badge b2">4小時半日</div>
+            <h3>萬象天地・誠品＋華強北</h3>
+            <p>福田口岸 → 會展中心 → 華強北</p>
+            <div class="rc-meta"><span>⏱ 4小時30分</span><span>💰 ¥150</span><span>🚇 5個站</span></div>
+          </div>
+        </div>
+
+        <div class="route-card" onclick="go('route','home')">
+          <div class="rc-thumb a3">🗺️</div>
+          <div class="rc-info">
+            <div class="rc-badge b3">一日遊</div>
+            <h3>歡樂港灣・摩天輪＋海岸線</h3>
+            <p>深圳灣口岸 → 前海 → 寶安</p>
+            <div class="rc-meta"><span>⏱ 8小時</span><span>💰 ¥280</span><span>🚇 9個站</span></div>
+          </div>
+        </div>
+
+        <div class="route-card" onclick="go('route','home')">
+          <div class="rc-thumb a4">🧳</div>
+          <div class="rc-info">
+            <div class="rc-badge b4">三日兩夜</div>
+            <h3>深圳深度遊・南山＋大鵬</h3>
+            <p>福田口岸 → 南山 → 大鵬新區</p>
+            <div class="rc-meta"><span>⏱ 3日</span><span>💰 ¥1,200</span><span>🏨 2晚</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 路線列表 ================= -->
+    <section class="screen" id="screen-routes">
+      <div class="page-head">
+        <h1>路線攻略</h1>
+        <p>精選港人高頻路線 · 已模組化設計</p>
+      </div>
+      <div class="body">
+        <div class="chips" style="margin-bottom:6px;">
+          <button class="chip on" onclick="pickChip(this)">全部</button>
+          <button class="chip" onclick="pickChip(this)">⚡ 快閃</button>
+          <button class="chip" onclick="pickChip(this)">🚶 半日</button>
+          <button class="chip" onclick="pickChip(this)">🗺️ 一日</button>
+          <button class="chip" onclick="pickChip(this)">🧳 過夜</button>
+        </div>
+
+        <div class="route-card" onclick="go('route','routes')">
+          <div class="rc-thumb">⚡</div>
+          <div class="rc-info">
+            <div class="rc-badge">2小時快閃</div>
+            <h3>福田 COCO Park・喜茶＋手信</h3>
+            <p>福田口岸 → 購物公園站</p>
+            <div class="rc-meta"><span>⏱ 2小時10分</span><span>💰 ¥80</span><span>🚇 2個站</span></div>
+          </div>
+        </div>
+
+        <div class="route-card" onclick="go('route','routes')">
+          <div class="rc-thumb a2">🚶</div>
+          <div class="rc-info">
+            <div class="rc-badge b2">4小時半日</div>
+            <h3>萬象天地・誠品＋華強北</h3>
+            <p>福田口岸 → 會展中心 → 華強北</p>
+            <div class="rc-meta"><span>⏱ 4小時30分</span><span>💰 ¥150</span><span>🚇 5個站</span></div>
+          </div>
+        </div>
+
+        <div class="route-card" onclick="go('route','routes')">
+          <div class="rc-thumb a3">🗺️</div>
+          <div class="rc-info">
+            <div class="rc-badge b3">一日遊</div>
+            <h3>歡樂港灣・摩天輪＋海岸線</h3>
+            <p>深圳灣口岸 → 前海 → 寶安</p>
+            <div class="rc-meta"><span>⏱ 8小時</span><span>💰 ¥280</span><span>🚇 9個站</span></div>
+          </div>
+        </div>
+
+        <div class="route-card" onclick="go('route','routes')">
+          <div class="rc-thumb a4">🧳</div>
+          <div class="rc-info">
+            <div class="rc-badge b4">三日兩夜</div>
+            <h3>深圳深度遊・南山＋大鵬</h3>
+            <p>福田口岸 → 南山 → 大鵬新區</p>
+            <div class="rc-meta"><span>⏱ 3日</span><span>💰 ¥1,200</span><span>🏨 2晚</span></div>
+          </div>
+        </div>
+
+        <div class="route-card" onclick="go('route','routes')">
+          <div class="rc-thumb">🛍️</div>
+          <div class="rc-info">
+            <div class="rc-badge">2小時快閃</div>
+            <h3>羅湖商業城・改衫＋按摩</h3>
+            <p>羅湖口岸 → 人民南站</p>
+            <div class="rc-meta"><span>⏱ 2小時</span><span>💰 ¥120</span><span>🚶 步行</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 路線詳情 ================= -->
+    <section class="screen" id="screen-route">
+      <div class="detail-hero">
+        <button class="back" onclick="go('home','home')">←</button>
+        <div class="dh-badge">4小時半日 · 模組化路線</div>
+        <h1>萬象天地・誠品＋華強北</h1>
+        <p class="sub">福田口岸出發 · 港人最直接路線</p>
+        <div class="dh-stats">
+          <div><strong>4:30</strong><span>總時長</span></div>
+          <div><strong>¥12</strong><span>交通費</span></div>
+          <div><strong>3.2km</strong><span>步行</span></div>
+        </div>
+      </div>
+
+      <div class="body">
+        <div class="sec-head">
+          <h2>行程時間軸</h2>
+          <span>可拖動調整</span>
+        </div>
+
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-dot hi">🛂</div>
+            <div class="tl-body">
+              <div class="tl-time">09:00</div>
+              <h4>福田口岸過關</h4>
+              <p>候檢約 15 分鐘，建議使用 e-道；避開 08:30–09:30 上班高峰。</p>
+            </div>
+          </div>
+
+          <div class="tl-item">
+            <div class="tl-dot">🚇</div>
+            <div class="tl-body">
+              <div class="tl-time">09:25</div>
+              <h4>地鐵 4 號線 → 會展中心站</h4>
+              <p>福田口岸站上車，往牛湖方向，3 個站。</p>
+              <div class="tl-transit">🚇 4號線 · 3站 · 約12分鐘 · ¥2</div>
+            </div>
+          </div>
+
+          <div class="tl-item">
+            <div class="tl-dot">🏬</div>
+            <div class="tl-body">
+              <div class="tl-time">09:45</div>
+              <h4>萬象天地（誠品生活）</h4>
+              <p>誠品生活、潮牌、精品咖啡。建議停留 90 分鐘，A 出口直達。</p>
+              <div class="tl-transit">🚶 步行 5分鐘</div>
+            </div>
+          </div>
+
+          <div class="tl-item">
+            <div class="tl-dot">🍜</div>
+            <div class="tl-body">
+              <div class="tl-time">11:20</div>
+              <h4>深圳灣萬象城 · 午餐</h4>
+              <p>探魚 / 太二 / 綠茶，人均約 ¥80。週末建議先取號。</p>
+              <div class="tl-transit">🚶 步行 10分鐘</div>
+            </div>
+          </div>
+
+          <div class="tl-item">
+            <div class="tl-dot">💻</div>
+            <div class="tl-body">
+              <div class="tl-time">12:40</div>
+              <h4>華強北電子市場</h4>
+              <p>配件、數碼、小家電。想買手機殼／充電線這裡最平。</p>
+              <div class="tl-transit">🚇 1號線 · 1站 · ¥2</div>
+            </div>
+          </div>
+
+          <div class="tl-item">
+            <div class="tl-dot">🛂</div>
+            <div class="tl-body">
+              <div class="tl-time">13:30</div>
+              <h4>返回福田口岸</h4>
+              <p>預留 30 分鐘過關緩衝，避開 18:00 後回港人潮。</p>
+              <div class="tl-transit">🚇 4號線 · 3站 · 約20分鐘</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-actions">
+        <button class="btn-ghost">☆ 收藏</button>
+        <button class="btn-primary">開始導航</button>
+      </div>
+    </section>
+
+    <!-- ================= 口岸 ================= -->
+    <section class="screen" id="screen-port">
+      <div class="page-head">
+        <h1>口岸資訊</h1>
+        <p>即時候檢時間 · 交通接駁</p>
+      </div>
+      <div class="body">
+
+        <div class="port-row">
+          <div class="pr-left">
+            <div class="pr-name">福田口岸 <span class="dot ok"></span></div>
+            <p>06:30 – 22:30 · 落馬洲支線</p>
+          </div>
+          <div class="pr-right"><strong>15</strong><span>分鐘</span></div>
+        </div>
+
+        <div class="port-row">
+          <div class="pr-left">
+            <div class="pr-name">深圳灣口岸 <span class="dot ok"></span></div>
+            <p>06:30 – 24:00 · 跨境巴士</p>
+          </div>
+          <div class="pr-right"><strong>10</strong><span>分鐘</span></div>
+        </div>
+
+        <div class="port-row">
+          <div class="pr-left">
+            <div class="pr-name">羅湖口岸 <span class="dot mid"></span></div>
+            <p>06:30 – 24:00 · 東鐵線</p>
+          </div>
+          <div class="pr-right"><strong>28</strong><span>分鐘</span></div>
+        </div>
+
+        <div class="port-row">
+          <div class="pr-left">
+            <div class="pr-name">高鐵西九龍站 <span class="dot ok"></span></div>
+            <p>06:00 – 23:00 · 14分鐘到福田</p>
+          </div>
+          <div class="pr-right"><strong>14</strong><span>分鐘</span></div>
+        </div>
+
+        <div class="port-row">
+          <div class="pr-left">
+            <div class="pr-name">蓮塘／香園圍口岸 <span class="dot mid"></span></div>
+            <p>07:00 – 22:00 · 新口岸較少人</p>
+          </div>
+          <div class="pr-right"><strong>20</strong><span>分鐘</span></div>
+        </div>
+
+        <div class="sec-head" style="margin-top:24px;">
+          <h2>港人貼士</h2>
+        </div>
+        <div class="route-card" style="cursor:default;">
+          <div class="rc-thumb" style="font-size:24px;">💡</div>
+          <div class="rc-info">
+            <h3 style="margin-bottom:6px;">回港高峰要避開</h3>
+            <p style="white-space:normal;line-height:1.6;margin-bottom:0;">
+              週日 17:00–21:00 為羅湖／福田回港高峰，建議提早 1.5 小時或改行深圳灣口岸。
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================= 我的 ================= -->
+    <section class="screen" id="screen-me">
+      <div class="me-head">
+        <div class="avatar lg">S</div>
+        <h2>Sam</h2>
+        <p>已收藏 6 條路線 · 累積省下 12 小時</p>
+      </div>
+      <div class="body">
+        <div class="list-card">
+          <div class="list-row"><span class="li-ico">⭐</span><span>我的收藏</span><span class="li-arrow">›</span></div>
+          <div class="list-row"><span class="li-ico">📥</span><span>離線路線包</span><span class="li-arrow">›</span></div>
+          <div class="list-row"><span class="li-ico">🤖</span><span>AI 行程生成</span><span class="li-arrow">›</span></div>
+          <div class="list-row"><span class="li-ico">🛂</span><span>常用口岸設定</span><span class="li-arrow">›</span></div>
+          <div class="list-row"><span class="li-ico">⚙️</span><span>設定</span><span class="li-arrow">›</span></div>
+        </div>
+        <p class="version">港深通 v0.1 · 靜態原型 (Lean Prototype)</p>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- 底部導航 -->
+  <nav class="tabbar">
+    <button class="tab active" data-tab="home" onclick="go('home','home')">
+      <span class="ico">🏠</span><span>首頁</span>
+    </button>
+    <button class="tab" data-tab="routes" onclick="go('routes','routes')">
+      <span class="ico">🗺️</span><span>路線</span>
+    </button>
+    <button class="tab" data-tab="port" onclick="go('port','port')">
+      <span class="ico">🚉</span><span>口岸</span>
+    </button>
+    <button class="tab" data-tab="me" onclick="go('me','me')">
+      <span class="ico">👤</span><span>我的</span>
+    </button>
+  </nav>
+
+</div>
+
+<script>
+  /* 畫面切換 */
+  function go(screenId, tabId){
+    document.querySelectorAll('.screen').forEach(function(s){
+      s.classList.remove('active');
+    });
+    var target = document.getElementById('screen-' + screenId);
+    if(target){
+      target.classList.add('active');
+      target.scrollTop = 0;
+    }
+    document.querySelectorAll('.tab').forEach(function(t){
+      t.classList.toggle('active', t.dataset.tab === (tabId || screenId));
+    });
+  }
+
+  /* 膠囊選取 */
+  function pickChip(el){
+    var parent = el.parentElement;
+    parent.querySelectorAll('.chip').forEach(function(c){
+      c.classList.remove('on');
+    });
+    el.classList.add('on');
+  }
+</script>
+
+</body>
+</html>
