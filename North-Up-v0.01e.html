@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#2B5CFF">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>港深通 · 深圳交通旅遊指南</title>
+<style>
+  :root{
+    --primary:#2B5CFF;
+    --bg:#F4F5F9;
+    --text:#141824;
+    --muted:#8A90A2;
+    --line:#E6E9F2;
+    --safe-top:env(safe-area-inset-top, 0px);
+    --safe-bottom:env(safe-area-inset-bottom, 0px);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    font-family:-apple-system,"PingFang TC","Hiragino Sans TC","Microsoft JhengHei","Noto Sans TC",sans-serif;
+    background:var(--bg);color:var(--text);overflow:hidden;position:fixed;inset:0;
+  }
+  button{font-family:inherit;}
+
+  .app{width:100%;height:100%;display:flex;flex-direction:column;position:relative;overflow:hidden;}
+  .screens{flex:1;position:relative;overflow:hidden;min-height:0;}
+  .screen{
+    position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;
+    opacity:0;pointer-events:none;transform:translateY(8px);
+    transition:opacity .22s ease, transform .22s ease;-webkit-overflow-scrolling:touch;
+  }
+  .screen.active{opacity:1;pointer-events:auto;transform:none;}
+  .screen::-webkit-scrollbar{width:0;}
+
+  .tabbar{
+    flex-shrink:0;background:#fff;border-top:1px solid #EDEFF5;
+    display:flex;padding-bottom:var(--safe-bottom);z-index:30;
+  }
+  .tab{
+    flex:1;border:none;background:none;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:3px;padding:9px 0 8px;font-size:10px;color:var(--muted);transition:color .18s;
+  }
+  .tab .ico{font-size:18px;line-height:1;filter:grayscale(1);opacity:.55;transition:.18s;}
+  .tab.active{color:var(--primary);font-weight:700;}
+  .tab.active .ico{filter:none;opacity:1;transform:translateY(-1px);}
+
+  .body{padding:16px 16px 30px;}
+  .sec-head{display:flex;align-items:baseline;justify-content:space-between;margin:20px 2px 11px;}
+  .sec-head:first-child{margin-top:6px;}
+  .sec-head h2{font-size:16px;font-weight:700;}
+  .sec-head span{font-size:11px;color:var(--muted);}
+  .link{color:var(--primary);font-weight:700;font-size:11.5px;cursor:pointer;}
+
+  .hero{
+    background:linear-gradient(135deg,#1E3FCC 0%,#2B5CFF 52%,#5B8CFF 100%);
+    padding:calc(18px + var(--safe-top)) 20px 24px;
+    color:#fff;border-radius:0 0 26px 26px;position:relative;overflow:hidden;
+  }
+  .hero::after{content:'';position:absolute;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.08);top:-110px;right:-70px;}
+  .hero-row{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1;}
+  .hero-hi{font-size:13px;opacity:.85;margin-bottom:5px;}
+  .hero-title{font-size:22px;font-weight:800;letter-spacing:.4px;}
+  .avatar{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.45);display:grid;place-items:center;font-weight:800;font-size:15px;flex-shrink:0;}
+  .avatar.lg{width:62px;height:62px;font-size:24px;background:#EEF3FF;border:none;color:var(--primary);}
+  .searchbox{
+    margin-top:16px;position:relative;z-index:1;
+    background:rgba(255,255,255,.97);border-radius:14px;height:46px;
+    display:flex;align-items:center;gap:9px;padding:0 15px;
+    color:var(--muted);font-size:14px;width:100%;border:none;
+    box-shadow:0 8px 22px rgba(0,20,80,.18);cursor:text;text-align:left;
+  }
+
+  .chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 6px;}
+  .chips::-webkit-scrollbar{display:none;}
+  .chip{
+    padding:9px 15px;border-radius:999px;background:#fff;
+    border:1px solid var(--line);font-size:13px;color:#4B5163;
+    white-space:nowrap;cursor:pointer;font-weight:600;transition:.18s;flex-shrink:0;
+  }
+  .chip.on{background:linear-gradient(135deg,#2B5CFF,#4C8DFF);border-color:transparent;color:#fff;box-shadow:0 7px 16px rgba(43,92,255,.3);}
+
+  .hscroll{display:flex;gap:10px;overflow-x:auto;padding:2px 16px 8px;margin:0 -16px;}
+  .hscroll::-webkit-scrollbar{display:none;}
+  .port-card{
+    min-width:124px;background:#fff;border-radius:16px;padding:13px 14px;
+    box-shadow:0 5px 16px rgba(20,30,80,.07);flex-shrink:0;cursor:pointer;transition:transform .16s;
+  }
+  .port-card:active{transform:scale(.96);}
+  .port-name{font-size:13.5px;font-weight:700;}
+  .port-time{font-size:21px;font-weight:800;color:var(--primary);margin:7px 0 3px;letter-spacing:-.5px;}
+  .port-time small{font-size:11px;font-weight:600;color:var(--muted);margin-left:2px;}
+  .port-tag{font-size:10.5px;display:inline-block;padding:2.5px 9px;border-radius:999px;font-weight:700;}
+  .port-tag.ok{background:#E6F8EF;color:#0E9F6E;}
+  .port-tag.mid{background:#FFF4E5;color:#E08A00;}
+  .port-tag.new{background:#EEF3FF;color:#2B5CFF;}
+
+  .route-card{
+    display:flex;gap:12px;background:#fff;border-radius:18px;padding:12px;
+    margin-bottom:12px;box-shadow:0 5px 18px rgba(20,30,80,.07);
+    cursor:pointer;transition:transform .16s ease;
+  }
+  .route-card:active{transform:scale(.975);}
+  .rc-thumb{
+    width:74px;height:74px;border-radius:15px;flex-shrink:0;
+    display:grid;place-items:center;font-size:30px;
+    background:linear-gradient(135deg,#EEF3FF,#DCE6FF);
+  }
+  .rc-thumb.a2{background:linear-gradient(135deg,#FFF1E8,#FFE0CC);}
+  .rc-thumb.a3{background:linear-gradient(135deg,#E8FBF3,#D0F5E5);}
+  .rc-thumb.a4{background:linear-gradient(135deg,#F3EEFF,#E3D8FF);}
+  .rc-thumb.a5{background:linear-gradient(135deg,#FFF0F5,#FFD6E7);}
+  .rc-thumb.a6{background:linear-gradient(135deg,#F0FFF4,#C6F6D5);}
+  .rc-info{flex:1;min-width:0;padding-top:1px;}
+  .rc-badge{display:inline-block;font-size:10px;font-weight:800;color:var(--primary);background:#EEF3FF;padding:2.5px 9px;border-radius:7px;margin-bottom:6px;}
+  .rc-badge.b2{background:#FFF1E8;color:#E8590C;}
+  .rc-badge.b3{background:#E8FBF3;color:#0E9F6E;}
+  .rc-badge.b4{background:#F3EEFF;color:#6741D9;}
+  .rc-badge.b5{background:#FFF0F5;color:#D6336C;}
+  .rc-badge.b6{background:#F0FFF4;color:#2F9E44;}
+  .rc-info h3{font-size:15px;font-weight:700;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .rc-info p{font-size:11.5px;color:var(--muted);margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .rc-meta{display:flex;gap:11px;font-size:11px;color:#5C6478;font-weight:600;flex-wrap:wrap;}
+
+  .detail-hero{
+    background:linear-gradient(135deg,#1E3FCC 0%,#2B5CFF 55%,#5B8CFF 100%);
+    padding:calc(14px + var(--safe-top)) 20px 24px;
+    color:#fff;border-radius:0 0 26px 26px;position:relative;overflow:hidden;
+  }
+  .detail-hero::after{content:'';position:absolute;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.07);bottom:-120px;left:-60px;}
+  .back{width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;background:rgba(255,255,255,.18);color:#fff;font-size:17px;margin-bottom:14px;display:grid;place-items:center;position:relative;z-index:1;}
+  .dh-badge{display:inline-block;background:rgba(255,255,255,.2);font-size:11px;font-weight:700;padding:3.5px 11px;border-radius:999px;margin-bottom:9px;position:relative;z-index:1;}
+  .detail-hero h1{font-size:20px;font-weight:800;margin-bottom:5px;position:relative;z-index:1;line-height:1.3;}
+  .detail-hero .sub{font-size:12px;opacity:.85;position:relative;z-index:1;}
+  .dh-stats{display:flex;gap:30px;margin-top:18px;position:relative;z-index:1;flex-wrap:wrap;}
+  .dh-stats div{display:flex;flex-direction:column;gap:2px;}
+  .dh-stats strong{font-size:18px;font-weight:800;}
+  .dh-stats span{font-size:11px;opacity:.82;}
+
+  .timeline{padding-left:2px;}
+  .tl-item{position:relative;display:flex;gap:14px;padding-bottom:20px;}
+  .tl-item:last-child{padding-bottom:4px;}
+  .tl-item:not(:last-child)::before{content:'';position:absolute;left:17px;top:36px;bottom:0;width:2px;background:#E3E7F0;border-radius:2px;}
+  .tl-dot{width:35px;height:35px;border-radius:50%;flex-shrink:0;background:#EEF3FF;display:grid;place-items:center;font-size:16px;z-index:1;}
+  .tl-dot.hi{background:#2B5CFF;color:#fff;}
+  .tl-body{flex:1;padding-top:1px;min-width:0;}
+  .tl-time{font-size:11.5px;font-weight:800;color:var(--primary);}
+  .tl-body h4{font-size:14.5px;font-weight:700;margin:3px 0 4px;}
+  .tl-body p{font-size:12px;color:var(--muted);line-height:1.55;}
+  .tl-transit{display:inline-flex;align-items:center;gap:6px;background:#F2F5FF;color:#2B5CFF;font-size:11px;font-weight:700;padding:5px 10px;border-radius:9px;margin-top:8px;}
+
+  .detail-actions{
+    position:sticky;bottom:0;display:flex;gap:10px;
+    padding:14px 16px calc(18px + var(--safe-bottom));
+    background:linear-gradient(to top,#F4F5F9 62%,rgba(244,245,249,0));
+  }
+  .btn-ghost{flex:0 0 98px;height:50px;border-radius:15px;cursor:pointer;border:1px solid #DDE2EE;background:#fff;color:#3A4055;font-size:14px;font-weight:700;}
+  .btn-ghost.on{background:#EEF3FF;border-color:#C9D8FF;color:var(--primary);}
+  .btn-primary{flex:1;height:50px;border-radius:15px;border:none;cursor:pointer;background:linear-gradient(135deg,#2B5CFF,#4C8DFF);color:#fff;font-size:15px;font-weight:800;box-shadow:0 10px 24px rgba(43,92,255,.33);}
+  .btn-primary:active{transform:scale(.98);}
+
+  .page-head{padding:calc(18px + var(--safe-top)) 20px 6px;}
+  .page-head h1{font-size:23px;font-weight:800;}
+  .page-head p{font-size:12px;color:var(--muted);margin-top:5px;}
+
+  .port-row{display:flex;align-items:center;justify-content:space-between;background:#fff;border-radius:16px;padding:15px 16px;margin-bottom:10px;box-shadow:0 5px 16px rgba(20,30,80,.055);cursor:pointer;transition:transform .16s;}
+  .port-row:active{transform:scale(.98);}
+  .pr-name{font-size:14.5px;font-weight:700;display:flex;align-items:center;gap:7px;}
+  .dot{width:7px;height:7px;border-radius:50%;display:inline-block;}
+  .dot.ok{background:#0E9F6E;box-shadow:0 0 0 3px rgba(14,159,110,.15);}
+  .dot.mid{background:#E08A00;box-shadow:0 0 0 3px rgba(224,138,0,.15);}
+  .dot.new{background:#2B5CFF;box-shadow:0 0 0 3px rgba(43,92,255,.15);}
+  .pr-left p{font-size:11.5px;color:var(--muted);margin-top:5px;}
+  .pr-right{text-align:right;flex-shrink:0;margin-left:10px;}
+  .pr-right strong{font-size:22px;font-weight:800;color:var(--primary);}
+  .pr-right span{font-size:11px;color:var(--muted);font-weight:600;display:block;margin-top:-2px;}
+
+  .hk-step{display:flex;gap:13px;background:#fff;border-radius:16px;padding:14px 15px;margin-bottom:10px;box-shadow:0 5px 16px rgba(20,30,80,.055);}
+  .hk-ico{width:38px;height:38px;border-radius:12px;flex-shrink:0;background:#EEF3FF;display:grid;place-items:center;font-size:18px;}
+  .hk-step h4{font-size:14px;font-weight:700;margin-bottom:4px;}
+  .hk-step p{font-size:12px;color:var(--muted);line-height:1.6;}
+  .tip-box{background:linear-gradient(135deg,#FFF8EC,#FFF1DC);border-radius:16px;padding:14px 16px;display:flex;gap:11px;margin-top:4px;}
+  .tip-box .ti{font-size:18px;flex-shrink:0;}
+  .tip-box p{font-size:12.5px;line-height:1.65;color:#7A5A1E;font-weight:500;}
+
+  .me-head{
+    background:linear-gradient(135deg,#1E3FCC,#2B5CFF 60%,#5B8CFF);
+    padding:calc(26px + var(--safe-top)) 20px 30px;
+    color:#fff;border-radius:0 0 26px 26px;
+    display:flex;flex-direction:column;align-items:center;gap:10px;
+    position:relative;overflow:hidden;
+  }
+  .me-head::after{content:'';position:absolute;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.08);top:-100px;right:-60px;}
+  .me-head h2{font-size:19px;font-weight:800;position:relative;z-index:1;}
+  .me-head p{font-size:12px;opacity:.85;position:relative;z-index:1;text-align:center;}
+  .list-card{background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 5px 18px rgba(20,30,80,.06);}
+  .list-row{display:flex;align-items:center;gap:13px;padding:16px 17px;font-size:14px;font-weight:600;cursor:pointer;border-bottom:1px solid #F1F3F8;}
+  .list-row:last-child{border-bottom:none;}
+  .list-row:active{background:#FAFBFF;}
+  .li-ico{font-size:17px;width:24px;text-align:center;}
+  .li-arrow{margin-left:auto;color:#C7CDDB;font-size:17px;font-weight:400;}
+  .version{text-align:center;font-size:11px;color:#B4BAC8;margin-top:22px;}
+
+  /* ===== 互動地鐵圖 ===== */
+  .map-container {
+    position: relative;
+    width: 100%;
+    height: 60vh;
+    min-height: 400px;
+    max-height: 600px;
+    overflow: hidden;
+    background: #eef1f6;
+    border-radius: 16px;
+    box-shadow: 0 5px 18px rgba(20,30,80,.07);
+    margin-bottom: 16px;
+    touch-action: none;
+    cursor: grab;
+  }
+  .map-container:active { cursor: grabbing; }
+
+  .map-image {
+    position: absolute;
+    top: 0; left: 0;
+    transform-origin: 0 0;
+    user-select: none;
+    -webkit-user-drag: none;
+    max-width: none;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    will-change: transform;
+  }
+  .map-image.ready { opacity: 1; }
+
+  .map-controls {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 10;
+  }
+
+  .map-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.96);
+    border: 1px solid #DDE2EE;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.14);
+    font-size: 20px;
+    font-weight: 700;
+    color: #3A4055;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: transform 0.15s, background 0.15s;
+  }
+  .map-btn:active { transform: scale(0.92); background: #EEF3FF; }
+  .map-btn.reset {
+    font-size: 16px;
+    font-weight: 800;
+    color: #2B5CFF;
+    background: #EEF3FF;
+    border-color: #C9D8FF;
+  }
+
+  .map-hint {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(0,0,0,0.55);
+    color: #fff;
+    font-size: 11px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  .map-zoom-indicator {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    background: rgba(0,0,0,0.55);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 6px;
+    pointer-events: none;
+    z-index: 10;
+    letter-spacing: 0.3px;
+  }
+
+  .metro-tip-card{display:flex;gap:12px;background:#fff;border-radius:16px;padding:14px 15px;margin-bottom:10px;box-shadow:0 5px 16px rgba(20,30,80,.055);}
+  .mt-ico{width:40px;height:40px;border-radius:12px;flex-shrink:0;background:#EEF3FF;display:grid;place-items:center;font-size:18px;}
+  .mt-txt h4{font-size:13.5px;font-weight:700;margin-bottom:4px;}
+  .mt-txt p{font-size:12px;color:var(--muted);line-height:1.55;}
+
+  .search-overlay{
+    position:absolute;inset:0;background:var(--bg);z-index:200;
+    display:flex;flex-direction:column;
+    transform:translateY(100%);opacity:0;pointer-events:none;
+    transition:transform .24s ease, opacity .24s ease;
+  }
+  .search-overlay.open{transform:none;opacity:1;pointer-events:auto;}
+  .so-head{display:flex;align-items:center;gap:10px;padding:calc(12px + var(--safe-top)) 14px 12px;background:#fff;border-bottom:1px solid var(--line);flex-shrink:0;}
+  .so-back{width:38px;height:38px;border-radius:50%;border:none;background:#F1F3F9;color:#333;font-size:17px;display:grid;place-items:center;cursor:pointer;flex-shrink:0;}
+  .so-input-wrap{flex:1;display:flex;align-items:center;gap:8px;background:#F1F3F9;border-radius:12px;padding:0 14px;height:42px;}
+  .so-input-wrap input{flex:1;border:none;background:none;outline:none;font-size:14.5px;font-family:inherit;color:var(--text);min-width:0;}
+  .so-body{flex:1;overflow-y:auto;padding:16px 16px calc(24px + var(--safe-bottom));}
+  .so-body::-webkit-scrollbar{width:0;}
+  .so-hint{font-size:13px;color:var(--muted);text-align:center;margin-top:50px;line-height:1.9;}
+  .so-hint b{color:#6B7285;}
+  .quick-tags{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:16px;}
+  .quick-tags span{background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:12.5px;color:#4B5163;font-weight:600;cursor:pointer;}
+  .result-group{font-size:11.5px;font-weight:800;color:var(--muted);letter-spacing:1px;margin:6px 2px 10px;}
+  .result-item{display:flex;align-items:center;gap:12px;background:#fff;border-radius:14px;padding:13px 14px;margin-bottom:9px;cursor:pointer;box-shadow:0 4px 14px rgba(20,30,80,.055);transition:transform .15s;}
+  .result-item:active{transform:scale(.98);}
+  .ri-ico{width:40px;height:40px;border-radius:12px;flex-shrink:0;display:grid;place-items:center;font-size:18px;background:#EEF3FF;}
+  .ri-ico.p{background:#E8FBF3;}
+  .ri-txt{flex:1;min-width:0;}
+  .ri-txt h4{font-size:14px;font-weight:700;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .ri-txt p{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .empty{text-align:center;color:var(--muted);font-size:13px;padding:50px 20px;line-height:1.9;}
+
+  .toast{
+    position:absolute;bottom:96px;left:50%;transform:translateX(-50%);
+    background:rgba(20,24,36,.92);color:#fff;font-size:13px;font-weight:600;
+    padding:11px 22px;border-radius:999px;z-index:300;white-space:nowrap;
+    animation:toastIn .22s ease;
+  }
+  @keyframes toastIn{from{opacity:0;transform:translate(-50%,10px);}to{opacity:1;transform:translate(-50%,0);}}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="screens">
+
+    <!-- ================= 首頁 ================= -->
+    <section class="screen active" id="screen-home">
+      <div class="hero">
+        <div class="hero-row">
+          <div>
+            <p class="hero-hi">你好，Sam 👋</p>
+            <h1 class="hero-title">今日想去深圳邊度？</h1>
+          </div>
+          <div class="avatar">S</div>
+        </div>
+        <button class="searchbox" onclick="openSearch()">
+          <span>🔍</span>
+          <span>搜尋景點、口岸、路線</span>
+        </button>
+      </div>
+
+      <div class="body">
+        <div class="sec-head">
+          <h2>🔥 社交媒體熱搜</h2>
+          <span>小紅書 / 抖音 / IG</span>
+        </div>
+        <div class="chips">
+          <button class="chip on" onclick="setHomeFilter('all',this)">全部</button>
+          <button class="chip" onclick="setHomeFilter('flash',this)">⚡ 快閃</button>
+          <button class="chip" onclick="setHomeFilter('half',this)">🚶 半日</button>
+          <button class="chip" onclick="setHomeFilter('day',this)">🗺️ 一日</button>
+          <button class="chip" onclick="setHomeFilter('overnight',this)">🧳 過夜</button>
+        </div>
+
+        <div class="sec-head">
+          <h2>熱門口岸即時狀態</h2>
+          <span>更新於 09:12</span>
+        </div>
+        <div class="hscroll" id="homePorts"></div>
+
+        <div class="sec-head">
+          <h2>精選路線</h2>
+          <span class="link" onclick="go('routes','routes')">查看全部 ›</span>
+        </div>
+        <div id="homeRoutes"></div>
+      </div>
+    </section>
+
+    <!-- ================= 路線列表 ================= -->
+    <section class="screen" id="screen-routes">
+      <div class="page-head">
+        <h1>路線攻略</h1>
+        <p>社交媒體熱搜 · 港人高頻路線</p>
+      </div>
+      <div class="body">
+        <div class="chips" style="margin-bottom:6px;">
+          <button class="chip on" onclick="setRoutesFilter('all',this)">全部</button>
+          <button class="chip" onclick="setRoutesFilter('flash',this)">⚡ 快閃</button>
+          <button class="chip" onclick="setRoutesFilter('half',this)">🚶 半日</button>
+          <button class="chip" onclick="setRoutesFilter('day',this)">🗺️ 一日</button>
+          <button class="chip" onclick="setRoutesFilter('overnight',this)">🧳 過夜</button>
+        </div>
+        <div id="routesList"></div>
+      </div>
+    </section>
+
+    <!-- ================= 路線詳情 ================= -->
+    <section class="screen" id="screen-route">
+      <div class="detail-hero">
+        <button class="back" onclick="goBack()">←</button>
+        <div class="dh-badge" id="routeHeroBadge">—</div>
+        <h1 id="routeHeroTitle">—</h1>
+        <p class="sub" id="routeHeroSub">—</p>
+        <div class="dh-stats">
+          <div id="routeStat1"><strong>—</strong><span>總時長</span></div>
+          <div id="routeStat2"><strong>—</strong><span>交通費</span></div>
+          <div id="routeStat3"><strong>—</strong><span>步行</span></div>
+        </div>
+      </div>
+      <div class="body">
+        <div class="sec-head">
+          <h2>行程時間軸</h2>
+          <span>按實際路況估算</span>
+        </div>
+        <div class="timeline" id="routeTimeline"></div>
+      </div>
+      <div class="detail-actions">
+        <button class="btn-ghost" id="favBtn" onclick="toggleFav()">☆ 收藏</button>
+        <button class="btn-primary" onclick="toast('導航功能將於動態版推出 🚀')">開始導航</button>
+      </div>
+    </section>
+
+    <!-- ================= 口岸列表 ================= -->
+    <section class="screen" id="screen-port">
+      <div class="page-head">
+        <h1>口岸指南</h1>
+        <p>香港點去口岸 · 即時候檢時間</p>
+      </div>
+      <div class="body">
+        <div id="portsList"></div>
+        <div class="sec-head" style="margin-top:24px;">
+          <h2>港人貼士</h2>
+        </div>
+        <div class="tip-box">
+          <span class="ti">💡</span>
+          <p>週日 17:00–21:00 為羅湖／福田回港高峰，建議提早 1.5 小時出發，或改行深圳灣口岸（24 小時通關）。新皇崗口岸開通後亦提供 24 小時通關，過關僅需約 5 分鐘。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 口岸詳情 ================= -->
+    <section class="screen" id="screen-portdetail">
+      <div class="detail-hero">
+        <button class="back" onclick="goBack()">←</button>
+        <div class="dh-badge" id="pdBadge">香港出發交通指南</div>
+        <h1 id="pdName">—</h1>
+        <p class="sub" id="pdSub">—</p>
+        <div class="dh-stats">
+          <div id="pdStat1"><strong>—</strong><span>候檢時間</span></div>
+          <div id="pdStat2"><strong>—</strong><span>狀態</span></div>
+        </div>
+      </div>
+      <div class="body">
+        <div class="sec-head">
+          <h2>香港端接駁方式</h2>
+          <span>點對點指引</span>
+        </div>
+        <div id="pdSteps"></div>
+        <div class="sec-head" style="margin-top:20px;">
+          <h2>過關貼士</h2>
+        </div>
+        <div class="tip-box">
+          <span class="ti">📌</span>
+          <p id="pdTip">—</p>
+        </div>
+        <div style="height:20px;"></div>
+        <button class="btn-primary" style="width:100%;" onclick="toast('已加入常用口岸 ⭐')">設為常用口岸</button>
+      </div>
+    </section>
+
+    <!-- ================= 地鐵圖 ================= -->
+    <section class="screen" id="screen-metro">
+      <div class="page-head">
+        <h1>深圳地鐵圖</h1>
+        <p>2026最新 · 口岸對應換乘</p>
+      </div>
+      <div class="body">
+
+        <div class="map-container" id="mapContainer">
+          <div class="map-hint">👆 拖拽平移 · 雙指縮放</div>
+          <div class="map-zoom-indicator" id="zoomIndicator">1.0x</div>
+          <img class="map-image" id="metroMapImg" 
+               src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Shenzhen_Metro_%28Rapid_Transit%29_System_Map.svg/3840px-Shenzhen_Metro_%28Rapid_Transit%29_System_Map.svg.png" 
+               alt="深圳地鐵線路圖">
+          
+          <div class="map-controls">
+            <button class="map-btn" onclick="zoomIn(event)" title="放大">＋</button>
+            <button class="map-btn" onclick="zoomOut(event)" title="縮小">－</button>
+            <button class="map-btn reset" onclick="resetZoom(event)" title="重置位置">⟲</button>
+          </div>
+        </div>
+
+        <div class="sec-head">
+          <h2>口岸 → 地鐵線路速查</h2>
+        </div>
+
+        <div class="metro-tip-card" onclick="openPort('p1')" style="cursor:pointer;">
+          <div class="mt-ico">🚉</div>
+          <div class="mt-txt">
+            <h4>福田口岸</h4>
+            <p>接駁深圳地鐵 <strong>4號線</strong>（福田口岸站）及 <strong>10號線</strong>（福田口岸站）</p>
+          </div>
+        </div>
+
+        <div class="metro-tip-card" onclick="openPort('p2')" style="cursor:pointer;">
+          <div class="mt-ico">🚉</div>
+          <div class="mt-txt">
+            <h4>深圳灣口岸</h4>
+            <p>接駁深圳地鐵 <strong>13號線</strong>（深圳灣口岸站），可直達後海、高新園</p>
+          </div>
+        </div>
+
+        <div class="metro-tip-card" onclick="openPort('p3')" style="cursor:pointer;">
+          <div class="mt-ico">🚉</div>
+          <div class="mt-txt">
+            <h4>羅湖口岸</h4>
+            <p>接駁深圳地鐵 <strong>1號線</strong>（羅湖站），可直達國貿、大劇院、會展中心</p>
+          </div>
+        </div>
+
+        <div class="metro-tip-card" onclick="openPort('p5')" style="cursor:pointer;">
+          <div class="mt-ico">🚉</div>
+          <div class="mt-txt">
+            <h4>蓮塘／香園圍口岸</h4>
+            <p>接駁深圳地鐵 <strong>2號線</strong>（蓮塘站）</p>
+          </div>
+        </div>
+
+        <div class="metro-tip-card" onclick="openPort('p6')" style="cursor:pointer;">
+          <div class="mt-ico">🚉</div>
+          <div class="mt-txt">
+            <h4>新皇崗口岸</h4>
+            <p>接駁深圳地鐵 <strong>7號線</strong>（皇崗口岸站）</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================= 我的 ================= -->
+    <section class="screen" id="screen-me">
+      <div class="me-head">
+        <div class="avatar lg">S</div>
+        <h2>Sam</h2>
+        <p>已收藏 <span id="favCount">0</span> 條路線 · 累積省下 12 小時</p>
+      </div>
+      <div class="body">
+        <div class="list-card">
+          <div class="list-row" onclick="toast('收藏清單開發中')"><span class="li-ico">⭐</span><span>我的收藏</span><span class="li-arrow">›</span></div>
+          <div class="list-row" onclick="toast('離線路線包開發中')"><span class="li-ico">📥</span><span>離線路線包</span><span class="li-arrow">›</span></div>
+          <div class="list-row" onclick="toast('AI 行程生成將於 Manus 版推出')"><span class="li-ico">🤖</span><span>AI 行程生成</span><span class="li-arrow">›</span></div>
+          <div class="list-row" onclick="toast('已設定：福田口岸')"><span class="li-ico">🛂</span><span>常用口岸設定</span><span class="li-arrow">›</span></div>
+          <div class="list-row" onclick="toast('設定頁開發中')"><span class="li-ico">⚙️</span><span>設定</span><span class="li-arrow">›</span></div>
+        </div>
+        <p class="version">港深通 v0.01(e) · 靜態原型 · 地鐵圖：深圳地鐵官方</p>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- 底部導航 -->
+  <nav class="tabbar">
+    <button class="tab active" data-tab="home" onclick="go('home','home')">
+      <span class="ico">🏠</span><span>首頁</span>
+    </button>
+    <button class="tab" data-tab="routes" onclick="go('routes','routes')">
+      <span class="ico">🗺️</span><span>路線</span>
+    </button>
+    <button class="tab" data-tab="port" onclick="go('port','port')">
+      <span class="ico">🚉</span><span>口岸</span>
+    </button>
+    <button class="tab" data-tab="metro" onclick="go('metro','metro')">
+      <span class="ico">🚇</span><span>地鐵圖</span>
+    </button>
+    <button class="tab" data-tab="me" onclick="go('me','me')">
+      <span class="ico">👤</span><span>我的</span>
+    </button>
+  </nav>
+
+  <!-- 搜尋覆蓋層 -->
+  <div class="search-overlay" id="searchOverlay">
+    <div class="so-head">
+      <button class="so-back" onclick="closeSearch()">←</button>
+      <div class="so-input-wrap">
+        <span style="font-size:15px;">🔍</span>
+        <input id="searchInput" type="search" placeholder="搜尋景點、口岸、路線" oninput="doSearch()" autocomplete="off">
+      </div>
+    </div>
+    <div class="so-body" id="searchBody"></div>
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   路線資料
+   ============================================================ */
+const routesData = [
+  {id:'r1',cat:'flash',catLabel:'2小時快閃',badge:'',thumb:'⚡',thumbCls:'',title:'福田 COCO Park・喜茶＋手信',from:'福田口岸',path:'福田口岸 → 購物公園站',duration:'2小時10分',cost:'¥80',transit:'🚇 2個站',time:'2:10',fee:'¥2',walk:'1.5km',kw:'福田 coco park 喜茶 手信 快閃',steps:[
+    {icon:'🛂',time:'09:00',title:'福田口岸過關',desc:'建議使用 e-道，候檢約 15 分鐘。'},
+    {icon:'🚇',time:'09:20',title:'地鐵 4 號線 → 購物公園站',desc:'福田口岸站上車，2 個站直達。',transit:'🚇 4號線 · 2站 · ¥2'},
+    {icon:'🧋',time:'09:35',title:'COCO Park・喜茶＋手信',desc:'喜茶、奈雪、鮑師傅都在此。B1 層有大型超市。'},
+    {icon:'🛂',time:'11:10',title:'返回福田口岸',desc:'預留 25 分鐘過關緩衝。',transit:'🚇 4號線 · 2站'}
+  ]},
+  {id:'r2',cat:'half',catLabel:'4小時半日',badge:'b2',thumb:'🚶',thumbCls:'a2',title:'萬象天地・誠品＋華強北',from:'福田口岸',path:'福田口岸 → 會展中心 → 華強北',duration:'4小時30分',cost:'¥150',transit:'🚇 5個站',time:'4:30',fee:'¥12',walk:'3.2km',kw:'萬象天地 誠品 華強北 半日',steps:[
+    {icon:'🛂',time:'09:00',title:'福田口岸過關',desc:'候檢約 15 分鐘，建議使用 e-道。'},
+    {icon:'🚇',time:'09:25',title:'地鐵 4 號線 → 會展中心站',desc:'3 個站直達。',transit:'🚇 4號線 · 3站 · ¥2'},
+    {icon:'🏬',time:'09:45',title:'萬象天地（誠品生活）',desc:'誠品生活、潮牌、精品咖啡。',transit:'🚶 步行 5分鐘'},
+    {icon:'🍜',time:'11:20',title:'深圳灣萬象城 · 午餐',desc:'探魚 / 太二 / 綠茶，人均約 ¥80。'},
+    {icon:'💻',time:'12:40',title:'華強北電子市場',desc:'配件、數碼、小家電。',transit:'🚇 1號線 · 1站'},
+    {icon:'🛂',time:'13:30',title:'返回福田口岸',desc:'預留 30 分鐘過關緩衝。',transit:'🚇 4號線 · 3站'}
+  ]},
+  {id:'r3',cat:'day',catLabel:'一日遊',badge:'b3',thumb:'🗺️',thumbCls:'a3',title:'南山一日遊・萬象天地＋海岸城',from:'深圳灣口岸',path:'深圳灣口岸 → 後海 → 世界之窗',duration:'8小時',cost:'¥280',transit:'🚇 9個站',time:'8:00',fee:'¥18',walk:'5.6km',kw:'南山 萬象天地 海岸城 泡泡瑪特 一日遊',steps:[
+    {icon:'🛂',time:'09:00',title:'深圳灣口岸過關',desc:'24 小時通關，早上人流最少。'},
+    {icon:'🚇',time:'09:30',title:'地鐵 13 號線 → 後海站',desc:'6 個站直達後海。',transit:'🚇 13號線 · 6站 · ¥4'},
+    {icon:'🏬',time:'10:10',title:'海岸城購物中心',desc:'8 米高巨型 Zsiga 雕塑、泡泡瑪特限定展。'},
+    {icon:'🍜',time:'12:30',title:'海岸城 · 午餐',desc:'綠茶餐廳、太二酸菜魚、探魚等人氣餐廳。'},
+    {icon:'🏙️',time:'14:00',title:'萬象天地',desc:'巨型大象裝置、曼哈頓機位打卡。',transit:'🚇 1號線 · 2站'},
+    {icon:'🛂',time:'19:00',title:'返回深圳灣口岸',desc:'建議 19:00 前出發。',transit:'🚇 13號線'}
+  ]},
+  {id:'r4',cat:'overnight',catLabel:'三日兩夜',badge:'b4',thumb:'🧳',thumbCls:'a4',title:'深圳深度遊・南山＋大鵬',from:'福田口岸',path:'福田口岸 → 南山 → 大鵬新區',duration:'3日',cost:'¥1,200',transit:'🏨 2晚',time:'3日',fee:'¥180',walk:'8km',kw:'深度遊 南山 大鵬 較場尾 過夜',steps:[
+    {icon:'🛂',time:'Day1 09:00',title:'福田口岸過關 → 南山',desc:'轉地鐵 4 號線再轉 1 號線至世界之窗站。'},
+    {icon:'🏙️',time:'Day1 10:30',title:'南山・深圳灣公園＋海岸城',desc:'海濱長廊踩單車，夜宿南山區酒店。'},
+    {icon:'🚌',time:'Day2 09:00',title:'出發大鵬新區',desc:'乘 E11 或旅遊專線，車程約 1.5 小時。',transit:'🚌 E11 · ¥10'},
+    {icon:'🏖️',time:'Day2 11:30',title:'較場尾・沙灘民宿',desc:'海邊民宿群，午餐海鮮。'},
+    {icon:'🛂',time:'Day3 17:00',title:'返回福田口岸',desc:'預留 45 分鐘過關。',transit:'🚌 E11 + 🚇 4號線'}
+  ]},
+  {id:'r5',cat:'flash',catLabel:'2小時快閃',badge:'',thumb:'🛍️',thumbCls:'',title:'羅湖商業城・改衫＋按摩',from:'羅湖口岸',path:'羅湖口岸 → 人民南站',duration:'2小時',cost:'¥120',transit:'🚶 步行',time:'2:00',fee:'¥0',walk:'1.2km',kw:'羅湖 商業城 改衫 按摩 快閃',steps:[
+    {icon:'🛂',time:'09:00',title:'羅湖口岸過關',desc:'東鐵線羅湖站出站即達。'},
+    {icon:'✂️',time:'09:30',title:'羅湖商業城・改衫',desc:'3 樓有多間改衫店，即日可取。'},
+    {icon:'💆',time:'10:15',title:'按摩／足浴',desc:'商業城內按摩店約 ¥80／小時。'},
+    {icon:'🛂',time:'11:20',title:'返回羅湖口岸',desc:'預留 30 分鐘過關。'}
+  ]},
+  {id:'r6',cat:'half',catLabel:'4小時半日',badge:'b2',thumb:'🍜',thumbCls:'a2',title:'羅湖地鐵沿線・大劇院食買玩',from:'羅湖口岸',path:'羅湖口岸 → 大劇院站 → 國貿站',duration:'4小時',cost:'¥160',transit:'🚇 2個站',time:'4:00',fee:'¥4',walk:'2.8km',kw:'羅湖 大劇院 國貿 金光華 東門 半日',steps:[
+    {icon:'🛂',time:'10:00',title:'羅湖口岸過關',desc:'出關即為深圳地鐵 1 號線羅湖站。'},
+    {icon:'🚇',time:'10:20',title:'地鐵 1 號線 → 大劇院站',desc:'1 個站直達。',transit:'🚇 1號線 · 1站 · ¥2'},
+    {icon:'🛍️',time:'10:30',title:'萬象城 · 購物',desc:'深圳頂級商場，國際品牌、食肆齊全。'},
+    {icon:'🍜',time:'12:00',title:'大劇院站 · 午餐',desc:'萬象城內食肆選擇多，人均約 ¥80–120。'},
+    {icon:'👗',time:'13:00',title:'東門老街',desc:'步行 15 分鐘可達，平價服飾、小食街。'},
+    {icon:'🛂',time:'14:00',title:'返回羅湖口岸',desc:'預留 25 分鐘過關。',transit:'🚇 1號線 · 2站'}
+  ]},
+  {id:'r7',cat:'day',catLabel:'一日遊',badge:'b3',thumb:'💜',thumbCls:'a5',title:'南山紫藤花海・益田＋海岸城＋萬象天地',from:'深圳灣口岸',path:'深圳灣口岸 → 世界之窗 → 後海 → 高新園',duration:'8小時',cost:'¥300',transit:'🚇 7個站',time:'8:00',fee:'¥16',walk:'6.2km',kw:'南山 紫藤花海 益田假日 海岸城 泡泡瑪特 萬象天地 小紅書',steps:[
+    {icon:'🛂',time:'09:00',title:'深圳灣口岸過關',desc:'24 小時通關，早上人流最少。'},
+    {icon:'🚇',time:'09:30',title:'地鐵 13 號線 → 後海站',desc:'6 個站直達後海。',transit:'🚇 13號線 · 6站 · ¥4'},
+    {icon:'🏬',time:'10:00',title:'海岸城・泡泡瑪特 Zsiga 展',desc:'8 米高巨型 Zsiga 雕塑，L2 海德廣場必打卡。'},
+    {icon:'🍜',time:'12:00',title:'海岸城 · 午餐',desc:'綠茶、太二、探魚等人氣餐廳集中。'},
+    {icon:'🏙️',time:'13:30',title:'萬象天地',desc:'巨型大象裝置、GENTLE MONSTER 巨人展免費。',transit:'🚇 1號線 · 2站'},
+    {icon:'🌸',time:'15:30',title:'益田假日廣場・紫藤花海展',desc:'意大利托斯卡納紫藤花海限定展，巨型紫藤花瀑布。',transit:'🚇 1號線 · 1站'},
+    {icon:'🛂',time:'19:30',title:'返回深圳灣口岸',desc:'建議 19:30 前出發。',transit:'🚇 13號線'}
+  ]},
+  {id:'r8',cat:'half',catLabel:'4小時半日',badge:'b2',thumb:'🗼',thumbCls:'a2',title:'羅湖湖光塔・未來感打卡＋水庫綠道',from:'羅湖口岸',path:'羅湖口岸 → 太安站 → 東湖公園',duration:'4小時',cost:'¥100',transit:'🚇 5個站',time:'4:00',fee:'¥4',walk:'4.5km',kw:'羅湖 湖光塔 水庫綠道 東湖公園 抖音 未來感',steps:[
+    {icon:'🛂',time:'09:00',title:'羅湖口岸過關',desc:'出關即為深圳地鐵 1 號線羅湖站。'},
+    {icon:'🚇',time:'09:20',title:'地鐵 1 號線 → 5 號線 → 太安站',desc:'轉 5 號線至太安站 C/E 出口。',transit:'🚇 5號線 · ¥4'},
+    {icon:'🗼',time:'09:50',title:'湖光塔・白色旋轉樓梯',desc:'深圳頂流網紅地標，搭電梯上塔頂 360 度欣賞深圳水庫。'},
+    {icon:'🌿',time:'10:40',title:'空中綠道・翠湖文體公園',desc:'連接湖光塔至翠湖文體公園的空中綠道。'},
+    {icon:'🍜',time:'12:00',title:'東湖公園周邊・午餐',desc:'公園附近有地道茶餐廳及小食店。'},
+    {icon:'🛂',time:'13:00',title:'返回羅湖口岸',desc:'預留 25 分鐘過關。',transit:'🚇 5號線 → 1號線'}
+  ]},
+  {id:'r9',cat:'day',catLabel:'一日遊',badge:'b3',thumb:'🌉',thumbCls:'a6',title:'光明虹橋公園・紅絲帶＋食乳鴿',from:'福田口岸',path:'福田口岸 → 虹橋公園 → 光明大街',duration:'6小時',cost:'¥180',transit:'🚇 12個站',time:'6:00',fee:'¥10',walk:'5km',kw:'光明 虹橋公園 紅絲帶 乳鴿 毛寧 打卡',steps:[
+    {icon:'🛂',time:'09:00',title:'福田口岸過關',desc:'出關後乘深圳地鐵 4 號線。'},
+    {icon:'🚇',time:'09:20',title:'地鐵 4 號線 → 6 號線 → 虹橋公園站',desc:'轉 6 號線支線至虹橋公園站 A 出口。',transit:'🚇 6號線支線 · ¥7'},
+    {icon:'🌉',time:'10:15',title:'虹橋公園・紅絲帶',desc:'全長 4 公里紅色橋樑，被外交部發言人毛寧推介。'},
+    {icon:'🥾',time:'11:00',title:'虹橋徒步',desc:'沿紅色橋樑步行，沿途生態廊道。'},
+    {icon:'🍗',time:'12:30',title:'光明大街・食乳鴿',desc:'光明乳鴿馳名，人均約 ¥80。',transit:'🚇 6號線 · 2站'},
+    {icon:'🛂',time:'16:00',title:'返回福田口岸',desc:'預留 30 分鐘過關緩衝。',transit:'🚇 6號線 → 4號線'}
+  ]},
+  {id:'r10',cat:'half',catLabel:'4小時半日',badge:'b2',thumb:'🏯',thumbCls:'a2',title:'龍崗甘坑古鎮・客家時光＋國際藝術中心',from:'福田口岸',path:'福田口岸 → 甘坑站 → 龍崗國際藝術中心',duration:'5小時',cost:'¥130',transit:'🚇 14個站',time:'5:00',fee:'¥8',walk:'3.5km',kw:'龍崗 甘坑古鎮 客家 國際藝術中心 文青 小紅書',steps:[
+    {icon:'🛂',time:'09:30',title:'福田口岸過關',desc:'出關後乘深圳地鐵 10 號線。'},
+    {icon:'🚇',time:'09:50',title:'地鐵 10 號線 → 甘坑站',desc:'約 40 分鐘至甘坑站 B 出口。',transit:'🚇 10號線 · ¥5'},
+    {icon:'🏯',time:'10:40',title:'甘坑古鎮・客家小鎮',desc:'600 年歷史客家古村，保留明清時期建築。'},
+    {icon:'🍜',time:'12:00',title:'甘坑古鎮・午餐',desc:'古鎮內有客家菜館及小食店，人均約 ¥60。'},
+    {icon:'🎻',time:'13:30',title:'龍崗國際藝術中心',desc:'外形似小提琴的新地標，免費入場。',transit:'🚇 10號線 · 2站'},
+    {icon:'🛂',time:'15:00',title:'返回福田口岸',desc:'預留 30 分鐘過關。',transit:'🚇 10號線'}
+  ]},
+  {id:'r11',cat:'day',catLabel:'一日遊',badge:'b3',thumb:'🏛️',thumbCls:'a6',title:'寶安新橋市民廣場・深圳小羅馬',from:'深圳灣口岸',path:'深圳灣口岸 → 沙井站 → 新橋市民廣場',duration:'6小時',cost:'¥200',transit:'🚇 10個站',time:'6:00',fee:'¥8',walk:'4km',kw:'寶安 沙井 新橋市民廣場 小羅馬 羅馬柱 聖馬可鐘樓',steps:[
+    {icon:'🛂',time:'09:00',title:'深圳灣口岸過關',desc:'過關後乘 13 號線往後海方向。'},
+    {icon:'🚇',time:'09:30',title:'地鐵 13 號線 → 11 號線 → 沙井站',desc:'轉 11 號線至沙井站 C 出口。',transit:'🚇 11號線 · ¥6'},
+    {icon:'🏛️',time:'10:30',title:'新橋市民廣場・羅馬柱長廊',desc:'228 支白色浮雕羅馬柱，縱深感極強。'},
+    {icon:'🕰️',time:'11:30',title:'聖馬可鐘樓',desc:'紅磚復古鐘樓，設計靈感源自威尼斯聖馬可鐘樓。'},
+    {icon:'🍜',time:'13:00',title:'沙井周邊・午餐',desc:'沙井有地道海鮮及客家菜，人均約 ¥70。'},
+    {icon:'🛂',time:'15:00',title:'返回深圳灣口岸',desc:'預留 30 分鐘過關。',transit:'🚇 11號線 → 13號線'}
+  ]},
+  {id:'r12',cat:'half',catLabel:'4小時半日',badge:'b2',thumb:'🗼',thumbCls:'a5',title:'寶安大悅城・大藝術家在巴黎',from:'深圳灣口岸',path:'深圳灣口岸 → 留仙洞 → 靈芝站',duration:'4小時',cost:'¥140',transit:'🚇 8個站',time:'4:00',fee:'¥6',walk:'2km',kw:'寶安 大悅城 巴黎 埃菲爾鐵塔 免費展覽 小紅書',steps:[
+    {icon:'🛂',time:'10:00',title:'深圳灣口岸過關',desc:'過關後乘 13 號線往後海方向。'},
+    {icon:'🚇',time:'10:25',title:'地鐵 13 號線 → 5 號線 → 靈芝站',desc:'轉 5 號線至靈芝站 F 出口。',transit:'🚇 5號線 · ¥5'},
+    {icon:'🗼',time:'11:00',title:'大悅城・大藝術家在巴黎',desc:'免費展覽，8 米高粉色埃菲爾鐵塔、Q 版達利。'},
+    {icon:'📸',time:'12:00',title:'打卡全攻略',desc:'鐵塔漫步 → 珍珠少女大道 → 凡爾賽噴泉花園。'},
+    {icon:'🍜',time:'13:00',title:'大悅城・午餐',desc:'商場內食肆選擇多，人均約 ¥80。'},
+    {icon:'🛂',time:'14:00',title:'返回深圳灣口岸',desc:'預留 30 分鐘過關。',transit:'🚇 5號線 → 13號線'}
+  ]}
+];
+
+/* ============================================================
+   口岸資料
+   ============================================================ */
+const portsData = [
+  {id:'p1',name:'福田口岸',sub:'06:30 – 22:30 · 落馬洲支線',wait:15,status:'ok',statusText:'暢通',kw:'福田 落馬洲 東鐵線 4號線 10號線',steps:[
+    {icon:'🚇',title:'港鐵東鐵線 → 落馬洲站',desc:'由金鐘出發約 50 分鐘，出閘後經天橋直達福田口岸大樓。'},
+    {icon:'🚌',title:'九巴 B1',desc:'天水圍（天慈）→ 落馬洲站，車程約 30–40 分鐘。'},
+    {icon:'🚐',title:'專線小巴 75 線',desc:'元朗（福康街）→ 落馬洲支線管制站，車費 $10。'}
+  ],tip:'落馬洲站人流一般較羅湖少，過關後可直接轉乘深圳地鐵 4 號線或 10 號線。'},
+  {id:'p2',name:'深圳灣口岸',sub:'24小時通關 · 跨境巴士',wait:10,status:'ok',statusText:'暢通',kw:'深圳灣 屯門 元朗 B3 B2 13號線 24小時',steps:[
+    {icon:'🚌',title:'城巴 B3X',desc:'屯門市中心 → 深圳灣口岸，車程約 20 分鐘，車費 $16.5。'},
+    {icon:'🚌',title:'嶼巴 B2 / B2P',desc:'元朗站 → 深圳灣口岸（$15.8）；天水圍天慈邨 → 深圳灣口岸（$11.3）。'},
+    {icon:'🚇',title:'過關後接駁',desc:'深圳地鐵 13 號線深圳灣口岸站，可直達後海、高新園。'}
+  ],tip:'深圳灣是唯一 24 小時通關的陸路口岸，過關後可乘 13 號線直達南山區熱門景點。'},
+  {id:'p3',name:'羅湖口岸',sub:'06:30 – 24:00 · 東鐵線',wait:28,status:'mid',statusText:'略擠',kw:'羅湖 東鐵線 人民南 商業城 東門',steps:[
+    {icon:'🚇',title:'港鐵東鐵線 → 羅湖站',desc:'由金鐘出發約 48 分鐘，出閘後步行約 3 分鐘到口岸大樓。'},
+    {icon:'⏰',title:'首末班車',desc:'羅湖站首班約 05:55，尾班約 23:30；口岸 24:00 關閉。'},
+    {icon:'🧭',title:'過關後接駁',desc:'出關即為深圳地鐵 1 號線羅湖站，可直達國貿、大劇院。'}
+  ],tip:'羅湖是最多人用的口岸，平日早上及週日傍晚最擠，建議改用福田或深圳灣口岸。'},
+  {id:'p4',name:'高鐵西九龍站',sub:'06:00 – 23:00 · 14分鐘到福田',wait:14,status:'ok',statusText:'暢通',kw:'高鐵 西九龍 柯士甸 九龍站 福田 深圳北',steps:[
+    {icon:'🚇',title:'港鐵接駁',desc:'柯士甸站（屯馬線）步行約 5 分鐘；九龍站步行約 10 分鐘。'},
+    {icon:'🚄',title:'高鐵直達',desc:'西九龍 → 福田 14 分鐘；→ 深圳北 18–20 分鐘。二等座約 ¥68–75。'},
+    {icon:'⏰',title:'提前到站',desc:'建議開車前 45 分鐘到站完成安檢及出入境手續。'}
+  ],tip:'高鐵最適合目標是福田／龍華一帶的行程，抵達福田站後可直接轉地鐵 2／3／11 號線。'},
+  {id:'p5',name:'蓮塘／香園圍口岸',sub:'07:00 – 22:00 · 新口岸',wait:20,status:'mid',statusText:'略擠',kw:'蓮塘 香園圍 粉嶺 上水 79X 59S',steps:[
+    {icon:'🚌',title:'城巴 79X',desc:'粉嶺（聯和墟）→ 香園圍口岸，車程約 20 分鐘。'},
+    {icon:'🚐',title:'專線小巴 59S',desc:'上水站 → 香園圍口岸，車程約 15 分鐘。'},
+    {icon:'🚗',title:'自駕',desc:'口岸設有停車場，泊車後步行過關。'}
+  ],tip:'2023 年啟用的新口岸，人流明顯較羅湖、福田少，過關後可接駁深圳地鐵 2 號線蓮塘站。'},
+  {id:'p6',name:'🆕 新皇崗口岸',sub:'24小時 · 一地兩檢 · 預計10月12日開通',wait:5,status:'new',statusText:'即將開通',kw:'新皇崗 皇崗 落馬洲 24小時 一地兩檢 B10 B11 B12 B13 B14 B15',steps:[
+    {icon:'🚇',title:'港鐵 → 落馬洲站 → 皇巴',desc:'乘東鐵線至落馬洲站，轉乘皇巴（$10）前往新皇崗口岸。'},
+    {icon:'🚌',title:'九巴 B10（葵翠邨 ↔ 新皇崗）',desc:'途經大欖隧道轉車站、青衣、葵芳。全程 $12.1。'},
+    {icon:'🚌',title:'九巴 B11（天富 ↔ 新皇崗）',desc:'途經新田、元朗市中心、天水圍。全程 $10.5。'},
+    {icon:'🚌',title:'嶼巴 B12（烏溪沙站 ↔ 新皇崗）',desc:'途經新田、大埔、科學園、馬鞍山。全程 $21。'},
+    {icon:'🚌',title:'城巴 B13（小西灣 ↔ 新皇崗）',desc:'途經上環、中環、北角、柴灣。全程 $27.6。'},
+    {icon:'🚌',title:'城巴 B14 / B15',desc:'B14 往啟德（$20.8）；B15 往青山灣（$15.5）。'},
+    {icon:'🚌',title:'九巴 NB73（通宵線）',desc:'沙田市中心 ↔ 新皇崗，途經上水站、大埔。全程 $22.6。'}
+  ],tip:'新皇崗口岸實施「一地兩檢」及「合作查驗、一次放行」，過關時間由約 30 分鐘縮短至約 5 分鐘。首階段主要開放持回鄉證的香港居民及持往來港澳通行證的內地居民使用。過關後可接駁深圳地鐵 7 號線。'}
+];
+
+/* ============================================================
+   狀態
+   ============================================================ */
+let currentScreen = 'home';
+let prevScreen = 'home';
+let homeFilter = 'all';
+let routesFilter = 'all';
+let currentRouteId = null;
+let favSet = new Set();
+
+/* ============================================================
+   畫面切換
+   ============================================================ */
+function go(screenId, tabId){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const t = document.getElementById('screen-' + screenId);
+  if(t){ t.classList.add('active'); t.scrollTop = 0; }
+  document.querySelectorAll('.tab').forEach(x =>
+    x.classList.toggle('active', x.dataset.tab === (tabId || screenId))
+  );
+  currentScreen = screenId;
+
+  if (screenId === 'metro' && !mapInitialized) {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        initMapSize();
+        mapInitialized = true;
+      });
+    });
+  }
+}
+
+function goBack(){ const target = prevScreen || 'home'; go(target, target); }
+
+/* ============================================================
+   渲染：路線卡
+   ============================================================ */
+function routeCardHTML(r){
+  return `<div class="route-card" onclick="openRoute('${r.id}')">
+    <div class="rc-thumb ${r.thumbCls}">${r.thumb}</div>
+    <div class="rc-info">
+      <div class="rc-badge ${r.badge}">${r.catLabel}</div>
+      <h3>${r.title}</h3>
+      <p>${r.path}</p>
+      <div class="rc-meta"><span>⏱ ${r.duration}</span><span>💰 ${r.cost}</span><span>${r.transit}</span></div>
+    </div>
+  </div>`;
+}
+
+function renderHomeRoutes(){
+  const list = homeFilter === 'all' ? routesData : routesData.filter(r => r.cat === homeFilter);
+  document.getElementById('homeRoutes').innerHTML =
+    list.length ? list.slice(0, 5).map(routeCardHTML).join('') : '<div class="empty">此分類暫無路線</div>';
+}
+
+function renderRoutesList(){
+  const list = routesFilter === 'all' ? routesData : routesData.filter(r => r.cat === routesFilter);
+  document.getElementById('routesList').innerHTML =
+    list.length ? list.map(routeCardHTML).join('') : '<div class="empty">此分類暫無路線</div>';
+}
+
+function setHomeFilter(cat, el){
+  homeFilter = cat;
+  el.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  renderHomeRoutes();
+}
+
+function setRoutesFilter(cat, el){
+  routesFilter = cat;
+  el.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  renderRoutesList();
+}
+
+/* ============================================================
+   渲染：口岸
+   ============================================================ */
+function renderHomePorts(){
+  document.getElementById('homePorts').innerHTML = portsData.slice(0, 5).map(p => `
+    <div class="port-card" onclick="openPort('${p.id}')">
+      <div class="port-name">${p.name}</div>
+      <div class="port-time">${p.wait}<small>分鐘</small></div>
+      <div class="port-tag ${p.status}">${p.statusText}</div>
+    </div>`).join('');
+}
+
+function renderPortsList(){
+  document.getElementById('portsList').innerHTML = portsData.map(p => `
+    <div class="port-row" onclick="openPort('${p.id}')">
+      <div class="pr-left">
+        <div class="pr-name">${p.name} <span class="dot ${p.status}"></span></div>
+        <p>${p.sub}</p>
+      </div>
+      <div class="pr-right"><strong>${p.wait}</strong><span>分鐘</span></div>
+    </div>`).join('');
+}
+
+/* ============================================================
+   開啟路線詳情
+   ============================================================ */
+function openRoute(id){
+  if(currentScreen !== 'route') prevScreen = currentScreen;
+  const r = routesData.find(x => x.id === id);
+  if(!r) return;
+  currentRouteId = id;
+
+  document.getElementById('routeHeroBadge').textContent = r.catLabel + ' · 模組化路線';
+  document.getElementById('routeHeroTitle').textContent = r.title;
+  document.getElementById('routeHeroSub').textContent = r.from + '出發 · 港人最直接路線';
+  document.getElementById('routeStat1').innerHTML = `<strong>${r.time}</strong><span>總時長</span>`;
+  document.getElementById('routeStat2').innerHTML = `<strong>${r.fee}</strong><span>交通費</span>`;
+  document.getElementById('routeStat3').innerHTML = `<strong>${r.walk}</strong><span>步行</span>`;
+
+  document.getElementById('routeTimeline').innerHTML = r.steps.map((s, i) => `
+    <div class="tl-item">
+      <div class="tl-dot ${i === 0 ? 'hi' : ''}">${s.icon}</div>
+      <div class="tl-body">
+        <div class="tl-time">${s.time}</div>
+        <h4>${s.title}</h4>
+        <p>${s.desc}</p>
+        ${s.transit ? `<div class="tl-transit">${s.transit}</div>` : ''}
+      </div>
+    </div>`).join('');
+
+  updateFavBtn();
+  const tabMap = {home:'home', routes:'routes', port:'port', metro:'metro', me:'me'};
+  go('route', tabMap[prevScreen] || 'home');
+}
+
+/* ============================================================
+   開啟口岸詳情
+   ============================================================ */
+function openPort(id){
+  if(currentScreen !== 'portdetail') prevScreen = currentScreen;
+  const p = portsData.find(x => x.id === id);
+  if(!p) return;
+
+  document.getElementById('pdName').textContent = p.name;
+  document.getElementById('pdSub').textContent = p.sub;
+  document.getElementById('pdStat1').innerHTML = `<strong>${p.wait}分</strong><span>候檢時間</span>`;
+  document.getElementById('pdStat2').innerHTML = `<strong>${p.statusText}</strong><span>當前狀態</span>`;
+  document.getElementById('pdBadge').textContent = p.id === 'p6' ? '🆕 新口岸 · 即將開通' : '香港出發交通指南';
+
+  document.getElementById('pdSteps').innerHTML = p.steps.map(s => `
+    <div class="hk-step">
+      <div class="hk-ico">${s.icon}</div>
+      <div><h4>${s.title}</h4><p>${s.desc}</p></div>
+    </div>`).join('');
+
+  document.getElementById('pdTip').textContent = p.tip;
+  const tabMap = {home:'home', routes:'routes', port:'port', metro:'metro', me:'me'};
+  go('portdetail', tabMap[prevScreen] || 'port');
+}
+
+/* ============================================================
+   收藏
+   ============================================================ */
+function toggleFav(){
+  if(!currentRouteId) return;
+  if(favSet.has(currentRouteId)){ favSet.delete(currentRouteId); toast('已取消收藏'); }
+  else{ favSet.add(currentRouteId); toast('已加入收藏 ⭐'); }
+  updateFavBtn();
+  document.getElementById('favCount').textContent = favSet.size;
+}
+
+function updateFavBtn(){
+  const btn = document.getElementById('favBtn');
+  const on = favSet.has(currentRouteId);
+  btn.classList.toggle('on', on);
+  btn.textContent = on ? '★ 已收藏' : '☆ 收藏';
+}
+
+/* ============================================================
+   互動地鐵圖 (Pan & Zoom with Boundary Clamp)
+   ============================================================ */
+let mapScale = 1;
+let mapTranslateX = 0;
+let mapTranslateY = 0;
+let baseWidth = 0;
+let baseHeight = 0;
+let isDragging = false;
+let startX = 0, startY = 0;
+let initialDistance = 0;
+let initialScale = 1;
+let initialTranslateX = 0;
+let initialTranslateY = 0;
+let initialMidX = 0, initialMidY = 0;
+let mapInitialized = false;
+
+const MIN_SCALE = 1;
+const MAX_SCALE = 5;
+
+const mapContainer = document.getElementById('mapContainer');
+const mapImg = document.getElementById('metroMapImg');
+const zoomIndicator = document.getElementById('zoomIndicator');
+
+/* --- 邊界限制核心邏輯 --- */
+function clampTransform() {
+  const cw = mapContainer.clientWidth;
+  const ch = mapContainer.clientHeight;
+  const sw = baseWidth * mapScale;
+  const sh = baseHeight * mapScale;
+
+  // 水平方向
+  if (sw <= cw) {
+    // 圖片比容器窄 → 置中，不允許平移
+    mapTranslateX = (cw - sw) / 2;
+  } else {
+    // 圖片比容器寬 → 限制邊緣不超出容器
+    const minX = cw - sw;
+    const maxX = 0;
+    mapTranslateX = Math.min(maxX, Math.max(minX, mapTranslateX));
+  }
+
+  // 垂直方向
+  if (sh <= ch) {
+    mapTranslateY = (ch - sh) / 2;
+  } else {
+    const minY = ch - sh;
+    const maxY = 0;
+    mapTranslateY = Math.min(maxY, Math.max(minY, mapTranslateY));
+  }
+}
+
+function applyMapTransform() {
+  clampTransform();
+  mapImg.style.transform = `translate(${mapTranslateX}px, ${mapTranslateY}px) scale(${mapScale})`;
+  zoomIndicator.textContent = mapScale.toFixed(1) + 'x';
+}
+
+/* --- 初始化尺寸 --- */
+function initMapSize() {
+  const cw = mapContainer.clientWidth;
+  const ch = mapContainer.clientHeight;
+  if (!cw || !ch) return;
+
+  const iw = mapImg.naturalWidth || 1200;
+  const ih = mapImg.naturalHeight || 1200;
+
+  // 以 "contain" 方式適配容器
+  const fit = Math.min(cw / iw, ch / ih);
+  baseWidth = iw * fit;
+  baseHeight = ih * fit;
+
+  mapImg.style.width = baseWidth + 'px';
+  mapImg.style.height = baseHeight + 'px';
+  mapImg.classList.add('ready');
+
+  resetZoom();
+}
+
+/* --- 以指定點為中心縮放 --- */
+function zoomAtPoint(targetScale, cx, cy) {
+  const newScale = Math.min(Math.max(targetScale, MIN_SCALE), MAX_SCALE);
+  // 取得縮放前，該點對應的圖片座標
+  const imgX = (cx - mapTranslateX) / mapScale;
+  const imgY = (cy - mapTranslateY) / mapScale;
+
+  mapScale = newScale;
+  // 讓該圖片座標在縮放後仍位於 (cx, cy)
+  mapTranslateX = cx - imgX * mapScale;
+  mapTranslateY = cy - imgY * mapScale;
+
+  applyMapTransform();
+}
+
+/* --- 按鈕：放大 / 縮小 / 重置 --- */
+function zoomIn(e) {
+  if (e) e.stopPropagation();
+  const cw = mapContainer.clientWidth;
+  const ch = mapContainer.clientHeight;
+  zoomAtPoint(mapScale + 0.4, cw / 2, ch / 2);
+}
+
+function zoomOut(e) {
+  if (e) e.stopPropagation();
+  const cw = mapContainer.clientWidth;
+  const ch = mapContainer.clientHeight;
+  zoomAtPoint(mapScale - 0.4, cw / 2, ch / 2);
+}
+
+function resetZoom(e) {
+  if (e) e.stopPropagation();
+  const cw = mapContainer.clientWidth;
+  const ch = mapContainer.clientHeight;
+  mapScale = 1;
+  mapTranslateX = (cw - baseWidth) / 2;
+  mapTranslateY = (ch - baseHeight) / 2;
+  applyMapTransform();
+}
+
+/* --- 觸控事件 --- */
+mapContainer.addEventListener('touchstart', (e) => {
+  if (e.touches.length === 1) {
+    isDragging = true;
+    startX = e.touches[0].clientX - mapTranslateX;
+    startY = e.touches[0].clientY - mapTranslateY;
+  } else if (e.touches.length === 2) {
+    isDragging = false;
+    initialDistance = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    );
+    initialScale = mapScale;
+    initialTranslateX = mapTranslateX;
+    initialTranslateY = mapTranslateY;
+    const rect = mapContainer.getBoundingClientRect();
+    initialMidX = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
+    initialMidY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
+  }
+}, { passive: false });
+
+mapContainer.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+  if (isDragging && e.touches.length === 1) {
+    mapTranslateX = e.touches[0].clientX - startX;
+    mapTranslateY = e.touches[0].clientY - startY;
+    applyMapTransform();
+  } else if (e.touches.length === 2) {
+    const currentDistance = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    );
+    const rawScale = initialScale * (currentDistance / initialDistance);
+    const newScale = Math.min(Math.max(rawScale, MIN_SCALE), MAX_SCALE);
+    const imgX = (initialMidX - initialTranslateX) / initialScale;
+    const imgY = (initialMidY - initialTranslateY) / initialScale;
+
+    mapScale = newScale;
+    mapTranslateX = initialMidX - imgX * mapScale;
+    mapTranslateY = initialMidY - imgY * mapScale;
+    applyMapTransform();
+  }
+}, { passive: false });
+
+mapContainer.addEventListener('touchend', () => {
+  isDragging = false;
+});
+
+/* --- 滑鼠事件（桌面） --- */
+mapContainer.addEventListener('mousedown', (e) => {
+  isDragging = true;
+  startX = e.clientX - mapTranslateX;
+  startY = e.clientY - mapTranslateY;
+  mapContainer.style.cursor = 'grabbing';
+});
+
+window.addEventListener('mousemove', (e) => {
+  if (!isDragging) return;
+  mapTranslateX = e.clientX - startX;
+  mapTranslateY = e.clientY - startY;
+  applyMapTransform();
+});
+
+window.addEventListener('mouseup', () => {
+  isDragging = false;
+  mapContainer.style.cursor = 'grab';
+});
+
+mapContainer.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  const rect = mapContainer.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  const delta = e.deltaY > 0 ? -0.15 : 0.15;
+  zoomAtPoint(mapScale + delta, x, y);
+}, { passive: false });
+
+/* 圖片載入完成後，若地圖已初始化則重新計算尺寸 */
+mapImg.addEventListener('load', () => {
+  if (mapInitialized) initMapSize();
+});
+
+/* ============================================================
+   搜尋
+   ============================================================ */
+function openSearch(){
+  document.getElementById('searchOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('searchInput').focus(), 260);
+  doSearch();
+}
+
+function closeSearch(){
+  document.getElementById('searchOverlay').classList.remove('open');
+  document.getElementById('searchInput').value = '';
+}
+
+function quickSearch(word){
+  const inp = document.getElementById('searchInput');
+  inp.value = word;
+  doSearch();
+  inp.focus();
+}
+
+function doSearch(){
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  const body = document.getElementById('searchBody');
+
+  if(!q){
+    body.innerHTML = `
+      <p class="so-hint">輸入關鍵字搵路線或口岸<br>例如 <b>紫藤花海</b>、<b>湖光塔</b>、<b>虹橋</b>、<b>新皇崗</b></p>
+      <div class="quick-tags">
+        <span onclick="quickSearch('紫藤')">紫藤花海</span>
+        <span onclick="quickSearch('湖光塔')">湖光塔</span>
+        <span onclick="quickSearch('虹橋')">虹橋公園</span>
+        <span onclick="quickSearch('甘坑')">甘坑古鎮</span>
+        <span onclick="quickSearch('小羅馬')">小羅馬</span>
+        <span onclick="quickSearch('巴黎')">大悅城</span>
+        <span onclick="quickSearch('新皇崗')">新皇崗</span>
+        <span onclick="quickSearch('福田')">福田</span>
+      </div>`;
+    return;
+  }
+
+  const rMatch = routesData.filter(r => (r.title + r.path + r.catLabel + r.from + r.kw).toLowerCase().includes(q));
+  const pMatch = portsData.filter(p => (p.name + p.sub + p.kw + p.tip).toLowerCase().includes(q));
+
+  if(!rMatch.length && !pMatch.length){
+    body.innerHTML = `<div class="empty">找不到「${escapeHTML(q)}」相關內容<br>試下其他關鍵字 🔍</div>`;
+    return;
+  }
+
+  let html = '';
+  if(rMatch.length){
+    html += `<div class="result-group">路線（${rMatch.length}）</div>`;
+    html += rMatch.map(r => `
+      <div class="result-item" onclick="searchGoRoute('${r.id}')">
+        <div class="ri-ico">${r.thumb}</div>
+        <div class="ri-txt"><h4>${r.title}</h4><p>${r.catLabel} · ${r.path} · ${r.duration}</p></div>
+      </div>`).join('');
+  }
+  if(pMatch.length){
+    html += `<div class="result-group">口岸（${pMatch.length}）</div>`;
+    html += pMatch.map(p => `
+      <div class="result-item" onclick="searchGoPort('${p.id}')">
+        <div class="ri-ico p">🚉</div>
+        <div class="ri-txt"><h4>${p.name}</h4><p>${p.sub} · 候檢約 ${p.wait} 分鐘</p></div>
+      </div>`).join('');
+  }
+  body.innerHTML = html;
+}
+
+function searchGoRoute(id){ closeSearch(); openRoute(id); }
+function searchGoPort(id){ closeSearch(); openPort(id); }
+
+function escapeHTML(s){
+  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ============================================================
+   Toast
+   ============================================================ */
+let toastTimer = null;
+function toast(msg){
+  const old = document.querySelector('.toast');
+  if(old) old.remove();
+  clearTimeout(toastTimer);
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.querySelector('.app').appendChild(t);
+  toastTimer = setTimeout(() => t.remove(), 1900);
+}
+
+/* ============================================================
+   初始化
+   ============================================================ */
+renderHomeRoutes();
+renderRoutesList();
+renderHomePorts();
+renderPortsList();
+document.getElementById('favCount').textContent = favSet.size;
+</script>
+
+</body>
+</html>
