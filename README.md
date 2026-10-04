@@ -1,2 +1,2 @@
-# hkmakslo-s202401323.github.io
+# HKMAKSLO_AI-LAB (Website Hosting)
 Experimental hosting for repo HKMAKSLO_AI-LAB
