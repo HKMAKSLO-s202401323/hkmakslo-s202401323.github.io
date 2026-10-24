@@ -1,0 +1,2600 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#2B5CFF">
+<meta name="description" content="港深通 · 港人北上助手 v0.0.4">
+<title>港深通 · 港人北上助手 v0.0.4</title>
+<style>
+:root{
+  --primary:#2B5CFF;--bg:#F4F5F9;--card:#fff;--text:#141824;--muted:#8A90A2;--line:#E6E9F2;
+  --safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px);
+  --font-scale:1;--card-hover:#F7F8FC;--input-bg:#F1F3F9;--map-wrap-bg:#FFFFFF;
+  --overlay-tip:rgba(0,0,0,.65);
+  --font-hk:"PingFang HK","Hiragino Sans TC","Noto Sans TC",-apple-system,sans-serif;
+  --dark-border:rgba(255,255,255,.12);
+  --trans:background-color .3s,color .3s,border-color .3s,box-shadow .3s;
+  --hero-grad:linear-gradient(135deg,#1E3FCC,#2B5CFF 52%,#5B8CFF);
+  --shadow-sm:0 2px 8px rgba(20,30,80,.06);
+  --shadow-md:0 6px 20px rgba(20,30,80,.09);
+}
+body.dark{
+  --bg:#0D1117;--card:#161B22;--text:#E6EDF3;--muted:#A4ADB9;--line:#21262D;--primary:#58A6FF;
+  --card-hover:#1C232C;--input-bg:#0F141B;--map-wrap-bg:#151A22;--overlay-tip:rgba(0,0,0,.8);
+  --hero-grad:linear-gradient(135deg,#0D1B4A,#1A3A8A 52%,#2B5CFF);
+}
+body.dark .info-tip-box{background:#1A2454;color:#B8C7E0;}
+body.dark .info-tip-box b{color:#58A6FF;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{font-family:var(--font-hk);background:var(--bg);color:var(--text);overflow:hidden;position:fixed;inset:0;font-size:calc(15px * var(--font-scale));line-height:1.5;transition:var(--trans);-webkit-font-smoothing:antialiased;}
+button{font-family:inherit;font-size:inherit;}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--primary);outline-offset:2px;border-radius:6px;}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;}}
+.app{width:100%;height:100%;display:flex;flex-direction:column;position:relative;overflow:hidden;}
+.screens{flex:1;position:relative;overflow:hidden;min-height:0;}
+.screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .22s ease,transform .22s ease;-webkit-overflow-scrolling:touch;}
+.screen.active{opacity:1;pointer-events:auto;transform:none;}
+.screen::-webkit-scrollbar{width:0;}
+.tabbar{flex-shrink:0;background:var(--card);border-top:1px solid var(--line);display:flex;padding-bottom:var(--safe-bottom);z-index:30;transition:var(--trans);}
+.tab{flex:1;border:none;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:10px 0;font-size:calc(11px * var(--font-scale));color:var(--muted);min-height:56px;transition:var(--trans);}
+.tab .ico{font-size:20px;line-height:1;filter:grayscale(1);opacity:.5;transition:.18s;}
+.tab.active{color:var(--primary);font-weight:700;}
+.tab.active .ico{filter:none;opacity:1;transform:translateY(-1px);}
+.body{padding:16px 16px 30px;}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;margin:22px 2px 12px;}
+.sec-head:first-child{margin-top:6px;}
+.sec-head h2{font-size:calc(17px * var(--font-scale));font-weight:700;color:var(--text);}
+.sec-head span{font-size:calc(12px * var(--font-scale));color:var(--muted);}
+.link{color:var(--primary);font-weight:700;font-size:calc(13px * var(--font-scale));cursor:pointer;background:none;border:none;padding:8px 4px;min-height:36px;}
+.page-head{padding:calc(18px + var(--safe-top)) 20px 6px;}
+.page-head h1{font-size:calc(24px * var(--font-scale));font-weight:800;color:var(--text);}
+.page-head p{font-size:calc(13px * var(--font-scale));color:var(--muted);margin-top:5px;}
+.back{width:44px;height:44px;border-radius:50%;border:none;cursor:pointer;background:rgba(255,255,255,.2);color:#fff;font-size:17px;margin-bottom:14px;display:grid;place-items:center;position:relative;z-index:1;flex-shrink:0;}
+.empty{text-align:center;color:var(--muted);font-size:calc(14px * var(--font-scale));padding:50px 20px;line-height:1.9;}
+.info-tip-box{background:#EEF3FF;border-radius:14px;padding:14px 16px;font-size:calc(13px * var(--font-scale));color:#3A4055;line-height:1.65;transition:var(--trans);}
+.info-tip-box b{color:var(--primary);}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 6px;scroll-behavior:smooth;}
+.chips::-webkit-scrollbar{display:none;}
+.chip{padding:10px 16px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:calc(14px * var(--font-scale));color:var(--text);white-space:nowrap;cursor:pointer;font-weight:600;transition:var(--trans);flex-shrink:0;min-height:44px;}
+.chip.on{background:linear-gradient(135deg,#2B5CFF,#4C8DFF);border-color:transparent;color:#fff;box-shadow:0 7px 16px rgba(43,92,255,.3);}
+body.dark .chip{background:#1A2029;border-color:var(--dark-border);}
+.toast{position:absolute;bottom:96px;left:50%;transform:translateX(-50%);background:rgba(20,24,36,.95);color:#fff;font-size:calc(14px * var(--font-scale));font-weight:600;padding:12px 24px;border-radius:999px;z-index:600;white-space:nowrap;animation:toastIn .22s ease;max-width:88%;transition:var(--trans);}
+body.dark .toast{background:rgba(88,166,255,.98);color:#0D1117;}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,10px);}to{opacity:1;transform:translate(-50%,0);}}
+.hero{background:var(--hero-grad);padding:calc(18px + var(--safe-top)) 20px 24px;color:#fff;border-radius:0 0 26px 26px;position:relative;overflow:hidden;}
+.hero.weather-sunny{background:linear-gradient(135deg,#E8891A,#F5B342 50%,#FFD97D);}
+.hero.weather-rainy{background:linear-gradient(135deg,#2C3E50,#4A6274 50%,#6B7F8F);}
+.hero.weather-night{background:linear-gradient(135deg,#0F2027,#203A43 50%,#2C5364);}
+.hero::after{content:'';position:absolute;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.08);top:-110px;right:-70px;pointer-events:none;}
+.hero-row{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1;}
+.hero-left-group{display:flex;align-items:flex-start;gap:12px;}
+.hero-hi{font-size:calc(14px * var(--font-scale));opacity:.9;margin-bottom:5px;}
+.hero-title{font-size:calc(23px * var(--font-scale));font-weight:800;}
+.hero-menu-btn{width:42px;height:42px;border-radius:50%;border:1.5px solid rgba(255,255,255,.5);cursor:pointer;background:rgba(255,255,255,.25);color:#fff;font-size:18px;display:grid;place-items:center;flex-shrink:0;transition:transform .18s;}
+.hero-menu-btn:active{transform:scale(.92);}
+.avatar{width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.25);border:1.5px solid rgba(255,255,255,.5);display:grid;place-items:center;font-weight:800;font-size:16px;flex-shrink:0;}
+.avatar.lg{width:62px;height:62px;font-size:24px;background:#EEF3FF;border:none;color:var(--primary);transition:var(--trans);cursor:pointer;user-select:none;touch-action:manipulation;position:relative;z-index:2;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;}
+body.dark .avatar.lg{background:#1A2454;color:#88AAFF;}
+.avatar.lg:active{transform:scale(.94);}
+.avatar.lg.tap-pulse{animation:avatarPulse .3s ease;}
+@keyframes avatarPulse{0%,100%{transform:scale(1);}50%{transform:scale(.9);}}
+.searchbox{margin-top:16px;position:relative;z-index:1;background:rgba(255,255,255,.97);border-radius:14px;height:48px;display:flex;align-items:center;gap:9px;padding:0 15px;color:#6C7385;font-size:15px;width:100%;border:none;box-shadow:0 8px 22px rgba(0,20,80,.18);cursor:text;text-align:left;}
+body.dark .searchbox{background:rgba(28,34,44,.96);color:#B8C7E0;}
+.shortcut-island{display:flex;gap:8px;padding:10px 16px 0;margin-top:-8px;position:relative;z-index:2;overflow-x:auto;}
+.shortcut-island::-webkit-scrollbar{display:none;}
+.shortcut-btn{flex-shrink:0;display:flex;align-items:center;gap:6px;padding:9px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--text);font-size:calc(12.5px * var(--font-scale));font-weight:700;cursor:pointer;min-height:40px;box-shadow:0 3px 10px rgba(20,30,80,.06);}
+.shortcut-btn:active{transform:scale(.96);}
+.weather-card{margin:12px 16px 0;background:linear-gradient(135deg,#E8F4FF,#D6EAFF);border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:12px;}
+body.dark .weather-card{background:linear-gradient(135deg,#122A4A,#1A3A6A);}
+.weather-card .w-ico{font-size:34px;line-height:1;}
+.weather-card .w-info{flex:1;}
+.weather-card .w-city{font-size:calc(12px * var(--font-scale));color:var(--muted);font-weight:700;}
+.weather-card .w-temp{font-size:calc(24px * var(--font-scale));font-weight:800;color:var(--primary);line-height:1.1;}
+.weather-card .w-desc{font-size:calc(12.5px * var(--font-scale));color:var(--muted);}
+.weather-card .w-hk{margin-left:auto;text-align:right;font-size:calc(12px * var(--font-scale));color:var(--muted);line-height:1.5;}
+.weather-card .w-hk b{color:var(--text);font-size:calc(14px * var(--font-scale));}
+.weather-advice{margin:10px 16px 0;background:#E8FBF3;border-left:4px solid #0E9F6E;border-radius:10px;padding:10px 14px;font-size:calc(13px * var(--font-scale));color:#0A7A54;line-height:1.5;display:none;align-items:center;justify-content:space-between;gap:10px;}
+body.dark .weather-advice{background:#0E3A2A;color:#4CD9A0;border-left-color:#4CD9A0;}
+.weather-advice.show{display:flex;}
+.w-adv-btn{background:#0E9F6E;color:#fff;border:none;padding:6px 10px;border-radius:6px;font-weight:700;font-size:12px;cursor:pointer;}
+.alert-banner{margin:12px 16px 0;background:linear-gradient(135deg,#FFF4E5,#FFE8CC);border-left:4px solid #E08A00;border-radius:12px;padding:14px 16px;display:flex;gap:10px;align-items:flex-start;}
+body.dark .alert-banner{background:linear-gradient(135deg,#2A1F0A,#3A2D14);border-left-color:#D29922;}
+.alert-banner .ai{font-size:20px;flex-shrink:0;}
+.alert-banner .at{flex:1;}
+.alert-banner .at h4{font-size:calc(14px * var(--font-scale));font-weight:800;color:#7A5A1E;margin-bottom:3px;}
+body.dark .alert-banner .at h4{color:#D29922;}
+.alert-banner .at p{font-size:calc(12.5px * var(--font-scale));color:#7A5A1E;line-height:1.5;}
+body.dark .alert-banner .at p{color:#BB9944;}
+.alert-banner .ax{background:none;border:none;color:#B4A070;font-size:18px;cursor:pointer;min-width:44px;min-height:44px;display:grid;place-items:center;margin:-10px -8px -10px 0;}
+.alert-banner.hidden{display:none;}
+.alt-port-btn{background:#E08A00;color:#fff;border:none;padding:6px 12px;border-radius:8px;font-weight:800;font-size:12px;margin-top:8px;cursor:pointer;display:none;}
+.holiday-banner{margin:12px 16px 0;background:linear-gradient(135deg,#FFF0F5,#FFD6E7);border-left:4px solid #D6336C;border-radius:12px;padding:12px 16px;font-size:calc(13px * var(--font-scale));color:#A0204A;font-weight:600;line-height:1.5;display:none;}
+body.dark .holiday-banner{background:linear-gradient(135deg,#3A1A2A,#2A0F1A);border-left-color:#F783AC;color:#F783AC;}
+.holiday-banner.show{display:block;}
+@keyframes skeleton-loading{0%{background-position:100% 50%;}100%{background-position:0 50%;}}
+.skeleton{background:linear-gradient(90deg,var(--line) 25%,var(--card-hover) 37%,var(--line) 63%);background-size:400% 100%;animation:skeleton-loading 1.4s ease infinite;border-radius:6px;color:transparent !important;}
+.skeleton-text{display:inline-block;height:1em;width:60px;vertical-align:middle;}
+.emergency-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.em-card{background:var(--card);border-radius:14px;padding:14px;box-shadow:var(--shadow-sm);cursor:pointer;text-align:center;}
+body.dark .em-card{border:1px solid var(--dark-border);}
+.em-card .em-ico{font-size:26px;margin-bottom:6px;}
+.em-card h4{font-size:calc(13.5px * var(--font-scale));font-weight:800;margin-bottom:3px;color:var(--text);}
+.em-card .em-tel{font-size:calc(15px * var(--font-scale));font-weight:800;color:var(--primary);}
+.em-card p{font-size:calc(11.5px * var(--font-scale));color:var(--muted);margin-top:3px;line-height:1.4;}
+.forecast-card{background:var(--card);border-radius:14px;padding:15px 16px;margin-bottom:10px;box-shadow:var(--shadow-sm);}
+body.dark .forecast-card{border:1px solid var(--dark-border);}
+.forecast-card h4{font-size:calc(14.5px * var(--font-scale));font-weight:800;margin-bottom:8px;color:var(--text);}
+.forecast-row{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:calc(12.5px * var(--font-scale));}
+.forecast-bar{flex:1;height:8px;background:var(--line);border-radius:4px;overflow:hidden;}
+.forecast-bar i{display:block;height:100%;border-radius:4px;}
+.forecast-row .fc-label{flex:0 0 76px;font-weight:700;color:var(--text);}
+.forecast-row .fc-val{flex:0 0 54px;text-align:right;font-weight:700;}
+.hscroll{display:flex;gap:10px;overflow-x:auto;padding:2px 16px 8px;margin:0 -16px;scroll-behavior:smooth;}
+.hscroll::-webkit-scrollbar{display:none;}
+.port-card{min-width:140px;background:var(--card);border-radius:16px;padding:14px 16px;box-shadow:0 5px 16px rgba(20,30,80,.07);flex-shrink:0;cursor:pointer;}
+body.dark .port-card{border:1px solid var(--dark-border);}
+.port-name{font-size:calc(14px * var(--font-scale));font-weight:700;color:var(--text);}
+.port-time{font-size:calc(22px * var(--font-scale));font-weight:800;color:var(--primary);margin:8px 0 4px;letter-spacing:-.5px;}
+.port-avg{font-size:calc(11px * var(--font-scale));color:var(--muted);font-weight:600;margin-bottom:4px;}
+.port-tag{font-size:calc(11px * var(--font-scale));display:inline-block;padding:3px 10px;border-radius:999px;font-weight:700;}
+.port-tag.ok{background:#E6F8EF;color:#0A7A54;}
+.port-tag.mid{background:#FFF4E5;color:#A85E00;}
+.port-tag.busy{background:#FFECEC;color:#C43030;}
+.port-tag.maintenance{background:#F0F2F7;color:#5C6376;}
+body.dark .port-tag.ok{background:#0E3A2A;color:#4CD9A0;}
+body.dark .port-tag.mid{background:#3A2D1A;color:#FFC060;}
+body.dark .port-tag.busy{background:#3A1A1A;color:#FF8080;}
+body.dark .port-tag.maintenance{background:#21262D;color:#8B949E;}
+.route-card{display:flex;gap:12px;background:var(--card);border-radius:18px;padding:14px;margin-bottom:12px;box-shadow:0 5px 18px rgba(20,30,80,.07);cursor:pointer;}
+body.dark .route-card{border:1px solid var(--dark-border);}
+.rc-thumb{width:78px;height:78px;border-radius:15px;flex-shrink:0;display:grid;place-items:center;font-size:32px;background:linear-gradient(135deg,#EEF3FF,#DCE6FF);}
+body.dark .rc-thumb{background:linear-gradient(135deg,#1A2454,#2A3468);}
+.rc-info{flex:1;min-width:0;}
+.rc-badge{display:inline-block;font-size:calc(11px * var(--font-scale));font-weight:800;color:var(--primary);background:#EEF3FF;padding:3px 10px;border-radius:7px;margin-bottom:6px;}
+body.dark .rc-badge{background:#1A2454;}
+.rc-info h3{font-size:calc(16px * var(--font-scale));font-weight:700;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text);}
+.rc-info p{font-size:calc(12.5px * var(--font-scale));color:var(--muted);margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rc-meta{display:flex;gap:11px;font-size:calc(12px * var(--font-scale));color:var(--muted);font-weight:600;flex-wrap:wrap;}
+.detail-hero{background:linear-gradient(135deg,#1E3FCC,#2B5CFF 55%,#5B8CFF);padding:calc(14px + var(--safe-top)) 20px 24px;color:#fff;border-radius:0 0 26px 26px;position:relative;overflow:hidden;}
+body.dark .detail-hero{background:linear-gradient(135deg,#0D1B4A,#1A3A8A 55%,#2B5CFF);}
+.detail-hero::after{content:'';position:absolute;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.07);bottom:-120px;left:-60px;pointer-events:none;}
+.dh-badge{display:inline-block;background:rgba(255,255,255,.25);font-size:calc(12px * var(--font-scale));font-weight:700;padding:4px 12px;border-radius:999px;margin-bottom:9px;position:relative;z-index:1;}
+.detail-hero h1{font-size:calc(21px * var(--font-scale));font-weight:800;margin-bottom:5px;position:relative;z-index:1;line-height:1.3;}
+.detail-hero .sub{font-size:calc(13px * var(--font-scale));opacity:.9;position:relative;z-index:1;}
+.dh-stats{display:flex;gap:30px;margin-top:18px;position:relative;z-index:1;flex-wrap:wrap;}
+.dh-stats div{display:flex;flex-direction:column;gap:2px;}
+.dh-stats strong{font-size:calc(19px * var(--font-scale));font-weight:800;}
+.dh-stats span{font-size:calc(12px * var(--font-scale));opacity:.85;}
+.return-timer{margin:16px;background:linear-gradient(135deg,#1E3FCC,#2B5CFF);border-radius:16px;padding:16px 18px;color:#fff;}
+.return-timer.warn{background:linear-gradient(135deg,#E8590C,#FFA94D);}
+.return-timer.danger{background:linear-gradient(135deg,#D6336C,#F783AC);}
+.return-timer .rt-head{display:flex;align-items:center;gap:8px;font-size:calc(12.5px * var(--font-scale));font-weight:700;opacity:.92;margin-bottom:10px;}
+.return-timer .rt-main{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;}
+.return-timer .rt-countdown{font-size:calc(32px * var(--font-scale));font-weight:800;letter-spacing:-1px;line-height:1;}
+.return-timer .rt-label{font-size:calc(12px * var(--font-scale));opacity:.88;margin-top:4px;}
+.return-timer .rt-info{text-align:right;font-size:calc(12.5px * var(--font-scale));line-height:1.6;}
+.return-timer .rt-alt{margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.2);font-size:calc(12.5px * var(--font-scale));line-height:1.6;}
+.timeline{padding-left:2px;}
+.tl-item{position:relative;display:flex;gap:14px;padding-bottom:20px;}
+.tl-item:last-child{padding-bottom:4px;}
+.tl-item:not(:last-child)::before{content:'';position:absolute;left:17px;top:36px;bottom:0;width:2px;background:var(--line);}
+.tl-dot{width:36px;height:36px;border-radius:50%;flex-shrink:0;background:#EEF3FF;display:grid;place-items:center;font-size:17px;z-index:1;}
+body.dark .tl-dot{background:#1A2454;}
+.tl-dot.hi{background:#2B5CFF;color:#fff;}
+.tl-body{flex:1;padding-top:1px;min-width:0;}
+.tl-time-input{font-size:calc(13px * var(--font-scale));font-weight:700;color:var(--primary);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:4px 8px;font-family:inherit;width:86px;}
+body.dark .tl-time-input{background:#0F141B;border-color:#2A3038;color:#58A6FF;}
+.tl-body h4{font-size:calc(15px * var(--font-scale));font-weight:700;margin:3px 0 4px;color:var(--text);}
+.tl-body p{font-size:calc(13px * var(--font-scale));color:var(--muted);line-height:1.55;}
+.tl-transit{display:inline-flex;align-items:center;gap:6px;background:#F2F5FF;color:#1E3FCC;font-size:calc(12px * var(--font-scale));font-weight:700;padding:5px 12px;border-radius:9px;margin-top:8px;}
+body.dark .tl-transit{background:#1A2454;color:#88AAFF;}
+.tl-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.tl-btn{display:inline-flex;align-items:center;gap:4px;padding:9px 14px;border-radius:10px;font-size:calc(12px * var(--font-scale));font-weight:700;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--text);font-family:inherit;min-height:46px;}
+.tl-btn.copy{background:#EEF3FF;color:#1E3FCC;border-color:#C9D8FF;}
+.tl-btn.deep{background:#E8FBF3;color:#0A7A54;border-color:#B8EED4;}
+.tl-btn.edit{background:#FFF4E5;color:#A85E00;border-color:#FFD9A8;}
+body.dark .tl-btn.copy{background:#1A2454;color:#88AAFF;}
+body.dark .tl-btn.deep{background:#0E3A2A;color:#4CD9A0;}
+body.dark .tl-btn.edit{background:#3A2D1A;color:#FFC060;}
+.detail-actions{position:sticky;bottom:0;display:flex;gap:10px;padding:14px 16px calc(18px + var(--safe-bottom));background:linear-gradient(to top,var(--bg) 62%,transparent);}
+.btn-ghost{flex:0 0 110px;height:52px;border-radius:15px;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--text);font-size:calc(15px * var(--font-scale));font-weight:700;}
+.btn-ghost.on{background:#EEF3FF;border-color:#C9D8FF;color:var(--primary);}
+body.dark .btn-ghost{background:#1A2029;border-color:#2A3038;}
+body.dark .btn-ghost.on{background:#1A2454;border-color:#2A3A6A;color:#58A6FF;}
+.btn-primary{flex:1;height:52px;border-radius:15px;border:none;cursor:pointer;background:linear-gradient(135deg,#2B5CFF,#4C8DFF);color:#fff;font-size:calc(16px * var(--font-scale));font-weight:800;box-shadow:0 10px 24px rgba(43,92,255,.33);}
+.btn-secondary{width:100%;height:50px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--text);font-size:calc(15px * var(--font-scale));font-weight:700;cursor:pointer;margin-top:10px;}
+body.dark .btn-secondary{background:#1A2029;border-color:#2A3038;}
+.port-row{display:flex;align-items:center;justify-content:space-between;background:var(--card);border-radius:16px;padding:16px;margin-bottom:10px;box-shadow:var(--shadow-sm);cursor:pointer;gap:12px;}
+body.dark .port-row{border:1px solid var(--dark-border);}
+.pr-name{font-size:calc(15px * var(--font-scale));font-weight:700;display:flex;align-items:center;gap:7px;color:var(--text);}
+.dot{width:18px;height:18px;border-radius:50%;display:inline-grid;place-items:center;color:#fff;font-size:10px;font-weight:900;flex-shrink:0;}
+.dot.ok{background:#0E9F6E;}
+.dot.mid{background:#E08A00;}
+.dot.busy{background:#E5484D;}
+.dot.maintenance{background:#8A90A2;}
+.pr-left{flex:1;min-width:0;}
+.pr-left p{font-size:calc(12.5px * var(--font-scale));color:var(--muted);margin-top:5px;}
+.pr-left .pr-avg{font-size:calc(11.5px * var(--font-scale));color:var(--primary);font-weight:700;margin-top:4px;display:inline-block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:2px 8px;background:#EEF3FF;border-radius:6px;}
+body.dark .pr-left .pr-avg{background:#1A2454;color:#88AAFF;}
+.pr-right{text-align:right;flex-shrink:0;min-width:56px;}
+.pr-right strong{font-size:calc(20px * var(--font-scale));font-weight:800;color:var(--primary);display:block;line-height:1.1;}
+.pr-right span{font-size:calc(11.5px * var(--font-scale));color:var(--muted);font-weight:600;display:block;margin-top:2px;}
+.hk-step{display:flex;gap:13px;background:var(--card);border-radius:16px;padding:16px;margin-bottom:10px;box-shadow:var(--shadow-sm);}
+body.dark .hk-step{border:1px solid var(--dark-border);}
+.hk-ico{width:40px;height:40px;border-radius:12px;flex-shrink:0;background:#EEF3FF;display:grid;place-items:center;font-size:19px;}
+body.dark .hk-ico{background:#1A2454;}
+.hk-step h4{font-size:calc(15px * var(--font-scale));font-weight:700;margin-bottom:4px;color:var(--text);}
+.hk-step p{font-size:calc(13px * var(--font-scale));color:var(--muted);line-height:1.6;}
+.tip-box{background:linear-gradient(135deg,#FFF8EC,#FFF1DC);border-radius:16px;padding:14px 16px;display:flex;gap:11px;margin-top:4px;}
+body.dark .tip-box{background:linear-gradient(135deg,#2A1F0A,#3A2D14);}
+.tip-box .ti{font-size:18px;flex-shrink:0;}
+.tip-box p{font-size:calc(13px * var(--font-scale));line-height:1.65;color:#6A4E1A;font-weight:500;}
+body.dark .tip-box p{color:#D29922;}
+.me-head{background:linear-gradient(135deg,#1E3FCC,#2B5CFF 60%,#5B8CFF);padding:calc(26px + var(--safe-top)) 20px 30px;color:#fff;border-radius:0 0 26px 26px;display:flex;flex-direction:column;align-items:center;gap:10px;position:relative;overflow:hidden;}
+body.dark .me-head{background:linear-gradient(135deg,#0D1B4A,#1A3A8A 60%,#2B5CFF);}
+.me-head::after{content:'';position:absolute;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.08);top:-100px;right:-60px;pointer-events:none;}
+.me-head h2{font-size:calc(20px * var(--font-scale));font-weight:800;position:relative;z-index:1;}
+.me-head p{font-size:calc(13px * var(--font-scale));opacity:.9;position:relative;z-index:1;text-align:center;}
+.list-card{background:var(--card);border-radius:18px;overflow:hidden;box-shadow:var(--shadow-sm);}
+body.dark .list-card{border:1px solid var(--dark-border);}
+.list-row{display:flex;align-items:center;gap:13px;padding:17px 18px;font-size:calc(15px * var(--font-scale));font-weight:600;cursor:pointer;border-bottom:1px solid var(--line);min-height:56px;color:var(--text);}
+.list-row:last-child{border-bottom:none;}
+.li-ico{font-size:18px;width:26px;text-align:center;}
+.li-arrow{margin-left:auto;color:#8A90A2;font-size:18px;}
+body.dark .li-arrow{color:#6E7681;}
+.version{text-align:center;font-size:calc(12px * var(--font-scale));color:#8A90A2;margin-top:22px;}
+body.dark .version{color:#6E7681;}
+.map-container{position:relative;width:100%;height:65vh;min-height:400px;max-height:750px;overflow:hidden;background:var(--card);border-radius:16px;box-shadow:var(--shadow-sm);margin-bottom:16px;touch-action:none;cursor:grab;display:flex;align-items:center;justify-content:center;}
+body.dark .map-container{background:var(--map-wrap-bg);border:1px solid #21262D;}
+.map-container:active{cursor:grabbing;}
+.map-container,.map-container *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;}
+#metroMapObj{position:absolute;top:0;left:0;width:100% !important;height:100% !important;pointer-events:none;transform-origin:0 0;opacity:0;transition:opacity .3s ease;will-change:transform;background:#fff !important;border:none;object-fit:contain;}
+#metroMapObj.ready{opacity:1;}
+.map-fallback{position:absolute;inset:0;display:none;place-items:center;text-align:center;padding:30px;background:var(--card);color:var(--muted);font-size:calc(13px * var(--font-scale));line-height:1.9;z-index:5;}
+.map-fallback.show{display:grid;}
+.map-controls{position:absolute;bottom:16px;right:16px;display:flex;flex-direction:column;gap:8px;z-index:10;}
+.map-btn{width:48px;height:48px;border-radius:50%;background:var(--card);border:1px solid var(--line);font-size:21px;font-weight:700;color:var(--text);display:grid;place-items:center;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,.1);}
+.map-btn:active{transform:scale(.94);}
+.map-btn.reset{font-size:17px;font-weight:800;color:var(--primary);background:var(--bg);}
+.map-hint{position:absolute;top:12px;left:12px;background:var(--overlay-tip);color:#fff;font-size:calc(12px * var(--font-scale));padding:6px 12px;border-radius:8px;pointer-events:none;z-index:10;}
+.map-zoom-indicator{position:absolute;bottom:16px;left:16px;background:var(--overlay-tip);color:#fff;font-size:calc(12px * var(--font-scale));font-weight:700;padding:6px 12px;border-radius:8px;pointer-events:none;z-index:10;}
+.map-switch{display:flex;gap:8px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px;}
+.map-switch::-webkit-scrollbar{display:none;}
+.map-switch .chip{flex:0 0 auto;}
+/* 地圖區域標頭 — 僅在「地鐵圖」分頁顯示 */
+.map-zone-header{display:flex;align-items:center;gap:8px;margin:12px 2px 8px;font-size:12.5px;font-weight:800;color:var(--muted);letter-spacing:.5px;}
+.map-zone-header::after{content:'';flex:1;height:1px;background:var(--line);}
+.map-zone-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:6px;font-size:11px;font-weight:800;}
+.map-zone-chip.hk{background:#FFF0F5;color:#A0204A;}
+.map-zone-chip.sz{background:#EEF3FF;color:#1E3FCC;}
+body.dark .map-zone-chip.hk{background:#3A1A2A;color:#F783AC;}
+body.dark .map-zone-chip.sz{background:#1A2454;color:#88AAFF;}
+.map-zone-header.hidden{display:none !important;}
+.metro-tip-card{display:flex;gap:12px;background:var(--card);border-radius:16px;padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow-sm);}
+body.dark .metro-tip-card{border:1px solid var(--dark-border);}
+.mt-ico{width:42px;height:42px;border-radius:12px;flex-shrink:0;background:#EEF3FF;display:grid;place-items:center;font-size:19px;}
+body.dark .mt-ico{background:#1A2454;}
+.mt-txt h4{font-size:calc(14.5px * var(--font-scale));font-weight:700;margin-bottom:4px;color:var(--text);}
+.mt-txt p{font-size:calc(13px * var(--font-scale));color:var(--muted);line-height:1.55;}
+.path-finder{background:var(--card);border-radius:16px;padding:16px;margin-bottom:16px;box-shadow:var(--shadow-sm);}
+body.dark .path-finder{border:1px solid var(--dark-border);}
+.path-finder h4{font-size:calc(15px * var(--font-scale));font-weight:800;margin-bottom:10px;color:var(--primary);}
+.path-selects{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.path-selects select{flex:1;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--input-bg);font-family:inherit;font-size:calc(14px * var(--font-scale));font-weight:700;color:var(--text);outline:none;}
+.path-result{background:var(--bg);border-radius:12px;padding:14px;font-size:calc(13px * var(--font-scale));line-height:1.7;color:var(--text);display:none;}
+body.dark .path-result{background:#0F141B;}
+.path-result.show{display:block;}
+.station-card{background:var(--card);border-radius:14px;padding:15px 16px;margin-bottom:10px;box-shadow:var(--shadow-sm);}
+body.dark .station-card{border:1px solid var(--dark-border);}
+.station-card h4{font-size:calc(15px * var(--font-scale));font-weight:800;margin-bottom:6px;color:var(--text);}
+.station-card .line-pills{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;}
+.station-card .line-pill{font-size:calc(11px * var(--font-scale));font-weight:800;color:#fff;padding:3px 8px;border-radius:5px;}
+.station-card .meta{font-size:calc(12.5px * var(--font-scale));color:var(--muted);line-height:1.7;}
+.station-card .meta b{color:var(--text);font-weight:700;}
+.bus-tab-switch{display:flex;gap:8px;margin-bottom:12px;background:var(--card);padding:6px;border-radius:14px;box-shadow:var(--shadow-sm);}
+body.dark .bus-tab-switch{border:1px solid var(--dark-border);}
+.bus-tab-switch .chip{flex:1;text-align:center;justify-content:center;background:transparent;border:none;box-shadow:none;}
+.bus-tab-switch .chip.on{background:linear-gradient(135deg,#2B5CFF,#4C8DFF);color:#fff;}
+.bus-route-item{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:16px;padding:15px 16px;margin-bottom:10px;box-shadow:var(--shadow-sm);cursor:pointer;}
+body.dark .bus-route-item{border:1px solid var(--dark-border);}
+.bus-line-badge{width:60px;height:46px;border-radius:12px;flex-shrink:0;display:grid;place-items:center;font-size:calc(13px * var(--font-scale));font-weight:800;color:#fff;text-align:center;padding:0 4px;line-height:1.1;}
+.bus-line-badge.gx{background:linear-gradient(135deg,#2B5CFF,#4C8DFF);}
+.bus-line-badge.zb{background:linear-gradient(135deg,#0E9F6E,#34D399);}
+.bus-line-badge.free{background:linear-gradient(135deg,#0E9F6E,#34D399);}
+.bus-info{flex:1;min-width:0;}
+.bus-info h4{font-size:calc(15px * var(--font-scale));font-weight:700;margin-bottom:3px;line-height:1.35;color:var(--text);}
+.bus-info p{font-size:calc(12.5px * var(--font-scale));color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bus-info .bus-meta{display:flex;gap:10px;font-size:calc(12px * var(--font-scale));color:var(--muted);font-weight:600;margin-top:5px;flex-wrap:wrap;}
+.search-overlay{position:absolute;inset:0;background:var(--bg);z-index:200;display:flex;flex-direction:column;transform:translateY(100%);opacity:0;pointer-events:none;transition:transform .24s ease,opacity .24s ease;}
+.search-overlay.open{transform:none;opacity:1;pointer-events:auto;}
+.so-head{display:flex;align-items:center;gap:10px;padding:calc(12px + var(--safe-top)) 14px 12px;background:var(--card);border-bottom:1px solid var(--line);flex-shrink:0;}
+.so-back{width:46px;height:46px;border-radius:50%;border:none;background:var(--input-bg);color:var(--text);font-size:18px;display:grid;place-items:center;cursor:pointer;flex-shrink:0;}
+.so-input-wrap{flex:1;display:flex;align-items:center;gap:8px;background:var(--input-bg);border-radius:12px;padding:0 14px;height:46px;}
+.so-input-wrap input{flex:1;border:none;background:none;outline:none;font-size:calc(15px * var(--font-scale));font-family:inherit;color:var(--text);min-width:0;}
+.so-body{flex:1;overflow-y:auto;padding:16px 16px calc(24px + var(--safe-bottom));}
+.so-hint{font-size:calc(14px * var(--font-scale));color:var(--muted);text-align:center;margin-top:50px;line-height:1.9;}
+.quick-tags{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:16px;}
+.quick-tags span{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:9px 16px;font-size:calc(13.5px * var(--font-scale));color:var(--text);font-weight:600;cursor:pointer;min-height:44px;display:inline-flex;align-items:center;}
+.result-group{font-size:calc(12.5px * var(--font-scale));font-weight:800;color:var(--muted);letter-spacing:1px;margin:6px 2px 10px;}
+.result-item{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:14px;padding:14px;margin-bottom:9px;cursor:pointer;box-shadow:var(--shadow-sm);}
+body.dark .result-item{border:1px solid var(--dark-border);}
+.ri-ico{width:42px;height:42px;border-radius:12px;flex-shrink:0;display:grid;place-items:center;font-size:19px;background:#EEF3FF;}
+body.dark .ri-ico{background:#1A2454;}
+.ri-ico.p{background:#E8FBF3;}
+.ri-ico.b{background:#FFF4E5;}
+.ri-txt{flex:1;min-width:0;}
+.ri-txt h4{font-size:calc(15px * var(--font-scale));font-weight:700;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text);}
+.ri-txt p{font-size:calc(12.5px * var(--font-scale));color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.credit-card{background:var(--card);border-radius:16px;padding:18px 20px;margin-bottom:12px;box-shadow:var(--shadow-sm);}
+body.dark .credit-card{border:1px solid var(--dark-border);}
+.credit-card h3{font-size:calc(16px * var(--font-scale));font-weight:800;margin-bottom:10px;color:var(--primary);display:flex;align-items:center;gap:8px;}
+.credit-card .row{display:flex;font-size:calc(13px * var(--font-scale));line-height:1.7;margin-bottom:5px;}
+.credit-card .row .label{flex:0 0 70px;color:var(--muted);font-weight:600;}
+.credit-card .row .value{flex:1;color:var(--text);}
+.license-box{background:var(--bg);border-radius:12px;padding:12px 14px;margin-top:10px;font-size:calc(12px * var(--font-scale));line-height:1.7;color:var(--muted);}
+body.dark .license-box{background:#0A0F15;}
+.faq-item{background:var(--card);border-radius:14px;padding:17px 18px;margin-bottom:10px;box-shadow:var(--shadow-sm);cursor:pointer;}
+body.dark .faq-item{border:1px solid var(--dark-border);}
+.faq-q{font-size:calc(15px * var(--font-scale));font-weight:700;display:flex;align-items:flex-start;gap:10px;line-height:1.5;color:var(--text);}
+.faq-q .arrow{margin-left:auto;color:var(--muted);font-size:15px;transition:transform .2s;}
+.faq-item.open .faq-q .arrow{transform:rotate(90deg);}
+.faq-a{font-size:calc(13.5px * var(--font-scale));color:var(--muted);line-height:1.75;margin-top:10px;padding-top:10px;border-top:1px solid var(--line);display:none;}
+.faq-item.open .faq-a{display:block;}
+.rate-card{background:linear-gradient(135deg,#0E9F6E,#34D399);border-radius:18px;padding:20px;color:#fff;box-shadow:0 8px 24px rgba(14,159,110,.25);margin-bottom:16px;}
+.rate-card h3{font-size:calc(14px * var(--font-scale));font-weight:700;opacity:.92;margin-bottom:6px;}
+.rate-main{font-size:calc(32px * var(--font-scale));font-weight:800;letter-spacing:-1px;line-height:1;margin-bottom:6px;}
+.rate-sub{font-size:calc(12.5px * var(--font-scale));opacity:.88;line-height:1.5;}
+.rate-conv{margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.2);}
+.rate-conv-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.rate-conv-row input{flex:1;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:10px;padding:12px;color:#fff;font-size:calc(16px * var(--font-scale));font-family:inherit;font-weight:700;outline:none;min-width:0;min-height:48px;}
+.rate-conv-row select{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:10px;padding:12px;color:#fff;font-size:calc(14px * var(--font-scale));font-family:inherit;font-weight:700;outline:none;min-height:48px;}
+.rate-conv-row select option{color:#000;}
+.rate-swap{background:rgba(255,255,255,.2);border:none;color:#fff;width:48px;height:48px;border-radius:50%;cursor:pointer;font-size:17px;flex-shrink:0;display:grid;place-items:center;}
+.rate-result{background:rgba(255,255,255,.15);border-radius:12px;padding:13px 14px;font-size:calc(15px * var(--font-scale));font-weight:700;text-align:center;}
+.pay-card{background:var(--card);border-radius:14px;padding:15px 16px;margin-bottom:10px;box-shadow:var(--shadow-sm);}
+body.dark .pay-card{border:1px solid var(--dark-border);}
+.pay-card h4{font-size:calc(15px * var(--font-scale));font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--text);}
+.pay-card .pay-tag{display:inline-block;font-size:calc(11px * var(--font-scale));font-weight:800;padding:3px 9px;border-radius:6px;}
+.pay-card .pay-tag.yes{background:#E6F8EF;color:#0A7A54;}
+.pay-card .pay-tag.no{background:#FFECEC;color:#C43030;}
+.pay-card .pay-tag.partial{background:#FFF4E5;color:#A85E00;}
+.pay-card p{font-size:calc(13px * var(--font-scale));color:var(--muted);line-height:1.6;}
+.pay-rate-card{background:var(--card);border-radius:18px;padding:20px;margin-bottom:16px;box-shadow:var(--shadow-md);}
+body.dark .pay-rate-card{border:1px solid var(--dark-border);}
+.pay-rate-card h3{font-size:16px;font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:8px;color:var(--text);}
+.pay-rate-card .prc-sub{font-size:12.5px;color:var(--muted);margin-bottom:14px;line-height:1.5;}
+.pay-methods{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px;}
+.pay-method{padding:12px 10px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);color:var(--text);font-family:inherit;text-align:center;cursor:pointer;min-height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;}
+.pay-method .pm-ico{font-size:20px;line-height:1;}
+.pay-method .pm-name{font-size:12px;font-weight:700;}
+.pay-method.on{border-color:#5B2BCF;background:#F5EEFF;box-shadow:0 0 0 3px rgba(140,76,255,.12);}
+body.dark .pay-method.on{background:#2A1A54;border-color:#8C4CFF;}
+.pay-rate-display{background:linear-gradient(135deg,#5B2BCF,#8C4CFF);border-radius:14px;padding:18px;color:#fff;text-align:center;}
+.pay-rate-display .prd-label{font-size:12px;opacity:.9;margin-bottom:6px;}
+.pay-rate-display .prd-value{font-size:28px;font-weight:900;letter-spacing:-.5px;line-height:1;}
+.pay-rate-display .prd-note{font-size:11.5px;opacity:.85;margin-top:8px;line-height:1.4;}
+.conv-table{width:100%;border-collapse:collapse;font-size:calc(13px * var(--font-scale));margin-top:8px;}
+.conv-table th{background:var(--bg);color:var(--muted);font-weight:700;padding:9px 10px;text-align:left;border-bottom:2px solid var(--line);font-size:calc(12px * var(--font-scale));}
+.conv-table td{padding:8px 10px;border-bottom:1px solid var(--line);color:var(--text);}
+.conv-table tr:last-child td{border-bottom:none;}
+.conv-table .tc{color:var(--primary);font-weight:600;}
+.conv-table .sc{color:var(--muted);}
+.conv-search{width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--line);background:var(--input-bg);color:var(--text);font-size:calc(14px * var(--font-scale));font-family:inherit;outline:none;margin-bottom:10px;}
+.bus-detail-overlay{position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:250;display:none;align-items:flex-end;justify-content:center;}
+.bus-detail-overlay.open{display:flex;}
+.bus-detail-sheet{background:var(--card);border-radius:22px 22px 0 0;width:100%;max-width:680px;max-height:85vh;overflow-y:auto;padding:20px 20px calc(20px + var(--safe-bottom));box-shadow:0 -8px 32px rgba(0,0,0,.2);}
+body.dark .bus-detail-sheet{background:#161B22;}
+.bus-detail-sheet h3{font-size:calc(18px * var(--font-scale));font-weight:800;margin-bottom:4px;color:var(--text);}
+.bus-detail-sheet .bd-sub{font-size:calc(13px * var(--font-scale));color:var(--muted);margin-bottom:14px;}
+.bus-detail-sheet .bd-stops{background:var(--bg);border-radius:14px;padding:12px 14px;margin-bottom:14px;}
+body.dark .bus-detail-sheet .bd-stops{background:#0F141B;}
+.bd-stop-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:calc(14px * var(--font-scale));}
+.bd-stop-row:last-child{border-bottom:none;}
+.bd-stop-dot{width:10px;height:10px;border-radius:50%;background:var(--primary);flex-shrink:0;}
+.bd-stop-dot.terminal{background:#0E9F6E;width:12px;height:12px;}
+.bd-stop-name{flex:1;font-weight:600;color:var(--text);}
+.bd-map-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:14px;border-radius:13px;border:none;background:linear-gradient(135deg,#2B5CFF,#4C8DFF);color:#fff;font-size:calc(15px * var(--font-scale));font-weight:800;cursor:pointer;font-family:inherit;margin-bottom:10px;}
+.bd-close-btn{display:block;width:100%;padding:13px;border-radius:13px;border:1px solid var(--line);background:var(--card);color:var(--text);font-size:calc(15px * var(--font-scale));font-weight:700;cursor:pointer;font-family:inherit;}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:600;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;padding:20px;}
+.modal-overlay.open{opacity:1;pointer-events:auto;}
+.modal-box{background:var(--card);border-radius:18px;padding:24px;width:100%;max-width:360px;box-shadow:0 10px 30px rgba(0,0,0,.25);text-align:center;transform:scale(0.95);transition:transform .2s;max-height:85vh;overflow-y:auto;}
+.modal-overlay.open .modal-box{transform:scale(1);}
+.modal-box h3{font-size:18px;font-weight:800;margin-bottom:10px;color:var(--text);}
+.modal-box p{font-size:14px;color:var(--muted);line-height:1.5;margin-bottom:20px;}
+.modal-box .m-tel{font-size:24px;font-weight:900;color:var(--primary);margin-bottom:20px;letter-spacing:1px;}
+.modal-actions{display:flex;gap:10px;}
+.modal-actions button{flex:1;padding:12px;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;border:none;}
+.modal-actions .btn-cancel{background:var(--bg);color:var(--text);border:1px solid var(--line);}
+.modal-actions .btn-confirm{background:var(--primary);color:#fff;}
+.badge-grid{display:flex;gap:10px;overflow-x:auto;padding:4px 0;}
+.badge-grid::-webkit-scrollbar{display:none;}
+.badge-item{flex-shrink:0;width:76px;text-align:center;cursor:pointer;transition:transform .15s;position:relative;}
+.badge-item:active{transform:scale(.94);}
+.badge-item .b-ico{width:56px;height:56px;border-radius:50%;background:var(--bg);border:2px solid var(--line);display:grid;place-items:center;font-size:24px;margin:0 auto 6px;position:relative;}
+.badge-item .b-ico.unlocked{background:linear-gradient(135deg,#EEF3FF,#DCE6FF);border-color:#2B5CFF;box-shadow:0 4px 12px rgba(43,92,255,.2);}
+body.dark .badge-item .b-ico.unlocked{background:linear-gradient(135deg,#1A2454,#2A3468);border-color:#58A6FF;}
+.badge-item .b-ico .b-check{position:absolute;top:-2px;right:-2px;width:18px;height:18px;border-radius:50%;background:#0E9F6E;color:#fff;font-size:10px;display:grid;place-items:center;border:2px solid var(--card);font-weight:900;}
+.badge-item .b-name{font-size:calc(10px * var(--font-scale));font-weight:700;color:var(--muted);line-height:1.3;}
+.badge-item .b-name.unlocked{color:var(--primary);}
+.badge-progress-mini{width:52px;height:3px;background:var(--line);border-radius:2px;margin:4px auto 0;overflow:hidden;}
+.badge-progress-mini i{display:block;height:100%;background:var(--primary);border-radius:2px;transition:width .3s;}
+.badge-detail-ico{width:80px;height:80px;border-radius:50%;background:var(--bg);border:3px solid var(--line);display:grid;place-items:center;font-size:38px;margin:0 auto 14px;}
+.badge-detail-ico.unlocked{background:linear-gradient(135deg,#EEF3FF,#DCE6FF);border-color:#2B5CFF;box-shadow:0 6px 20px rgba(43,92,255,.25);}
+body.dark .badge-detail-ico.unlocked{background:linear-gradient(135deg,#1A2454,#2A3468);border-color:#58A6FF;}
+.badge-detail-progress{width:100%;height:8px;background:var(--line);border-radius:4px;margin:12px 0;overflow:hidden;}
+.badge-detail-progress i{display:block;height:100%;background:linear-gradient(90deg,#2B5CFF,#4C8DFF);border-radius:4px;transition:width .4s ease;}
+.badge-detail-stat{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);font-weight:700;margin-bottom:10px;}
+.badge-unlock-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:650;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;}
+.badge-unlock-overlay.open{opacity:1;pointer-events:auto;}
+.badge-unlock-box{background:var(--card);border-radius:24px;padding:32px 24px 24px;width:88%;max-width:320px;text-align:center;transform:scale(.7);transition:transform .35s cubic-bezier(.34,1.56,.64,1);box-shadow:0 20px 60px rgba(0,0,0,.3);position:relative;overflow:hidden;}
+.badge-unlock-overlay.open .badge-unlock-box{transform:scale(1);}
+.badge-unlock-box::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(43,92,255,.15),transparent 60%);pointer-events:none;}
+.badge-unlock-box .bu-sparkles{position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:40px;animation:bounceIn .8s ease;}
+@keyframes bounceIn{0%{transform:translate(-50%,-30px) scale(0);opacity:0;}60%{transform:translate(-50%,10px) scale(1.15);opacity:1;}100%{transform:translate(-50%,0) scale(1);}}
+.badge-unlock-box .bu-ico{width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,#EEF3FF,#DCE6FF);border:3px solid #2B5CFF;display:grid;place-items:center;font-size:48px;margin:0 auto 14px;box-shadow:0 8px 24px rgba(43,92,255,.3);animation:pulseGlow 1.5s ease infinite;}
+body.dark .badge-unlock-box .bu-ico{background:linear-gradient(135deg,#1A2454,#2A3468);border-color:#58A6FF;}
+@keyframes pulseGlow{0%,100%{box-shadow:0 8px 24px rgba(43,92,255,.3);}50%{box-shadow:0 8px 32px rgba(43,92,255,.55);}}
+.badge-unlock-box h2{font-size:20px;font-weight:900;color:var(--text);margin-bottom:6px;position:relative;}
+.badge-unlock-box .bu-name{font-size:17px;font-weight:800;color:var(--primary);margin-bottom:6px;position:relative;}
+.badge-unlock-box .bu-desc{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:20px;position:relative;}
+.badge-unlock-box .bu-close{background:linear-gradient(135deg,#2B5CFF,#4C8DFF);color:#fff;border:none;padding:13px 32px;border-radius:12px;font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 6px 16px rgba(43,92,255,.35);position:relative;}
+.reports-log-list{display:flex;flex-direction:column;gap:10px;}
+.report-log-card{background:var(--card);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow-sm);border-left:4px solid var(--primary);}
+body.dark .report-log-card{border:1px solid var(--dark-border);border-left:4px solid var(--primary);}
+.report-log-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;}
+.report-log-top h4{font-size:calc(14.5px * var(--font-scale));font-weight:800;color:var(--text);}
+.report-log-time{font-size:calc(11.5px * var(--font-scale));color:var(--muted);font-weight:600;flex-shrink:0;}
+.report-log-wait{font-size:calc(20px * var(--font-scale));font-weight:900;color:var(--primary);margin:4px 0;}
+.report-log-note{font-size:calc(12.5px * var(--font-scale));color:var(--muted);line-height:1.5;margin-top:6px;padding-top:6px;border-top:1px dashed var(--line);}
+.reports-log-empty{text-align:center;padding:60px 20px;color:var(--muted);font-size:calc(14px * var(--font-scale));line-height:1.9;}
+.side-menu-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;opacity:0;pointer-events:none;transition:opacity .28s;backdrop-filter:blur(2px);}
+.side-menu-overlay.open{opacity:1;pointer-events:auto;}
+.side-menu{position:fixed;top:0;left:0;bottom:0;width:290px;max-width:86vw;background:var(--card);z-index:501;transform:translateX(-100%);transition:transform .32s cubic-bezier(.22,.9,.35,1);box-shadow:8px 0 32px rgba(0,0,0,.18);display:flex;flex-direction:column;overflow-y:auto;}
+.side-menu.open{transform:none;}
+body.dark .side-menu{box-shadow:8px 0 32px rgba(0,0,0,.6);}
+.sm-head{padding:calc(28px + var(--safe-top)) 22px 22px;background:linear-gradient(135deg,#1E3FCC,#2B5CFF 60%,#5B8CFF);color:#fff;border-radius:0 0 22px 22px;position:relative;overflow:hidden;}
+.sm-head::after{content:'';position:absolute;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.1);top:-80px;right:-50px;pointer-events:none;}
+.sm-head .avatar{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.25);border:1.5px solid rgba(255,255,255,.45);display:grid;place-items:center;font-weight:800;font-size:18px;margin-bottom:10px;position:relative;z-index:1;}
+.sm-head h2{font-size:17px;font-weight:800;position:relative;z-index:1;}
+.sm-head p{font-size:12px;opacity:.85;margin-top:3px;position:relative;z-index:1;}
+.sm-list{padding:14px 12px calc(20px + var(--safe-bottom));flex:1;}
+.sm-item{display:flex;align-items:center;gap:12px;padding:14px 14px;border-radius:12px;cursor:pointer;font-size:14.5px;font-weight:600;color:var(--text);}
+.sm-item:active{background:var(--card-hover);}
+body.dark .sm-item:active{background:#1C232C;}
+.sm-item .sm-ico{font-size:18px;width:24px;text-align:center;flex-shrink:0;}
+.sm-item .sm-badge{margin-left:auto;font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:6px;background:#EEF3FF;color:#2B5CFF;}
+body.dark .sm-item .sm-badge{background:#1A2454;color:#88AAFF;}
+.sm-divider{height:1px;background:var(--line);margin:8px 14px;}
+.sm-section-label{font-size:11px;font-weight:800;color:var(--muted);letter-spacing:1px;padding:8px 14px 4px;text-transform:uppercase;}
+.ai-hero{background:linear-gradient(135deg,#5B2BCF,#8C4CFF 55%,#C86BFF);padding:calc(20px + var(--safe-top)) 20px 24px;color:#fff;border-radius:0 0 26px 26px;position:relative;overflow:hidden;}
+.ai-hero h1{font-size:22px;font-weight:800;margin-bottom:5px;position:relative;z-index:1;}
+.ai-hero p{font-size:13px;opacity:.9;position:relative;z-index:1;line-height:1.5;}
+.ai-hero-badge{display:inline-block;background:rgba(255,255,255,.25);font-size:11.5px;font-weight:800;padding:4px 12px;border-radius:999px;margin-bottom:10px;position:relative;z-index:1;}
+.ai-form{background:var(--card);border-radius:18px;padding:20px;margin:16px;box-shadow:var(--shadow-md);}
+body.dark .ai-form{border:1px solid var(--dark-border);}
+.ai-step{margin-bottom:18px;}
+.ai-step:last-of-type{margin-bottom:8px;}
+.ai-step h3{font-size:13.5px;font-weight:800;color:var(--muted);letter-spacing:.5px;margin-bottom:10px;text-transform:uppercase;}
+.ai-step select{width:100%;padding:13px 14px;border-radius:12px;border:1px solid var(--line);background:var(--input-bg);color:var(--text);font-family:inherit;font-size:15px;font-weight:700;outline:none;min-height:48px;}
+.ai-chips{display:flex;gap:8px;flex-wrap:wrap;}
+.ai-chip{padding:11px 18px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--text);font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;min-height:46px;}
+.ai-chip.on{background:linear-gradient(135deg,#5B2BCF,#8C4CFF);color:#fff;border-color:transparent;box-shadow:0 6px 16px rgba(140,76,255,.3);}
+.ai-run-btn{width:100%;padding:16px;border-radius:14px;border:none;background:linear-gradient(135deg,#5B2BCF,#8C4CFF);color:#fff;font-family:inherit;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 10px 28px rgba(140,76,255,.35);margin-top:6px;}
+.ai-run-btn:disabled{opacity:.6;cursor:not-allowed;}
+.ai-results{padding:0 16px calc(24px + var(--safe-bottom));}
+.ai-result-head{font-size:15px;font-weight:800;margin:18px 4px 12px;display:flex;align-items:center;gap:8px;color:var(--text);}
+.ai-result-head small{font-size:12px;color:var(--muted);font-weight:600;}
+.ai-route-card{background:var(--card);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:var(--shadow-sm);cursor:pointer;border-left:4px solid #8C4CFF;}
+body.dark .ai-route-card{border:1px solid var(--dark-border);border-left:4px solid #8C4CFF;}
+.arc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px;}
+.arc-title{font-size:15px;font-weight:800;line-height:1.35;flex:1;color:var(--text);}
+.arc-fit{font-size:11px;font-weight:800;padding:4px 9px;border-radius:6px;background:#EEF3FF;color:#5B2BCF;white-space:nowrap;flex-shrink:0;}
+body.dark .arc-fit{background:#2A1A54;color:#C8A8FF;}
+.arc-meta{display:flex;gap:12px;font-size:12px;color:var(--muted);font-weight:600;flex-wrap:wrap;}
+.arc-why{margin-top:10px;padding:10px 12px;background:linear-gradient(135deg,#F5EEFF,#EDE0FF);border-radius:10px;font-size:12.5px;color:#4A1FA0;line-height:1.5;}
+body.dark .arc-why{background:#2A1A54;color:#C8A8FF;}
+.ai-empty{text-align:center;padding:50px 20px;color:var(--muted);font-size:14px;line-height:1.8;}
+.ai-home-cta{margin-top:12px;display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#5B2BCF,#8C4CFF);border-radius:16px;padding:16px 18px;color:#fff;cursor:pointer;box-shadow:0 10px 28px rgba(140,76,255,.3);}
+.ai-home-cta:active{transform:scale(.985);}
+.itin-card{background:var(--card);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:var(--shadow-sm);}
+body.dark .itin-card{border:1px solid var(--dark-border);}
+.itin-card h4{font-size:calc(15px * var(--font-scale));font-weight:800;margin-bottom:10px;color:var(--text);}
+.itin-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);cursor:pointer;min-height:52px;}
+.itin-item:last-child{border-bottom:none;}
+.itin-item input[type="checkbox"]{width:24px;height:24px;margin-top:2px;accent-color:#2B5CFF;cursor:pointer;flex-shrink:0;}
+.itin-item .ii-txt{flex:1;min-width:0;}
+.itin-item .ii-txt h5{font-size:calc(14.5px * var(--font-scale));font-weight:700;margin-bottom:2px;color:var(--text);}
+.itin-item .ii-txt p{font-size:calc(12.5px * var(--font-scale));color:var(--muted);line-height:1.5;}
+.itin-item .ii-time{font-size:calc(12px * var(--font-scale));color:var(--primary);font-weight:800;flex-shrink:0;}
+.itin-item .ii-cost{width:70px;flex-shrink:0;padding:6px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text);font-family:inherit;font-size:calc(13px * var(--font-scale));text-align:right;outline:none;}
+.itin-item .ii-cat{background:transparent;border:none;font-size:16px;padding:4px;cursor:pointer;outline:none;}
+.itin-empty{text-align:center;padding:30px 20px;color:var(--muted);font-size:calc(13.5px * var(--font-scale));line-height:1.6;}
+.trip-time-setup{background:var(--card);border-radius:16px;padding:18px 16px;margin-bottom:12px;box-shadow:var(--shadow-sm);}
+body.dark .trip-time-setup{border:1px solid var(--dark-border);}
+.trip-time-setup h4{font-size:calc(15px * var(--font-scale));font-weight:800;margin-bottom:12px;color:var(--text);}
+.trip-time-row{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.trip-time-row:last-child{margin-bottom:0;}
+.trip-time-row label{flex:0 0 70px;font-size:calc(14px * var(--font-scale));font-weight:700;color:var(--text);}
+.trip-time-row input[type="time"]{flex:1;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--input-bg);color:var(--text);font-size:calc(16px * var(--font-scale));font-family:inherit;font-weight:700;outline:none;min-height:48px;}
+.trip-time-row .time-hint{font-size:calc(12px * var(--font-scale));color:var(--muted);flex-shrink:0;}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:17px 18px;border-bottom:1px solid var(--line);}
+.setting-row:last-child{border-bottom:none;}
+.setting-row .sl{display:flex;align-items:center;gap:12px;font-size:calc(15px * var(--font-scale));font-weight:600;color:var(--text);}
+.setting-row .sl .si{font-size:18px;width:26px;text-align:center;}
+.toggle{position:relative;width:54px;height:32px;background:#C5CAD6;border-radius:999px;cursor:pointer;transition:background .2s;flex-shrink:0;min-width:54px;}
+body.dark .toggle{background:#3A4050;}
+.toggle.on{background:var(--primary);}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:26px;height:26px;background:#fff;border-radius:50%;transition:transform .2s;}
+.toggle.on::after{transform:translateX(22px);}
+.font-slider{width:140px;accent-color:var(--primary);cursor:pointer;}
+.font-labels{display:flex;justify-content:space-between;width:140px;font-size:11px;color:var(--muted);margin-top:2px;}
+.theme-grid{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;}
+.theme-swatch{width:44px;height:44px;border-radius:50%;cursor:pointer;border:3px solid transparent;display:grid;place-items:center;color:#fff;font-weight:900;font-size:16px;opacity:0;}
+.theme-swatch.on{border-color:var(--text);box-shadow:0 0 0 3px rgba(43,92,255,.2);transform:scale(1.08);opacity:1;}
+.report-fab{position:fixed;bottom:calc(80px + var(--safe-bottom));right:16px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#0E9F6E,#34D399);color:#fff;border:none;font-size:22px;display:grid;place-items:center;cursor:pointer;box-shadow:0 8px 24px rgba(14,159,110,.35);z-index:100;}
+.report-fab:active{transform:scale(.94);}
+.report-sheet{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:350;display:none;align-items:flex-end;justify-content:center;}
+.report-sheet.open{display:flex;}
+.report-sheet .rs-box{background:var(--card);border-radius:22px 22px 0 0;width:100%;max-width:680px;padding:22px 20px calc(22px + var(--safe-bottom));box-shadow:0 -8px 32px rgba(0,0,0,.2);max-height:90vh;overflow-y:auto;}
+.report-sheet .rs-box h3{font-size:18px;font-weight:800;margin-bottom:6px;color:var(--text);}
+.report-sheet .rs-box p{font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.5;}
+.report-options{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.report-opt{padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--text);font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;}
+.report-opt.on{background:var(--primary);color:#fff;border-color:var(--primary);}
+.report-note{width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--input-bg);font-family:inherit;font-size:14px;color:var(--text);resize:none;min-height:60px;outline:none;margin-bottom:14px;}
+.report-submit{width:100%;padding:14px;border-radius:13px;border:none;background:linear-gradient(135deg,#0E9F6E,#34D399);color:#fff;font-weight:800;font-size:15px;cursor:pointer;font-family:inherit;}
+.report-close{width:100%;padding:12px;border-radius:13px;border:1px solid var(--line);background:var(--card);color:var(--text);font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;margin-top:8px;}
+body.power-saver .skeleton{animation:none !important;background:var(--line) !important;}
+body.power-saver .toast{animation:none !important;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="screens">
+
+    <!-- 首頁 -->
+    <section class="screen active" id="screen-home">
+      <div class="hero" id="homeHero">
+        <div class="hero-row">
+          <div class="hero-left-group">
+            <button class="hero-menu-btn" onclick="openSideMenu()" aria-label="選單">☰</button>
+            <div><p class="hero-hi">你好，訪客 👋</p><h1 class="hero-title">今日想去深圳邊度？</h1></div>
+          </div>
+        </div>
+        <button class="searchbox" onclick="openSearch()" aria-label="開啟搜尋">
+          <span aria-hidden="true">🔍</span><span>搜尋景點、口岸、路線</span>
+        </button>
+      </div>
+
+      <div class="shortcut-island" id="shortcutIsland"></div>
+
+      <div class="weather-card" id="weatherCard">
+        <div class="w-ico skeleton skeleton-text" id="wIcon" style="width:34px;height:34px;border-radius:50%;"></div>
+        <div class="w-info">
+          <div class="w-city">深圳 · 現在</div>
+          <div class="w-temp skeleton skeleton-text" id="wTemp" style="width:80px;height:28px;margin-top:4px;"></div>
+          <div class="w-desc skeleton skeleton-text" id="wDesc" style="width:100px;height:18px;margin-top:4px;"></div>
+        </div>
+        <div class="w-hk" id="wHk">香港<br><b class="skeleton skeleton-text" style="width:30px;height:20px;"></b></div>
+      </div>
+
+      <div class="weather-advice" id="weatherAdvice">
+        <span id="weatherAdviceText"></span>
+        <button class="w-adv-btn" onclick="goWeatherRoute()">👉 查看路線</button>
+      </div>
+      <div class="holiday-banner" id="holidayBanner">🎉 今日係週末／假期，預計下午過關人流較多，建議提早回港。</div>
+
+      <div class="alert-banner" id="alertBanner" role="alert">
+        <span class="ai" aria-hidden="true">⚠️</span>
+        <div class="at">
+          <h4 id="alertTitle">載入中…</h4>
+          <p id="alertText">正在讀取最新口岸資訊…</p>
+          <button class="alt-port-btn" id="altPortBtn" onclick="suggestAltPort()">💡 查看替代口岸</button>
+        </div>
+        <button class="ax" onclick="dismissAlert()" aria-label="關閉警告">✕</button>
+      </div>
+
+      <div class="body">
+        <div class="sec-head"><h2>🔥 社交媒體熱搜</h2><span>小紅書 / 抖音 / IG</span></div>
+        <div class="chips" id="homeChips">
+          <button class="chip on" onclick="setHomeFilter('all',this)">全部</button>
+          <button class="chip" onclick="setHomeFilter('flash',this)">⚡ 快閃</button>
+          <button class="chip" onclick="setHomeFilter('half',this)">🚶 半日</button>
+        </div>
+
+        <div class="ai-home-cta" onclick="openAiPlanner()">
+          <span style="font-size:28px;">🤖</span>
+          <div style="flex:1;">
+            <div style="font-size:15px;font-weight:800;margin-bottom:3px;">AI 限時玩樂推薦</div>
+            <div style="font-size:12px;opacity:.88;">你仲有幾多個鐘？話我知，即刻幫你 plan。</div>
+          </div>
+          <span style="font-size:18px;">›</span>
+        </div>
+
+        <div class="sec-head"><h2>熱門口岸即時狀態</h2><span id="portUpdateTime">更新於 —</span></div>
+        <div class="hscroll" id="homePorts"></div>
+
+        <div class="sec-head" style="margin-top:24px;"><h2>📣 即時過關回報</h2><span>港人互助 · 匿名</span></div>
+        <div id="communityReports" style="font-size:calc(12.5px * var(--font-scale));color:var(--muted);line-height:1.7;"></div>
+
+        <div class="sec-head"><h2>精選路線</h2><button class="link" onclick="switchTab('routes')">查看全部 ›</button></div>
+        <div id="homeRoutes"></div>
+        <div class="sec-head" style="margin-top:24px;"><h2>💡 港人貼士</h2><span id="tipIndexLabel">隨機</span></div>
+        <div class="tip-box" id="hkTipBox"><span class="ti">💡</span><p id="hkTipText">載入中…</p></div>
+      </div>
+    </section>
+
+    <!-- 路線 -->
+    <section class="screen" id="screen-routes">
+      <div class="page-head"><h1>路線攻略</h1><p>社交媒體熱搜 · 港人高頻路線</p></div>
+      <div class="body">
+        <div class="chips">
+          <button class="chip on" onclick="setRoutesFilter('all',this)">全部</button>
+          <button class="chip" onclick="setRoutesFilter('flash',this)">⚡ 快閃</button>
+          <button class="chip" onclick="setRoutesFilter('half',this)">🚶 半日</button>
+        </div>
+        <div id="routesList"></div>
+      </div>
+    </section>
+
+    <!-- 路線詳情 -->
+    <section class="screen" id="screen-route">
+      <div class="detail-hero">
+        <button class="back" onclick="goBack()" aria-label="返回">←</button>
+        <div class="dh-badge" id="routeHeroBadge">—</div>
+        <h1 id="routeHeroTitle">—</h1>
+        <p class="sub" id="routeHeroSub">—</p>
+        <div class="dh-stats">
+          <div id="routeStat1"><strong>—</strong><span>總時長</span></div>
+          <div id="routeStat2"><strong>—</strong><span>交通費</span></div>
+          <div id="routeStat3"><strong>—</strong><span>步行</span></div>
+        </div>
+      </div>
+      <div class="return-timer" id="returnTimer">
+        <div class="rt-head">⏰ 回程計時器 · <span id="rtPortName">—</span></div>
+        <div class="rt-main">
+          <div><div class="rt-countdown" id="rtCountdown">—</div><div class="rt-label" id="rtLabel">距離尾班車</div></div>
+          <div class="rt-info" id="rtInfo"></div>
+        </div>
+        <div class="rt-alt" id="rtAlt"></div>
+      </div>
+      <div class="body" style="padding-top:0;">
+        <div class="sec-head"><h2>行程時間軸</h2><span>可編輯時間</span></div>
+        <div class="timeline" id="routeTimeline"></div>
+      </div>
+      <div class="detail-actions">
+        <button class="btn-ghost" id="favBtn" onclick="toggleFav()">☆ 收藏</button>
+        <button class="btn-primary" onclick="openItinerary()">自訂行程</button>
+      </div>
+    </section>
+
+    <!-- 口岸 -->
+    <section class="screen" id="screen-port">
+      <div class="page-head"><h1>口岸指南</h1><p>香港去口岸 · 完整交通接駁</p></div>
+      <div class="body">
+        <div class="sec-head" style="margin-top:6px;">
+          <h2>口岸即時等候時間</h2>
+          <span id="portListUpdateTime" style="background:#E6F8EF;color:#0A7A54;font-size:calc(11px * var(--font-scale));font-weight:700;padding:3px 10px;border-radius:6px;">實時</span>
+        </div>
+        <div id="portsList"></div>
+        <div class="sec-head" style="margin-top:24px;"><h2>🕐 繁忙時段預測</h2></div>
+        <div id="portForecast"></div>
+        <div class="sec-head" style="margin-top:24px;"><h2>港人貼士</h2></div>
+        <div class="tip-box"><span class="ti">💡</span><p id="portTipText">—</p></div>
+        <p style="font-size:calc(11px * var(--font-scale));color:var(--muted);text-align:center;margin-top:14px;">
+          數據來源：香港入境事務處 · data.gov.hk
+        </p>
+      </div>
+    </section>
+
+    <!-- 口岸詳情 -->
+    <section class="screen" id="screen-portdetail">
+      <div class="detail-hero">
+        <button class="back" onclick="goBack()" aria-label="返回">←</button>
+        <div class="dh-badge" id="pdBadge">香港出發交通指南</div>
+        <h1 id="pdName">—</h1>
+        <p class="sub" id="pdSub">—</p>
+        <div class="dh-stats">
+          <div id="pdStat1"><strong>—</strong><span>出境狀態</span></div>
+          <div id="pdStat2"><strong>—</strong><span>入境狀態</span></div>
+        </div>
+      </div>
+      <div class="body">
+        <div class="sec-head"><h2>香港端接駁方式</h2></div>
+        <div id="pdSteps"></div>
+        <div class="sec-head" style="margin-top:20px;"><h2>🕐 今日繁忙時段</h2></div>
+        <div id="pdForecast"></div>
+        <div class="sec-head" style="margin-top:20px;"><h2>過關貼士</h2></div>
+        <div class="tip-box"><span class="ti">📌</span><p id="pdTip">—</p></div>
+        <div style="height:20px;"></div>
+        <button class="btn-primary" style="width:100%;" onclick="setPreferredPort(currentPortId)">設為常用口岸</button>
+      </div>
+    </section>
+
+    <!-- 交通圖 -->
+    <section class="screen" id="screen-metro">
+      <div class="page-head"><h1>深圳交通圖</h1><p>地鐵 · 公交 · 車站查詢</p></div>
+      <div class="body">
+        <div class="map-switch">
+          <button class="chip on" onclick="switchMapTab('metro',this)">🚇 地鐵圖</button>
+          <button class="chip" onclick="switchMapTab('bus',this)">🚌 公交路線</button>
+          <button class="chip" onclick="switchMapTab('station',this)">📍 車站查詢</button>
+          <button class="chip" onclick="switchMapTab('transfer',this)">🔄 尋路換乘</button>
+        </div>
+        <!-- 地圖區域標頭 — 僅地鐵圖分頁顯示 -->
+        <div class="map-zone-header" id="mapZoneHeader">
+          <span class="map-zone-chip hk">🇭🇰 香港</span>對接香港運輸署<span style="flex:1;"></span><span class="map-zone-chip sz">🇨🇳 深圳</span>對接深圳地鐵
+        </div>
+        <div id="panelMetro">
+          <div class="map-container" id="mapContainer">
+            <div class="map-hint">👆 拖拽平移 · 雙指縮放 · 雙擊回中心</div>
+            <div class="map-zoom-indicator" id="zoomIndicator">1.0x</div>
+            <object id="metroMapObj" type="image/svg+xml" data="https://upload.wikimedia.org/wikipedia/commons/9/9b/Shenzhen_Metro_%28Rapid_Transit%29_System_Map.svg" aria-label="深圳地鐵線路圖"></object>
+            <div class="map-fallback" id="mapFallback">⚠️ 地鐵圖載入失敗<br>請檢查網絡後重新整理。</div>
+            <div class="map-controls">
+              <button class="map-btn" onclick="zoomIn(event)" aria-label="放大">＋</button>
+              <button class="map-btn" onclick="zoomOut(event)" aria-label="縮小">－</button>
+              <button class="map-btn reset" onclick="resetZoom(event)" aria-label="重置">⟲</button>
+            </div>
+          </div>
+        </div>
+        <div id="panelBus" style="display:none;">
+          <div class="bus-tab-switch">
+            <button class="chip on" onclick="switchBusTab('hk',this)">🇭🇰 香港</button>
+            <button class="chip" onclick="switchBusTab('sz',this)">🇨🇳 深圳</button>
+          </div>
+          <div style="background:var(--card);border-radius:14px;padding:12px 16px;margin-bottom:14px;font-size:calc(13px * var(--font-scale));color:var(--muted);">📌 收錄 <strong id="busCount">0</strong> 條線路（<span id="busRegionLabel">香港</span>）。</div>
+          <div id="busRouteList"></div>
+        </div>
+        <div id="panelStation" style="display:none;">
+          <div class="so-input-wrap" style="margin-bottom:12px;background:var(--card);border:1px solid var(--line);height:46px;">
+            <span aria-hidden="true" style="font-size:16px;">🔍</span>
+            <input type="search" id="stationSearchInput" placeholder="搜尋車站名稱" oninput="renderStationList()" autocomplete="off" style="flex:1;border:none;background:none;outline:none;font-size:calc(15px * var(--font-scale));font-family:inherit;color:var(--text);">
+          </div>
+          <div id="stationList"></div>
+        </div>
+        <div id="panelTransfer" style="display:none;">
+          <div class="path-finder">
+            <h4>🧭 簡易尋路與換乘</h4>
+            <div class="path-selects">
+              <select id="pathStart"></select>
+              <span style="color:var(--muted);font-weight:800;">→</span>
+              <select id="pathEnd"></select>
+            </div>
+            <button class="btn-primary" style="height:44px;font-size:14px;" onclick="findPath()">規劃路線</button>
+            <div class="path-result" id="pathResult"></div>
+          </div>
+          <div class="sec-head"><h2>口岸 → 地鐵線路速查</h2></div>
+          <div class="metro-tip-card" onclick="openPort('p1')" style="cursor:pointer;"><div class="mt-ico">🚉</div><div class="mt-txt"><h4>福田口岸</h4><p>接駁深圳地鐵 <strong>4號線</strong></p></div></div>
+          <div class="metro-tip-card" onclick="openPort('p2')" style="cursor:pointer;"><div class="mt-ico">🚉</div><div class="mt-txt"><h4>深圳灣口岸</h4><p>接駁深圳地鐵 <strong>13號線</strong></p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AI -->
+    <section class="screen" id="screen-ai">
+      <div class="ai-hero">
+        <button class="back" style="background:rgba(255,255,255,.2);color:#fff;margin-bottom:14px;" onclick="goBack()" aria-label="返回">←</button>
+        <div class="ai-hero-badge">✨ AI 行程助手</div>
+        <h1>限時玩樂推薦</h1>
+        <p>只要你講得清「幾點 + 幾耐 + 想點玩」，我即刻幫你 plan 一條啱玩嘅路線。</p>
+      </div>
+      <div class="ai-form">
+        <div class="ai-step">
+          <h3>📍 你喺邊度？</h3>
+          <select id="aiStartPort">
+            <option value="福田口岸">福田口岸</option>
+            <option value="深圳灣口岸">深圳灣口岸</option>
+          </select>
+        </div>
+        <div class="ai-step">
+          <h3>⏱️ 你仲有幾耐？</h3>
+          <div class="ai-chips" id="aiTimeChips">
+            <button class="ai-chip" onclick="pickAiTime(2,this)">2 小時</button>
+            <button class="ai-chip on" onclick="pickAiTime(4,this)">4 小時</button>
+            <button class="ai-chip" onclick="pickAiTime(6,this)">6 小時</button>
+            <button class="ai-chip" onclick="pickAiTime(8,this)">8 小時</button>
+          </div>
+        </div>
+        <div class="ai-step">
+          <h3>🎨 你想點玩？</h3>
+          <div class="ai-chips" id="aiInterestChips">
+            <button class="ai-chip on" onclick="pickAiInterest('all',this)">🎯 全部</button>
+            <button class="ai-chip" onclick="pickAiInterest('coffee',this)">☕ 咖啡控</button>
+            <button class="ai-chip" onclick="pickAiInterest('nature',this)">🌿 自然</button>
+          </div>
+        </div>
+        <button class="ai-run-btn" id="aiRunBtn" onclick="runAiPlanner()">✨ 幫我規劃行程</button>
+      </div>
+      <div class="ai-results" id="aiResults"></div>
+    </section>
+
+    <!-- 我的 -->
+    <section class="screen" id="screen-me">
+      <div class="me-head">
+        <div class="avatar lg" id="meAvatar" role="button" tabindex="0" aria-label="頭像（連按 3 次查看回報記錄）" onclick="handleAvatarTap()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleAvatarTap();}">G</div>
+        <h2>訪客 Guest</h2>
+        <p>已收藏 <span id="favCount">0</span> 條路線 · 常用口岸：<span id="preferredPortLabel">未設定</span></p>
+        <p style="font-size:10.5px;opacity:.72;margin-top:0;letter-spacing:.2px;">✨ 連點頭像 3 次查看回報記錄</p>
+      </div>
+      <div class="body">
+        <div class="sec-head" style="margin-top:0;"><h2>🏅 港人北上足跡</h2><span id="badgeProgressLabel">0 / 0</span></div>
+        <div class="list-card" style="padding:14px 16px;margin-bottom:16px;">
+          <div class="badge-grid" id="badgeGrid"></div>
+        </div>
+
+        <!-- 「我的」頁面 — 僅保留個人化功能，其餘已移至側邊欄 -->
+        <div class="list-card">
+          <div class="list-row" onclick="openAiPlanner()"><span class="li-ico">🤖</span><span>AI 限時玩樂推薦</span><span style="margin-left:auto;color:#8C4CFF;font-size:11px;font-weight:800;">NEW</span><span class="li-arrow">›</span></div>
+          <div class="list-row" onclick="openItinerary()"><span class="li-ico">📅</span><span>我的自訂行程</span><span class="li-arrow">›</span></div>
+          <div class="list-row" onclick="go('favourites')"><span class="li-ico">⭐</span><span>我的收藏路線</span><span class="li-arrow">›</span></div>
+          <div class="list-row" onclick="openSideMenu()"><span class="li-ico">☰</span><span>更多功能（側邊欄）</span><span class="li-arrow">›</span></div>
+        </div>
+        <p class="version">港深通 v0.0.4 · 港人北上助手<br>實時數據：入境處 / Frankfurter / Open-Meteo / HKO</p>
+      </div>
+    </section>
+
+    <!-- 收藏 -->
+    <section class="screen" id="screen-favourites">
+      <div class="page-head" style="display:flex;align-items:center;gap:12px;">
+        <button class="back" style="background:var(--input-bg);color:var(--text);margin-bottom:0;" onclick="goBack()" aria-label="返回">←</button>
+        <div><h1 style="font-size:calc(21px * var(--font-scale));">我的收藏路線</h1><p style="font-size:calc(12.5px * var(--font-scale));color:var(--muted);margin-top:3px;">點擊重溫你嘅心水路線</p></div>
+      </div>
+      <div class="body"><div id="favouritesList"></div></div>
+    </section>
+
+    <!-- 緊急聯絡 -->
+    <section class="screen" id="screen-emergency">
+      <div class="page-head" style="display:flex;align-items:center;gap:12px;">
+        <button class="back" style="background:var(--input-bg);color:var(--text);margin-bottom:0;" onclick="goBack()" aria-label="返回">←</button>
+        <div><h1 style="font-size:calc(21px * var(--font-scale));">緊急聯絡電話</h1><p style="font-size:calc(12.5px * var(--font-scale));color:var(--muted);margin-top:3px;">北上必備 · 點擊即可查看及複製</p></div>
+      </div>
+      <div class="body">
+        <div class="emergency-grid" id="emergencyGrid"></div>
+        <div class="info-tip-box" style="margin-top:14px;">
+          <b>💡 緊急提示</b><br>
+          如遇緊急情況，請保持冷靜，先確保自身安全，再撥打相應熱線。
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="screen" id="screen-faq">
+      <div class="page-head" style="display:flex;align-items:center;gap:12px;">
+        <button class="back" style="background:var(--input-bg);color:var(--text);margin-bottom:0;" onclick="goBack()" aria-label="返回">←</button>
+        <div><h1 style="font-size:calc(21px * var(--font-scale));">北上常見問題</h1><p style="font-size:calc(12.5px * var(--font-scale));color:var(--muted);margin-top:3px;">FAQ</p></div>
+      </div>
+      <div class="body"><div id="faqList"></div></div>
+    </section>
+
+    <!-- 網絡助手 -->
+    <section class="screen" id="screen-network">
+      <div class="page-head" style="display:flex;align-items:center;gap:12px;">
+        <button class="back" style="background:var(--input-bg);color:var(--text);margin-bottom:0;" onclick="goBack()" aria-label="返回">←</button>
+        <div><h1 style="font-size:calc(21px * var(--font-scale));">內地網絡助手</h1><p style="font-size:calc(12.5px * var(--font-scale));color:var(--muted);margin-top:3px;">eSIM / SIM 檢測 · 漫遊設定</p></div>
+      </div>
+      <div class="body" id="networkBody">
+        <!-- 網絡助手內容保留插槽 -->
+      </div>
+    </section>
+
+    <!-- 支付與匯率 -->
+    <section class="screen" id="screen-wallet">
+      <div class="page-head" style="display:flex;align-items:center;gap:12px;">
+        <button class="back" style="background:var(--input-bg);color:var(--text);margin-bottom:0;" onclick="goBack()" aria-label="返回">←</button>
+        <div><h1 style="font-size:calc(21px * var(--font-scale));">支付與匯率助手</h1><p style="font-size:calc(12.5px * var(--font-scale));color:var(--muted);margin-top:3px;">匯率換算 · 跨境支付提示</p></div>
+      </div>
+      <div class="body">
+        <div class="pay-rate-card">
+          <h3>💳 你的支付工具</h3>
+          <div class="prc-sub">選擇你的支付方式，看看實際到手的人民幣匯率。</div>
+          <div class="pay-methods" id="payMethods">
+            <button class="pay-method on" data-method="general" onclick="selectPayMethod('general')"><span class="pm-ico">🏦</span><span class="pm-name">銀行中間價</span></button>
+            <button class="pay-method" data-method="alipayhk" onclick="selectPayMethod('alipayhk')"><span class="pm-ico">🅰️</span><span class="pm-name">AlipayHK</span></button>
+            <button class="pay-method" data-method="wechathk" onclick="selectPayMethod('wechathk')"><span class="pm-ico">💬</span><span class="pm-name">WeChat Pay HK</span></button>
+            <button class="pay-method" data-method="octopus" onclick="selectPayMethod('octopus')"><span class="pm-ico">🐙</span><span class="pm-name">八達通全國通</span></button>
+          </div>
+          <div class="pay-rate-display" id="payRateDisplay">
+            <div class="prd-label">實際到手匯率</div>
+            <div class="prd-value" id="payRateValue">1 HKD ≈ — CNY</div>
+            <div class="prd-note" id="payRateNote">以銀行中間價計算，無額外手續費。</div>
+          </div>
+        </div>
+
+        <div class="rate-card">
+          <h3>💱 即時參考匯率</h3>
+          <div class="rate-main" id="rateMain">1 HKD ≈ — CNY</div>
+          <div class="rate-sub" id="rateSub">載入中…</div>
+          <div class="rate-conv">
+            <div class="rate-conv-row">
+              <input type="number" id="convInput" value="1000" oninput="doConvert()">
+              <select id="convFrom" onchange="doConvert()"><option value="HKD">HKD</option><option value="CNY">CNY</option></select>
+              <button class="rate-swap" onclick="swapCurrency()">⇄</button>
+              <select id="convTo" onchange="doConvert()"><option value="CNY">CNY</option><option value="HKD">HKD</option></select>
+            </div>
+            <div class="rate-result" id="convResult">≈ —</div>
+          </div>
+        </div>
+
+        <div class="sec-head" style="margin-top:24px;"><h2>💳 電子支付</h2></div>
+        <div class="pay-card"><h4>AlipayHK <span class="pay-tag yes">大部分可用</span></h4><p>已與內地支付寶互通。<b>大型商場、連鎖餐廳、便利店</b>普遍支援。</p></div>
+        <div class="pay-card"><h4>WeChat Pay HK <span class="pay-tag partial">部分可用</span></h4><p>已開通跨境支付，但覆蓋率較 AlipayHK 略低。</p></div>
+        <div class="pay-card"><h4>PayMe <span class="pay-tag no">內地不支援</span></h4><p>PayMe 為香港本地 P2P 轉賬工具，<b>不支援內地商戶掃碼</b>。</p></div>
+
+        <div class="sec-head" style="margin-top:24px;"><h2>🔤 繁簡用語對照</h2><span>港人北上必備</span></div>
+        <div class="credit-card">
+          <input type="search" class="conv-search" id="convSearchInput" placeholder="搜尋用語…" oninput="renderConvTable()">
+          <div style="max-height:400px;overflow-y:auto;">
+            <table class="conv-table" id="convTable"><thead><tr><th>繁體（港式）</th><th>簡體（內地）</th></tr></thead><tbody id="convTableBody"></tbody></table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 自訂行程 -->
+    <section class="screen" id="screen-itinerary">
+      <div class="page-head" style="display:flex;align-items:center;gap:12px;">
+        <button class="back" style="background:var(--input-bg);color:var(--text);margin-bottom:0;" onclick="goBack()" aria-label="返回">←</button>
+        <div><h1 style="font-size:calc(21px * var(--font-scale));">我的自訂行程</h1><p style="font-size:calc(12.5px * var(--font-scale));color:var(--muted);margin-top:3px;">勾選步驟組成專屬時間表</p></div>
+      </div>
+      <div class="body">
+        <div class="trip-time-setup">
+          <h4>⏰ 設定行程時間</h4>
+          <div class="trip-time-row"><label>出發時間</label><input type="time" id="itinStartTime" value="09:00" onchange="updateItineraryTimes()"><span class="time-hint">起點出發</span></div>
+          <div class="trip-time-row"><label>回程時間</label><input type="time" id="itinEndTime" value="18:00" onchange="updateItineraryTimes()"><span class="time-hint">預計返港</span></div>
+          <div class="trip-time-row"><label>總時長</label><span id="itinDuration" style="font-size:calc(16px * var(--font-scale));font-weight:800;color:var(--primary);">9 小時 0 分鐘</span></div>
+        </div>
+        <div class="itin-card"><h4>📋 選擇行程步驟</h4><div id="itinSource"></div></div>
+        <div class="itin-card"><h4>⏱️ 我的行程表</h4><div id="itinSelected"></div></div>
+        <div class="itin-card" style="background:linear-gradient(135deg,#EEF3FF,#DCE6FF);">
+          <h4 style="color:var(--primary);">💰 行程記帳總計</h4>
+          <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:10px;">
+            <div>
+              <div style="font-size:13px;color:var(--muted);font-weight:700;">總花費（人民幣）</div>
+              <div id="itinTotalCny" style="font-size:24px;font-weight:800;color:var(--text);">¥ 0</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:13px;color:var(--primary);font-weight:700;">折算港幣（參考）</div>
+              <div id="itinTotalHkd" style="font-size:24px;font-weight:800;color:var(--primary);">HK$ 0</div>
+            </div>
+          </div>
+        </div>
+        <div class="itin-card">
+          <h4>📤 匯出 / 分享</h4>
+          <button class="btn-secondary" onclick="exportText()">📋 複製行程表文字</button>
+          <button class="btn-secondary" onclick="clearItinerary()">🗑️ 清空行程</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 設定 -->
+    <section class="screen" id="screen-settings">
+      <div class="page-head" style="display:flex;align-items:center;gap:12px;">
+        <button class="back" style="background:var(--input-bg);color:var(--text);margin-bottom:0;" onclick="goBack()" aria-label="返回">←</button>
+        <div><h1 style="font-size:calc(21px * var(--font-scale));">設定</h1><p style="font-size:calc(12.5px * var(--font-scale));color:var(--muted);margin-top:3px;">顯示 · 主題 · 無障礙</p></div>
+      </div>
+      <div class="body">
+        <div class="list-card">
+          <div class="setting-row"><div class="sl"><span class="si">🌙</span><span>暗黑模式</span></div><div class="toggle" id="toggleDark" onclick="toggleDarkMode()" role="switch" tabindex="0"></div></div>
+          <div class="setting-row" style="flex-direction:column;align-items:flex-start;gap:10px;">
+            <div class="sl" style="width:100%;justify-content:space-between;">
+              <span><span class="si">🔍</span><span>字體大小</span></span>
+              <span id="fontSliderLabel" style="font-size:13px;color:var(--primary);font-weight:700;">100%</span>
+            </div>
+            <div style="width:100%;display:flex;flex-direction:column;align-items:center;">
+              <input type="range" id="fontSizeSlider" class="font-slider" min="1" max="1.6" step="0.05" value="1" oninput="changeFontSize(this.value)">
+              <div class="font-labels"><span>標準</span><span>特大</span></div>
+            </div>
+          </div>
+          <div class="setting-row" style="flex-direction:column;align-items:flex-start;gap:12px;">
+            <div class="sl"><span class="si">🎨</span><span>主題色</span></div>
+            <div class="theme-grid" id="themeGrid">
+              <div class="theme-swatch on" data-theme="blue" style="background:linear-gradient(135deg,#2B5CFF,#4C8DFF);" onclick="setTheme('blue')">✓</div>
+              <div class="theme-swatch" data-theme="purple" style="background:linear-gradient(135deg,#5B2BCF,#8C4CFF);" onclick="setTheme('purple')">✓</div>
+              <div class="theme-swatch" data-theme="green" style="background:linear-gradient(135deg,#0E9F6E,#34D399);" onclick="setTheme('green')">✓</div>
+              <div class="theme-swatch" data-theme="pink" style="background:linear-gradient(135deg,#D6336C,#F783AC);" onclick="setTheme('pink')">✓</div>
+              <div class="theme-swatch" data-theme="orange" style="background:linear-gradient(135deg,#E8590C,#FFA94D);" onclick="setTheme('orange')">✓</div>
+            </div>
+          </div>
+          <div class="setting-row"><div class="sl"><span class="si">🔋</span><span>省電模式</span></div><div class="toggle" id="togglePowerSaver" onclick="togglePowerSaver()" role="switch" tabindex="0"></div></div>
+          <div class="setting-row"><div class="sl"><span class="si">🌗</span><span>跟隨系統深色模式</span></div><div class="toggle" id="toggleAutoDark" onclick="toggleAutoDark()" role="switch" tabindex="0"></div></div>
+        </div>
+        <p style="font-size:calc(11px * var(--font-scale));color:var(--muted);text-align:center;margin-top:16px;line-height:1.6;">港深通 v0.0.4 · 所有數據僅存於本機<br>不會上傳任何個人資料</p>
+      </div>
+    </section>
+
+    <!-- Credits -->
+    <section class="screen" id="screen-credits">
+      <div class="page-head" style="display:flex;align-items:center;gap:12px;">
+        <button class="back" style="background:var(--input-bg);color:var(--text);margin-bottom:0;" onclick="goBack()" aria-label="返回">←</button>
+        <div><h1 style="font-size:calc(21px * var(--font-scale));">資料來源與版權</h1><p style="font-size:calc(12.5px * var(--font-scale));color:var(--muted);margin-top:3px;">Credits</p></div>
+      </div>
+      <div class="body">
+        <div class="credit-card">
+          <h3>🗺️ 深圳地鐵線路圖</h3>
+          <div class="row"><span class="label">作者</span><span class="value">Wahsaw</span></div>
+          <div class="row"><span class="label">來源</span><span class="value">Wikimedia Commons</span></div>
+          <div class="row"><span class="label">授權</span><span class="value">CC BY-SA 4.0</span></div>
+        </div>
+        <div class="credit-card">
+          <h3>⏱️ 陸路邊境管制站等候時間</h3>
+          <div class="row"><span class="label">來源</span><span class="value">香港入境事務處 · data.gov.hk</span></div>
+          <div class="row"><span class="label">更新</span><span class="value">每 15 分鐘</span></div>
+          <div class="license-box"><strong>使用條款：</strong>根據 data.gov.hk 使用條款，你可免費瀏覽、下載、分發、複製、超連結及列印資料，作商業及非商業用途，但須遵守使用條款、標明資料來源、確認政府及相關機構的知識產權，並向政府及相關機構作出彌償。資料以「現狀」提供，政府不承擔任何準確性、完整性或適用性保證。<br><br><strong>狀態代碼（香港居民）：</strong>0 = 正常（一般少於 15 分鐘）· 1 = 繁忙（一般少於 30 分鐘）· 2 = 非常繁忙（一般 30 分鐘或以上）· 4 = 系統維護 · 99 = 非服務時間</div>
+        </div>
+        <div class="credit-card">
+          <h3>🌤️ 天氣數據</h3>
+          <div class="row"><span class="label">來源 1</span><span class="value">香港天文台 (HKO)</span></div>
+          <div class="row"><span class="label">來源 2</span><span class="value">Open-Meteo (CC BY 4.0)</span></div>
+        </div>
+        <div class="credit-card">
+          <h3>💱 匯率數據</h3>
+          <div class="row"><span class="label">來源</span><span class="value">Frankfurter API · ECB</span></div>
+          <div class="license-box">Frankfurter 為開源免費 API（MIT License），匯率來自歐洲中央銀行，僅供參考。</div>
+        </div>
+        <div class="credit-card">
+          <h3>🛡️ 隱私與合規聲明</h3>
+          <div class="row"><span class="label">追蹤</span><span class="value">本應用不收集任何個人資料</span></div>
+          <div class="row"><span class="label">網絡</span><span class="value">僅讀取公開資料，不主動上傳</span></div>
+          <div class="row"><span class="label">本地儲存</span><span class="value">僅使用 localStorage</span></div>
+          <div class="license-box">本應用為個人非商業專案。所有外部數據來源均為公開資料，使用時已標明出處並遵守相關授權條款。口岸等候時間數據根據 data.gov.hk 使用條款作免費非商業使用，並已標明資料來源為香港入境事務處。</div>
+        </div>
+        <p style="text-align:center;font-size:calc(11px * var(--font-scale));color:var(--muted);margin-top:22px;line-height:1.7;">港深通 v0.0.4 · 港人北上助手<br>© 2026 港深通 (Produced by HKMAKSLO AICMLAB)</p>
+      </div>
+    </section>
+
+    <!-- 回報記錄頁 -->
+    <section class="screen" id="screen-reports-log">
+      <div class="page-head" style="display:flex;align-items:center;gap:12px;">
+        <button class="back" style="background:var(--input-bg);color:var(--text);margin-bottom:0;" onclick="goBack()" aria-label="返回">←</button>
+        <div><h1 style="font-size:calc(21px * var(--font-scale));">即時通關回報記錄</h1><p style="font-size:calc(12.5px * var(--font-scale));color:var(--muted);margin-top:3px;">所有回報 · 儲存於本機</p></div>
+      </div>
+      <div class="body">
+        <div class="reports-log-list" id="reportsLogList"></div>
+        <div style="display:flex;gap:10px;margin-top:20px;">
+          <button class="btn-secondary" onclick="exportReportsLog()" style="flex:1;">📋 匯出所有回報</button>
+          <button class="btn-secondary" onclick="clearReportsLog()" style="flex:1;color:#C43030;">🗑️ 清空記錄</button>
+        </div>
+        <div class="info-tip-box" style="margin-top:16px;">
+          <b>ℹ️ 關於此頁</b><br>
+          此頁儲存你所有匿名回報，只儲存於本機 localStorage，不會上傳到任何伺服器。<br>
+          <span style="color:var(--muted);font-size:12px;">💡 提示：在「我的」頁點擊頭像 3 次即可快速打開此頁。</span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <nav class="tabbar">
+    <button class="tab active" data-tab="home" onclick="switchTab('home')"><span class="ico">🏠</span><span>首頁</span></button>
+    <button class="tab" data-tab="routes" onclick="switchTab('routes')"><span class="ico">🗺️</span><span>路線</span></button>
+    <button class="tab" data-tab="port" onclick="switchTab('port')"><span class="ico">🛂</span><span>口岸</span></button>
+    <button class="tab" data-tab="metro" onclick="switchTab('metro')"><span class="ico">🚇</span><span>交通圖</span></button>
+    <button class="tab" data-tab="me" onclick="switchTab('me')"><span class="ico">👤</span><span>我的</span></button>
+  </nav>
+
+  <div class="side-menu-overlay" id="sideMenuOverlay" onclick="closeSideMenu()"></div>
+  <aside class="side-menu" id="sideMenu" aria-hidden="true" role="navigation">
+    <div class="sm-head">
+      <div class="avatar">G</div>
+      <h2>訪客 Guest</h2>
+      <p>港深通 · 港人北上助手</p>
+    </div>
+    <div class="sm-list">
+      <div class="sm-section-label">北上規劃</div>
+      <div class="sm-item" onclick="closeSideMenu(); openAiPlanner()"><span class="sm-ico">🤖</span>AI 限時玩樂<span class="sm-badge">NEW</span></div>
+      <div class="sm-item" onclick="closeSideMenu(); openItinerary()"><span class="sm-ico">📅</span>我的自訂行程</div>
+      <div class="sm-item" onclick="closeSideMenu(); go('favourites')"><span class="sm-ico">⭐</span>我的收藏路線</div>
+      <div class="sm-divider"></div>
+      <div class="sm-section-label">實用工具</div>
+      <div class="sm-item" onclick="closeSideMenu(); go('wallet')"><span class="sm-ico">💰</span>支付與匯率助手</div>
+      <div class="sm-item" onclick="closeSideMenu(); go('network')"><span class="sm-ico">📶</span>內地網絡助手</div>
+      <div class="sm-item" onclick="closeSideMenu(); go('emergency')"><span class="sm-ico">🆘</span>緊急聯絡電話</div>
+      <div class="sm-item" onclick="closeSideMenu(); go('faq')"><span class="sm-ico">❓</span>北上常見問題</div>
+      <div class="sm-item" onclick="closeSideMenu(); openReportsLog()"><span class="sm-ico">📣</span>過關回報記錄</div>
+      <div class="sm-divider"></div>
+      <div class="sm-section-label">設定</div>
+      <div class="sm-item" onclick="closeSideMenu(); go('settings')"><span class="sm-ico">⚙️</span>個人化設定</div>
+      <div class="sm-item" onclick="closeSideMenu(); go('credits')"><span class="sm-ico">📜</span>資料來源與版權</div>
+    </div>
+  </aside>
+
+  <div class="search-overlay" id="searchOverlay">
+    <div class="so-head">
+      <button class="so-back" onclick="closeSearch()" aria-label="關閉搜尋">←</button>
+      <div class="so-input-wrap"><span aria-hidden="true" style="font-size:16px;">🔍</span><input id="searchInput" type="search" placeholder="搜尋景點、口岸、路線、公交" oninput="doSearch()" autocomplete="off"></div>
+    </div>
+    <div class="so-body" id="searchBody"></div>
+  </div>
+
+  <div class="bus-detail-overlay" id="busDetailOverlay" onclick="if(event.target===this)closeBusDetail()">
+    <div class="bus-detail-sheet" id="busDetailSheet">
+      <h3 id="bdTitle">—</h3>
+      <div class="bd-sub" id="bdSub">—</div>
+      <div class="bd-stops" id="bdStops"></div>
+      <button class="bd-map-btn" id="bdMapBtn" onclick="openBusMap()">🗺️ 在高德地圖中查看站點</button>
+      <button class="bd-close-btn" onclick="closeBusDetail()">關閉</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal-box">
+      <h3 id="modalTitle">提示</h3>
+      <p id="modalDesc"></p>
+      <div class="m-tel" id="modalTel">0000 0000</div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal()">取消</button>
+        <button class="btn-confirm" id="modalConfirmBtn">複製號碼</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 徽章解鎖彈窗 -->
+  <div class="badge-unlock-overlay" id="badgeUnlockOverlay" onclick="if(event.target===this)closeBadgeUnlock()">
+    <div class="badge-unlock-box">
+      <div class="bu-sparkles">✨🎉✨</div>
+      <div class="bu-ico" id="buIco">🏅</div>
+      <h2>徽章解鎖！</h2>
+      <div class="bu-name" id="buName">—</div>
+      <div class="bu-desc" id="buDesc">—</div>
+      <button class="bu-close" onclick="closeBadgeUnlock()">繼續</button>
+    </div>
+  </div>
+
+  <!-- 徽章詳情彈窗 -->
+  <div class="modal-overlay" id="badgeDetailModal">
+    <div class="modal-box">
+      <div class="badge-detail-ico" id="bdIco">🏅</div>
+      <h3 id="bdName">—</h3>
+      <p id="bdDesc" style="margin-bottom:10px;">—</p>
+      <div class="badge-detail-progress"><i id="bdProgress" style="width:0%;"></i></div>
+      <div class="badge-detail-stat"><span id="bdCurrent">0</span><span id="bdTarget">0</span></div>
+      <div style="font-size:12px;color:var(--muted);margin-top:8px;" id="bdUnlockedAt"></div>
+      <div class="modal-actions" style="margin-top:16px;">
+        <button class="btn-confirm" onclick="closeBadgeDetail()" style="flex:1;">關閉</button>
+      </div>
+    </div>
+  </div>
+
+  <button class="report-fab" id="reportFab" onclick="openReportSheet()" aria-label="即時過關回報">📣</button>
+
+  <div class="report-sheet" id="reportSheet" onclick="if(event.target===this)closeReportSheet()">
+    <div class="rs-box">
+      <h3>📣 即時過關回報</h3>
+      <p>匿名分享你嘅真實排隊時間，幫其他港人避開高峯。</p>
+      <div style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text);">選擇口岸</div>
+      <div class="report-options" id="reportPortOptions"></div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text);">等候時間</div>
+      <div class="report-options" id="reportTimeOptions">
+        <button class="report-opt" onclick="selectReportTime('少於 10 分鐘',this)">少於 10 分鐘</button>
+        <button class="report-opt" onclick="selectReportTime('10–20 分鐘',this)">10–20 分鐘</button>
+        <button class="report-opt" onclick="selectReportTime('20–30 分鐘',this)">20–30 分鐘</button>
+        <button class="report-opt" onclick="selectReportTime('超過 30 分鐘',this)">超過 30 分鐘</button>
+      </div>
+      <textarea class="report-note" id="reportNote" placeholder="備註（選填）"></textarea>
+      <button class="report-submit" onclick="submitReport()">匿名提交回報</button>
+      <button class="report-close" onclick="closeReportSheet()">取消</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   港深通 v0.0.4
+   資料陣列保留插入位置（10 組）
+   ============================================================ */
+
+/* ---------- 1. 緊急聯絡 ---------- */
+const emergencyContacts = [
+  {name:'深圳報警', tel:'110', desc:'24小時緊急報警', ico:'🚓'},
+  {name:'深圳急救', tel:'120', desc:'24小時醫療急救', ico:'🚑'},
+  {name:'香港入境處', tel:'2824 6111', desc:'24小時查詢', ico:'🛂'},
+  {name:'港人求助熱線', tel:'1868', desc:'入境處協助', ico:'🆘'}
+  /* 📌 在此插入更多緊急聯絡 */
+];
+
+/* ---------- 2. 繁簡對照 ---------- */
+const CONV_TABLE = [
+  {tc:'的士', sc:'打車 / 出租車'},{tc:'巴士', sc:'公交車'},{tc:'地鐵', sc:'地鐵'},{tc:'過關', sc:'通關'},
+  {tc:'尾班車', sc:'末班車'},{tc:'轉車', sc:'換乘'},{tc:'手信', sc:'伴手禮'},{tc:'埋單', sc:'結賬'}
+  /* 📌 在此插入更多繁簡對照 */
+];
+
+/* ---------- 3. 巴士路線 ---------- */
+const busRoutesData = [
+  {id:'hk1',region:'hk',type:'gx',number:'B1',title:'天水圍（天慈邨）↔ 落馬洲站（福田口岸）',roads:'元朗公路、新田公路',time:'06:30–22:30',fare:'$15.1',interval:'15–20分鐘',kw:'B1 天水圍 落馬洲 福田口岸',stops:['天水圍（天慈邨）','元朗廣場','元朗站','形點','新田','落馬洲站'],amapQuery:'B1 天水圍 落馬洲'},
+  {id:'sz1',region:'sz',type:'gx',number:'M506',title:'深圳灣口岸 → 中山園場站',roads:'深南大道、南海大道',time:'07:00–22:00',fare:'¥2',interval:'15–20分鐘',kw:'M506 深圳灣口岸',stops:['深圳灣口岸','後海濱路口','南山郵局','中山園場站'],amapQuery:'M506'}
+  /* 📌 在此插入更多巴士路線 */
+];
+
+/* ---------- 4. 路線 ---------- */
+const routesData = [
+  {id:'r1',cat:'flash',catLabel:'2小時快閃',badge:'',thumb:'⚡',thumbCls:'',title:'福田 COCO Park・喜茶＋手信',from:'福田口岸',path:'福田口岸 → 購物公園站',duration:'2小時10分',cost:'¥80',transit:'🚇 2個站',time:'2:10',fee:'¥2',walk:'1.5km',kw:'福田 coco park 喜茶 手信 快閃',interests:['coffee'],steps:[
+    {icon:'🛂',time:'09:00',title:'福田口岸過關',desc:'建議使用 e-道，候檢約 15 分鐘。',addr:'福田口岸',mapq:'福田口岸'},
+    {icon:'🚇',time:'09:20',title:'地鐵 4 號線 → 購物公園站',desc:'福田口岸站上車，2 個站直達。',transit:'🚇 4號線 · 2站 · ¥2',addr:'购物公园地铁站',mapq:'购物公园地铁站'},
+    {icon:'🧋',time:'09:35',title:'COCO Park・喜茶＋手信',desc:'喜茶、奈雪、鮑師傅都在此。',addr:'星河COCO Park(福田店)',mapq:'星河COCOPark福田店'},
+    {icon:'🛂',time:'11:10',title:'返回福田口岸',desc:'預留 25 分鐘過關緩衝。',transit:'🚇 4號線 · 2站',addr:'福田口岸',mapq:'福田口岸'}
+  ]}
+  /* 📌 在此插入更多路線 */
+];
+
+/* ---------- 5. 口岸 ---------- */
+const portsData = [
+  {id:'p1',name:'福田口岸',sub:'06:30 – 22:30 · 落馬洲支線',cpCode:'LSC',kw:'福田 落馬洲 4號線 B1 75',steps:[
+    {icon:'🚇',title:'港鐵東鐵線 → 落馬洲站',desc:'由金鐘出發約 50 分鐘。尾班車約 22:11。'},
+    {icon:'🚌',title:'九巴 B1 線',desc:'天水圍（天慈邨）↔ 落馬洲站。$15.1。'}
+  ],tip:'落馬洲站人流一般較羅湖少，過關後可直接轉乘深圳地鐵 4 號線。'},
+  {id:'p2',name:'深圳灣口岸',sub:'06:30 – 24:00 · 跨境巴士',cpCode:'SBC',kw:'深圳灣 B2 B3X 13號線',steps:[
+    {icon:'🚌',title:'城巴 B3X 線',desc:'屯門市中心 ↔ 深圳灣口岸。$16.5。'},
+    {icon:'🚇',title:'過關後接駁',desc:'深圳地鐵 13 號線深圳灣口岸站。'}
+  ],tip:'深圳灣口岸開放時間為每日上午 6 時 30 分至午夜 12 時正。'}
+  /* 📌 在此插入更多口岸 */
+];
+
+/* ---------- 6. 地鐵圖 ---------- */
+const metroGraph = {
+  '福田口岸': ['福民'], '福民': ['福田口岸', '會展中心'],
+  '會展中心': ['福民', '購物公園'], '購物公園': ['會展中心'],
+  '深圳灣口岸': ['後海'], '後海': ['深圳灣口岸', '世界之窗'], '世界之窗': ['後海']
+  /* 📌 在此插入更多地鐵連接 */
+};
+
+/* ---------- 7. FAQ ---------- */
+const faqData = [
+  {q:'香港電子錢包可在內地使用嗎？',a:'AlipayHK、WeChat Pay HK、八達通等均支援內地跨境付款，按當時匯率以港元記帳。'},
+  {q:'八達通全國通卡可以在深圳用嗎？',a:'可以！支援內地 336 個城市（包括深圳），直接拍卡搭深圳地鐵及公交。'},
+  {q:'如何選擇合適的口岸？',a:'應根據目的地選擇。去南山用深圳灣口岸，去福田用福田口岸。'},
+  {q:'的士（打車）用咩 App 好？',a:'內地最普及係「滴滴出行」，香港手機號碼可直接註冊。'}
+  /* 📌 在此插入更多 FAQ */
+];
+
+/* ---------- 8. 車站 ---------- */
+const stationsData = [
+  {name:'福田口岸站', lines:[{l:'4號線',c:'#F39800'},{l:'10號線',c:'#8B6914'}], exits:'A/B/C 出口接駁福田口岸', malls:'福田口岸商業城', toPort:'即為福田口岸'},
+  {name:'購物公園站', lines:[{l:'1號線',c:'#00A651'},{l:'3號線',c:'#8B6914'}], exits:'C 出口往星河 COCO Park', malls:'星河 COCO Park', toPort:'往福田口岸 2 站'},
+  {name:'後海站', lines:[{l:'2號線',c:'#E60012'},{l:'11號線',c:'#8B6914'},{l:'13號線',c:'#0075C9'}], exits:'D 出口往海岸城', malls:'海岸城、深圳灣萬象城', toPort:'往深圳灣口岸 2 站'}
+  /* 📌 在此插入更多車站 */
+];
+
+/* ---------- 9. 港人貼士 ---------- */
+const hkTips = [
+  '深圳六大口岸已全面支援「刷臉過關」。',
+  '深圳灣口岸是唯一 24 小時通關的陸路口岸。',
+  '專線小巴 75 線是前往落馬洲支線管制站最便宜的交通工具。',
+  '乘高鐵由西九龍到福田只需 14 分鐘。',
+  'AlipayHK 已與內地支付寶互通，大型商場普遍可用。',
+  '蓮花山公園免費入場，山頂可俯瞰整個福田CBD。'
+  /* 📌 在此插入更多貼士 */
+];
+
+/* ---------- 10. 網絡助手（內容由 HTML 插槽保留） ---------- */
+/* 網絡助手頁面內容已在 HTML #networkBody 中保留，可在此插入動態生成邏輯 */
+
+/* ---------- 常數 ---------- */
+const QUEUE_STATUS = {
+  0:  { text: '正常',     cls: 'ok',          desc: '一般少於 15 分鐘',   bufferMin: 15, avgMin: 8, icon: '✓' },
+  1:  { text: '繁忙',     cls: 'mid',         desc: '一般少於 30 分鐘',   bufferMin: 30, avgMin: 22, icon: '!' },
+  2:  { text: '非常繁忙', cls: 'busy',        desc: '一般 30 分鐘或以上', bufferMin: 45, avgMin: 42, icon: '!!' },
+  4:  { text: '系統維護', cls: 'maintenance', desc: '系統維護中',         bufferMin: 30, avgMin: 0, icon: '🛠' },
+  99: { text: '非服務時間', cls: 'maintenance', desc: '非服務時間',       bufferMin: 30, avgMin: 0, icon: '⏱' }
+};
+const DEFAULT_PORT_DATA = {
+  'LSC': { arrQueue: 0, depQueue: 0 },
+  'SBC': { arrQueue: 0, depQueue: 0 }
+};
+
+/* ---------- 狀態 ---------- */
+let currentScreen = 'home';
+let navStack = [];
+let homeFilter = 'all';
+let routesFilter = 'all';
+let busRegion = 'hk';
+let currentRouteId = null;
+let currentBusRouteId = null;
+let currentPortId = null;
+const favSet = new Set();
+let preferredPortId = null;
+let mapInitialized = false;
+let mapScale = 1, mapTranslateX = 0, mapTranslateY = 0;
+let baseWidth = 0, baseHeight = 0;
+let isDragging = false, startX = 0, startY = 0;
+let initialDistance = 0, initialScale = 1;
+let initialTranslateX = 0, initialTranslateY = 0;
+let initialMidX = 0, initialMidY = 0;
+const MIN_SCALE = 1, MAX_SCALE = 16;
+let returnTimerInterval = null;
+let hkdToCny = null;
+let hkdToCnyDate = null;
+let itinerarySteps = [];
+let itineraryStartTime = '09:00';
+let itineraryEndTime = '18:00';
+let realtimePortData = DEFAULT_PORT_DATA;
+let weatherData = null;
+let svgDoc = null;
+let reportPort = null;
+let reportTime = null;
+let aiTime = 4;
+let aiInterest = 'all';
+let currentPayMethod = 'general';
+let avatarTapCount = 0, avatarTapTimer = null;
+let unlockQueue = [];
+
+const LS = {
+  get(key, def){ try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : def; } catch(e){ return def; } },
+  set(key, val){ try { localStorage.setItem(key, JSON.stringify(val)); } catch(e){} }
+};
+
+/* ---------- 基礎工具 ---------- */
+function haptic(){ if (navigator.vibrate && !LS.get('powerSaver', false)) navigator.vibrate(10); }
+let toastTimer = null;
+function toast(msg){
+  const old = document.querySelector('.toast'); if (old) old.remove();
+  clearTimeout(toastTimer);
+  const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
+  document.querySelector('.app').appendChild(t);
+  toastTimer = setTimeout(() => t.remove(), 1900);
+}
+function showModal(title, desc, tel, callback) {
+  const modal = document.getElementById('confirmModal');
+  if (!modal) return;
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalDesc').textContent = desc;
+  document.getElementById('modalTel').textContent = tel;
+  const confirmBtn = document.getElementById('modalConfirmBtn');
+  if (confirmBtn) {
+    const newBtn = confirmBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
+    newBtn.addEventListener('click', () => { if (callback) callback(); closeModal(); });
+  }
+  modal.classList.add('open');
+  haptic();
+}
+function closeModal() { const m = document.getElementById('confirmModal'); if (m) m.classList.remove('open'); haptic(); }
+function fallbackCopy(text){
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); toast(`已複製：${text}`); haptic(); } catch(e){ toast('複製失敗'); }
+  document.body.removeChild(ta);
+}
+function escapeHTML(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* ---------- 側邊欄 ---------- */
+function openSideMenu(){
+  document.getElementById('sideMenu').classList.add('open');
+  document.getElementById('sideMenu').setAttribute('aria-hidden','false');
+  document.getElementById('sideMenuOverlay').classList.add('open');
+  haptic();
+}
+function closeSideMenu(){
+  document.getElementById('sideMenu').classList.remove('open');
+  document.getElementById('sideMenu').setAttribute('aria-hidden','true');
+  document.getElementById('sideMenuOverlay').classList.remove('open');
+  haptic();
+}
+
+/* ---------- 導航 ---------- */
+function go(screenId, tabId, push){
+  if (push !== false && currentScreen && currentScreen !== screenId) {
+    navStack.push(currentScreen);
+    if (navStack.length > 30) navStack.shift();
+  }
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const t = document.getElementById('screen-' + screenId);
+  if (t) { t.classList.add('active'); t.scrollTop = 0; }
+  let effectiveTab = tabId;
+  if (!effectiveTab) { const cur = document.querySelector('.tab.active'); effectiveTab = cur ? cur.dataset.tab : screenId; }
+  document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.dataset.tab === effectiveTab));
+  currentScreen = screenId;
+  if (screenId === 'home') { rotateRandomTip(); updateAlertBanner(); }
+  if (screenId === 'favourites') renderFavourites();
+  if (screenId === 'emergency') renderEmergency();
+  if (screenId === 'metro' && !mapInitialized) { requestAnimationFrame(() => requestAnimationFrame(() => { initMapSize(); mapInitialized = true; })); }
+  if (screenId === 'itinerary') renderItinerary();
+  if (screenId === 'wallet') { updateRateCard(); renderConvTable(); updatePayRateDisplay(); }
+  if (screenId === 'faq') renderFAQ();
+  if (screenId === 'me') renderBadges();
+  if (screenId === 'reports-log') renderReportsLog();
+  haptic();
+}
+function switchTab(tab){ navStack = []; go(tab, tab, false); }
+function goBack(){
+  const back = navStack.pop();
+  if (back && back !== currentScreen) go(back, null, false);
+  else go('home', 'home', false);
+}
+function switchMapTab(tab, el){
+  ['metro','bus','station','transfer'].forEach(t => {
+    const p = document.getElementById('panel' + t.charAt(0).toUpperCase() + t.slice(1));
+    if (p) p.style.display = (t === tab) ? 'block' : 'none';
+  });
+  document.querySelectorAll('.map-switch .chip').forEach(c => c.classList.remove('on'));
+  if (el) el.classList.add('on');
+  // 地圖區域標頭僅在「地鐵圖」分頁顯示
+  const zoneHeader = document.getElementById('mapZoneHeader');
+  if (zoneHeader) zoneHeader.classList.toggle('hidden', tab !== 'metro');
+  if (tab === 'metro' && !mapInitialized) { requestAnimationFrame(() => requestAnimationFrame(() => { initMapSize(); mapInitialized = true; })); }
+  if (tab === 'station') renderStationList();
+  if (tab === 'transfer') initPathFinder();
+  haptic();
+}
+function switchBusTab(region, el){
+  busRegion = region;
+  document.querySelectorAll('.bus-tab-switch .chip').forEach(c => c.classList.remove('on'));
+  if (el) el.classList.add('on');
+  renderBusRouteList();
+  haptic();
+}
+function dismissAlert(){ document.getElementById('alertBanner').classList.add('hidden'); haptic(); }
+
+/* ---------- 貼士 ---------- */
+function rotateRandomTip(){
+  const box = document.getElementById('hkTipBox'); const txt = document.getElementById('hkTipText'); const idx = document.getElementById('tipIndexLabel');
+  if (!box || !txt) return;
+  const i = Math.floor(Math.random() * hkTips.length);
+  txt.textContent = hkTips[i];
+  if (idx) idx.textContent = `隨機 #${String(i + 1).padStart(2,'0')}`;
+}
+
+/* ---------- 路線渲染 ---------- */
+function routeCardHTML(r){
+  return `<div class="route-card" onclick="openRoute('${r.id}')">
+    <div class="rc-thumb ${r.thumbCls}">${r.thumb}</div>
+    <div class="rc-info">
+      <div class="rc-badge ${r.badge}">${r.catLabel}</div>
+      <h3>${r.title}</h3>
+      <p>${r.path}</p>
+      <div class="rc-meta"><span>⏱ ${r.duration}</span><span>💰 ${r.cost}</span><span>${r.transit}</span></div>
+    </div>
+  </div>`;
+}
+function renderHomeRoutes(){
+  const list = homeFilter === 'all' ? routesData : routesData.filter(r => r.cat === homeFilter);
+  document.getElementById('homeRoutes').innerHTML = list.length ? list.map(routeCardHTML).join('') : '<div class="empty">此分類暫無路線</div>';
+}
+function renderRoutesList(){
+  const list = routesFilter === 'all' ? routesData : routesData.filter(r => r.cat === routesFilter);
+  document.getElementById('routesList').innerHTML = list.length ? list.map(routeCardHTML).join('') : '<div class="empty">此分類暫無路線</div>';
+}
+function setHomeFilter(cat, el){ homeFilter = cat; el.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('on')); el.classList.add('on'); renderHomeRoutes(); haptic(); }
+function setRoutesFilter(cat, el){ routesFilter = cat; el.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('on')); el.classList.add('on'); renderRoutesList(); haptic(); }
+function renderFavourites(){
+  const list = document.getElementById('favouritesList');
+  if (!list) return;
+  if (favSet.size === 0) { list.innerHTML = '<div class="empty">尚未收藏任何路線<br>去路線詳情頁點「☆ 收藏」就可以儲低心水路線</div>'; return; }
+  list.innerHTML = routesData.filter(r => favSet.has(r.id)).map(routeCardHTML).join('');
+}
+
+/* ---------- 口岸渲染 ---------- */
+function renderHomePorts(){
+  document.getElementById('homePorts').innerHTML = portsData.map(p => `
+    <div class="port-card" data-port-id="${p.id}" onclick="openPort('${p.id}')">
+      <div class="port-name">${p.name}</div>
+      <div class="port-time skeleton skeleton-text" style="width:50px;height:22px;">載入中</div>
+      <div class="port-avg skeleton skeleton-text" style="width:80px;height:12px;margin-top:6px;">—</div>
+      <div class="port-tag maintenance">⋯</div>
+    </div>`).join('');
+}
+function renderPortsList(){
+  document.getElementById('portsList').innerHTML = portsData.map(p => {
+    const isPreferred = preferredPortId === p.id;
+    return `<div class="port-row" data-port-id="${p.id}" onclick="openPort('${p.id}')">
+      <div class="pr-left">
+        <div class="pr-name">${p.name}${isPreferred?' ⭐':''} <span class="dot maintenance"></span></div>
+        <p>${p.sub}</p>
+        <div class="pr-avg skeleton skeleton-text" style="width:80px;height:12px;margin-top:6px;">—</div>
+      </div>
+      <div class="pr-right"><strong class="skeleton skeleton-text" style="width:40px;height:22px;">載入中</strong></div>
+    </div>`;
+  }).join('');
+  renderPortForecast('portForecast', preferredPortId || 'p1');
+}
+function renderPortForecast(containerId, portId){
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  const isWeekend = [0, 6].includes(new Date().getDay());
+  const slots = [
+    {label:'08:00–10:00', wk:3, we:2},{label:'10:00–12:00', wk:2, we:3},
+    {label:'12:00–14:00', wk:1, we:2},{label:'16:00–18:00', wk:2, we:4},
+    {label:'18:00–20:00', wk:3, we:4},{label:'20:00–22:00', wk:2, we:3}
+  ];
+  const colors = ['#0E9F6E','#7AC143','#E08A00','#E8590C','#E5484D'];
+  const labels = ['暢順','正常','繁忙','很忙','非常繁忙'];
+  el.innerHTML = `<div class="forecast-card"><h4>🕐 今日預計繁忙程度</h4>${slots.map(s => {
+    let level = isWeekend ? s.we : s.wk;
+    if (portId === 'p2') level = Math.max(1, level - 1);
+    const idx = Math.min(4, Math.max(0, level - 1));
+    return `<div class="forecast-row"><div class="fc-label">${s.label}</div><div class="forecast-bar"><i style="width:${level * 20}%;background:${colors[idx]}"></i></div><div class="fc-val" style="color:${colors[idx]}">${labels[idx]}</div></div>`;
+  }).join('')}</div>`;
+}
+
+/* ---------- 巴士渲染 ---------- */
+function renderBusRouteList(){
+  const list = busRoutesData.filter(b => b.region === busRegion);
+  document.getElementById('busRouteList').innerHTML = list.length ? list.map(b => `
+    <div class="bus-route-item" onclick="openBusDetail('${b.id}')">
+      <div class="bus-line-badge ${b.type||'gx'}">${b.number}</div>
+      <div class="bus-info">
+        <h4>${b.title}</h4>
+        <p>${b.roads}</p>
+        <div class="bus-meta"><span>🕐 ${b.time}</span><span>💰 ${b.fare}</span><span>⏱ ${b.interval}</span></div>
+      </div>
+    </div>`).join('') : '<div class="empty">此分類暫無路線</div>';
+  document.getElementById('busCount').textContent = list.length;
+  document.getElementById('busRegionLabel').textContent = busRegion === 'hk' ? '香港' : '深圳';
+}
+function openBusDetail(routeId){
+  const b = busRoutesData.find(x => x.id === routeId);
+  if (!b) return;
+  currentBusRouteId = routeId;
+  document.getElementById('bdTitle').textContent = `${b.number} · ${b.title}`;
+  document.getElementById('bdSub').innerHTML = `💰 ${b.fare} · 🕐 ${b.time} · ⏱ ${b.interval}`;
+  const stopsEl = document.getElementById('bdStops');
+  stopsEl.innerHTML = (b.stops || []).map((s, i, a) => {
+    const isTerminal = i === 0 || i === a.length - 1;
+    return `<div class="bd-stop-row"><div class="bd-stop-dot ${isTerminal ? 'terminal' : ''}"></div><div class="bd-stop-name">${s}</div></div>`;
+  }).join('');
+  document.getElementById('busDetailOverlay').classList.add('open');
+  haptic();
+}
+function closeBusDetail(){
+  document.getElementById('busDetailOverlay').classList.remove('open');
+  currentBusRouteId = null;
+  haptic();
+}
+function openBusMap(){
+  const b = busRoutesData.find(x => x.id === currentBusRouteId);
+  if (!b) return;
+  window.open(`https://www.amap.com/search?query=${encodeURIComponent(b.amapQuery || b.number)}&city=深圳`, '_blank', 'noopener');
+}
+
+/* ---------- 車站 ---------- */
+function renderStationList(){
+  const q = (document.getElementById('stationSearchInput')?.value || '').trim().toLowerCase();
+  const list = q ? stationsData.filter(s => s.name.toLowerCase().includes(q)) : stationsData;
+  document.getElementById('stationList').innerHTML = list.length ? list.map(s => `
+    <div class="station-card">
+      <h4>🚉 ${s.name}</h4>
+      <div class="line-pills">${s.lines.map(l => `<span class="line-pill" style="background:${l.c}">${l.l}</span>`).join('')}</div>
+      <div class="meta"><b>出口：</b>${s.exits}</div>
+      <div class="meta"><b>周邊：</b>${s.malls}</div>
+      <div class="meta"><b>接駁：</b>${s.toPort}</div>
+    </div>`).join('') : '<div class="empty">找不到此車站</div>';
+}
+
+/* ---------- 尋路 ---------- */
+function initPathFinder(){
+  const startSel = document.getElementById('pathStart'); const endSel = document.getElementById('pathEnd');
+  if (!startSel || startSel.options.length > 0) return;
+  const nodes = Object.keys(metroGraph).sort();
+  startSel.innerHTML = nodes.map(n => `<option value="${n}">${n}</option>`).join('');
+  endSel.innerHTML = startSel.innerHTML;
+  if (nodes.includes('福田口岸')) startSel.value = '福田口岸';
+  if (nodes.includes('後海')) endSel.value = '後海';
+}
+function findPath(){
+  const start = document.getElementById('pathStart').value;
+  const end = document.getElementById('pathEnd').value;
+  const resultEl = document.getElementById('pathResult');
+  if (start === end) { resultEl.innerHTML = '起點與終點相同。'; resultEl.classList.add('show'); return; }
+  const queue = [[start]]; const visited = new Set([start]); let path = null;
+  while (queue.length > 0) {
+    const currPath = queue.shift(); const node = currPath[currPath.length - 1];
+    if (node === end) { path = currPath; break; }
+    for (let n of (metroGraph[node] || [])) { if (!visited.has(n)) { visited.add(n); queue.push([...currPath, n]); } }
+  }
+  if (path) {
+    const stops = path.length - 1;
+    resultEl.innerHTML = `
+      <div style="font-weight:800;color:var(--primary);margin-bottom:6px;">✅ 找到路線</div>
+      <div style="margin-bottom:6px;"><b>途經：</b>${path.join(' → ')}</div>
+      <div style="display:flex;gap:16px;font-weight:700;margin-top:8px;"><span>🚇 共 ${stops} 站</span><span>⏱ 約 ${stops * 3} 分鐘</span></div>`;
+  } else { resultEl.innerHTML = `⚠️ 暫無此組合的離線路線。`; }
+  resultEl.classList.add('show');
+  haptic();
+}
+
+/* ---------- FAQ / 緊急 ---------- */
+function renderFAQ(){
+  document.getElementById('faqList').innerHTML = faqData.map(f => `
+    <div class="faq-item" onclick="this.classList.toggle('open');haptic()">
+      <div class="faq-q"><span>❓</span><span style="flex:1;">${f.q}</span><span class="arrow">›</span></div>
+      <div class="faq-a">${f.a}</div>
+    </div>`).join('');
+}
+function renderEmergency(){
+  document.getElementById('emergencyGrid').innerHTML = emergencyContacts.map(c => `
+    <div class="em-card" onclick="showModal('致電 ${c.name}', '確認後可複製號碼進行撥號：', '${c.tel}', () => fallbackCopy('${c.tel}'))">
+      <div class="em-ico">${c.ico}</div>
+      <h4>${c.name}</h4>
+      <div class="em-tel">${c.tel}</div>
+      <p>${c.desc}</p>
+    </div>`).join('');
+}
+
+/* ---------- 路線詳情 ---------- */
+function openRoute(id){
+  const r = routesData.find(x => x.id === id);
+  if (!r) return;
+  currentRouteId = id;
+  document.getElementById('routeHeroBadge').textContent = r.catLabel + ' · 模組化路線';
+  document.getElementById('routeHeroTitle').textContent = r.title;
+  document.getElementById('routeHeroSub').textContent = r.from + '出發 · 港人最直接路線';
+  document.getElementById('routeStat1').innerHTML = `<strong>${r.time}</strong><span>總時長</span>`;
+  document.getElementById('routeStat2').innerHTML = `<strong>${r.fee}</strong><span>交通費</span>`;
+  document.getElementById('routeStat3').innerHTML = `<strong>${r.walk}</strong><span>步行</span>`;
+  const savedTimes = LS.get('stepTimes_' + id, {});
+  document.getElementById('routeTimeline').innerHTML = r.steps.map((s, i) => {
+    const displayTime = savedTimes[i] || s.time;
+    return `<div class="tl-item">
+      <div class="tl-dot ${i === 0 ? 'hi' : ''}">${s.icon}</div>
+      <div class="tl-body">
+        <input type="time" class="tl-time-input" value="${displayTime}" onchange="saveStepTime('${r.id}',${i},this.value)">
+        <h4>${s.title}</h4>
+        <p>${s.desc}</p>
+        ${s.transit ? `<div class="tl-transit">${s.transit}</div>` : ''}
+        <div class="tl-actions">
+          ${s.addr ? `<button class="tl-btn copy" onclick="fallbackCopy('${s.addr}')">📋 複製地址</button>
+          <button class="tl-btn deep" onclick="deepLink('${s.mapq}')">🧭 高德導航</button>` : ''}
+          <button class="tl-btn edit" onclick="addStepToItinerary('${r.id}',${i})">➕ 加入行程</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  const recent = LS.get('recentRoutes', []);
+  LS.set('recentRoutes', [id, ...recent.filter(x => x !== id)].slice(0, 5));
+  updateFavBtn();
+  startReturnTimer(r);
+  go('route');
+  haptic();
+  setTimeout(checkBadges, 600);
+}
+function saveStepTime(routeId, stepIndex, value){
+  const times = LS.get('stepTimes_' + routeId, {});
+  times[stepIndex] = value;
+  LS.set('stepTimes_' + routeId, times);
+  toast('時間已更新：' + value);
+  haptic();
+}
+function deepLink(q){
+  window.open(`https://uri.amap.com/search?keyword=${encodeURIComponent(q)}`, '_blank', 'noopener');
+  toast('已開啟高德地圖');
+}
+
+/* ---------- 回程計時器 ---------- */
+const PORT_LAST_TRAIN = {
+  '福田口岸':{time:'22:11', port:'福田口岸', alt:'皇崗 24 小時過關 + 皇巴', open:false, cpCode:'LSC'},
+  '深圳灣口岸':{time:'24:00', port:'深圳灣口岸', alt:'', open:true, cpCode:'SBC'}
+};
+function startReturnTimer(r){
+  if (returnTimerInterval) clearInterval(returnTimerInterval);
+  const lastInfo = PORT_LAST_TRAIN[r.from] || PORT_LAST_TRAIN['福田口岸'];
+  const [lh, lm] = lastInfo.time.split(':').map(Number);
+  const is24h = !!lastInfo.open || lh >= 24;
+  function tick(){
+    const timer = document.getElementById('returnTimer');
+    const countdown = document.getElementById('rtCountdown');
+    const label = document.getElementById('rtLabel');
+    const info = document.getElementById('rtInfo');
+    const alt = document.getElementById('rtAlt');
+    if (!timer || !countdown) return;
+    document.getElementById('rtPortName').textContent = lastInfo.port;
+    if (is24h) {
+      countdown.textContent = '24 小時';
+      label.textContent = '全日開放 · 無尾班車';
+      info.innerHTML = `<strong>${lastInfo.port}</strong><br>24 小時通關`;
+      alt.innerHTML = `🕛 深夜返港都冇問題。`;
+      timer.className = 'return-timer'; return;
+    }
+    const data = realtimePortData || DEFAULT_PORT_DATA;
+    const bufferMin = (data[lastInfo.cpCode] && QUEUE_STATUS[data[lastInfo.cpCode].depQueue])?.bufferMin || 30;
+    const now = new Date();
+    const deadline = new Date(); deadline.setHours(lh, lm, 0, 0);
+    let diff = deadline - now;
+    const passedToday = diff - bufferMin * 60000 <= 0;
+    if (passedToday) diff = deadline.getTime() + 86400000 - now.getTime();
+    const hrs = Math.floor(diff / 3600000);
+    const mins = Math.floor((diff % 3600000) / 60000);
+    const secs = Math.floor((diff % 60000) / 1000);
+    if (!passedToday) {
+      countdown.textContent = `${String(hrs).padStart(2,'0')}:${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+      label.textContent = `距離建議出發 ${bufferMin} 分鐘緩衝`;
+      info.innerHTML = `尾班車 <strong>${lastInfo.time}</strong>`;
+      alt.innerHTML = `🚌 <b>替代：</b>${lastInfo.alt}`;
+      timer.className = hrs < 1 ? 'return-timer danger' : hrs < 3 ? 'return-timer warn' : 'return-timer';
+    } else {
+      countdown.textContent = '已過建議時間';
+      label.textContent = `距離明日尾班車 ${hrs} 小時`;
+      info.innerHTML = `尾班車 <strong>${lastInfo.time}</strong>`;
+      alt.innerHTML = `🚌 <b>通宵：</b>${lastInfo.alt}`;
+      timer.className = 'return-timer danger';
+    }
+  }
+  tick();
+  returnTimerInterval = setInterval(tick, 1000);
+}
+
+/* ---------- 口岸詳情 ---------- */
+function openPort(id){
+  const p = portsData.find(x => x.id === id);
+  if (!p) return;
+  currentPortId = id;
+  document.getElementById('pdName').textContent = p.name;
+  document.getElementById('pdSub').textContent = p.sub;
+  const cp = p.cpCode ? (realtimePortData || DEFAULT_PORT_DATA)[p.cpCode] : null;
+  const arrInfo = QUEUE_STATUS[cp?.arrQueue || 0];
+  const depInfo = QUEUE_STATUS[cp?.depQueue || 0];
+  document.getElementById('pdStat1').innerHTML = `<strong>${depInfo.text}</strong><span>出境 · 平均 ${depInfo.avgMin} 分鐘</span>`;
+  document.getElementById('pdStat2').innerHTML = `<strong>${arrInfo.text}</strong><span>入境 · 平均 ${arrInfo.avgMin} 分鐘</span>`;
+  document.getElementById('pdBadge').textContent = '香港出發交通指南';
+  document.getElementById('pdSteps').innerHTML = p.steps.map(s => `<div class="hk-step"><div class="hk-ico">${s.icon}</div><div><h4>${s.title}</h4><p>${s.desc}</p></div></div>`).join('');
+  renderPortForecast('pdForecast', id);
+  document.getElementById('pdTip').textContent = p.tip;
+  const prefBtn = document.querySelector('#screen-portdetail .btn-primary');
+  if (prefBtn) {
+    if (preferredPortId === id) { prefBtn.textContent = '✅ 已設為常用口岸'; prefBtn.style.background = 'linear-gradient(135deg,#0E9F6E,#34D399)'; }
+    else { prefBtn.textContent = '設為常用口岸'; prefBtn.style.background = 'linear-gradient(135deg,#2B5CFF,#4C8DFF)'; }
+  }
+  go('portdetail');
+  haptic();
+  const visited = LS.get('visitedPorts', []);
+  if (!visited.includes(id)) { visited.push(id); LS.set('visitedPorts', visited); }
+  setTimeout(checkBadges, 400);
+}
+function setPreferredPort(portId){
+  const p = portsData.find(x => x.id === portId);
+  if (!p) return;
+  if (preferredPortId === portId) { preferredPortId = null; LS.set('preferredPort', null); toast('已取消常用口岸'); }
+  else { preferredPortId = portId; LS.set('preferredPort', portId); toast(`已將「${p.name}」設為常用口岸 ⭐`); }
+  updatePreferredPortLabel();
+  renderPortsList();
+  updatePortsWithRealtimeData(realtimePortData || DEFAULT_PORT_DATA);
+  const prefBtn = document.querySelector('#screen-portdetail .btn-primary');
+  if (prefBtn) {
+    if (preferredPortId === portId) { prefBtn.textContent = '✅ 已設為常用口岸'; prefBtn.style.background = 'linear-gradient(135deg,#0E9F6E,#34D399)'; }
+    else { prefBtn.textContent = '設為常用口岸'; prefBtn.style.background = 'linear-gradient(135deg,#2B5CFF,#4C8DFF)'; }
+  }
+  haptic();
+}
+function updatePreferredPortLabel(){
+  const label = document.getElementById('preferredPortLabel');
+  if (!label) return;
+  const p = preferredPortId ? portsData.find(x => x.id === preferredPortId) : null;
+  label.textContent = p ? p.name : '未設定';
+}
+
+/* ---------- 收藏 ---------- */
+function toggleFav(){
+  if (!currentRouteId) return;
+  if (favSet.has(currentRouteId)) { favSet.delete(currentRouteId); toast('已取消收藏'); }
+  else { favSet.add(currentRouteId); toast('已加入收藏 ⭐'); }
+  updateFavBtn();
+  document.getElementById('favCount').textContent = favSet.size;
+  LS.set('favRoutes', Array.from(favSet));
+  setTimeout(checkBadges, 300);
+  haptic();
+}
+function updateFavBtn(){
+  const btn = document.getElementById('favBtn'); if (!btn) return;
+  const on = favSet.has(currentRouteId);
+  btn.classList.toggle('on', on);
+  btn.textContent = on ? '★ 已收藏' : '☆ 收藏';
+}
+
+/* ============================================================
+   徽章系統（12 個）
+   ============================================================ */
+const BADGES = [
+  { id:'port1', icon:'🛂', name:'口岸新手', desc:'首次打卡任何口岸', target:1, unit:'個口岸', value: () => LS.get('visitedPorts', []).length },
+  { id:'port2', icon:'🏅', name:'口岸達人', desc:'打卡 2 個不同口岸', target:2, unit:'個口岸', value: () => LS.get('visitedPorts', []).length },
+  { id:'fav1',  icon:'⭐', name:'收藏家',   desc:'收藏 1 條路線',       target:1, unit:'條路線', value: () => favSet.size },
+  { id:'fav3',  icon:'🌟', name:'收藏狂熱', desc:'收藏 3 條路線',       target:3, unit:'條路線', value: () => favSet.size },
+  { id:'itin1', icon:'📅', name:'行程規劃師', desc:'行程表加入 1 個步驟', target:1, unit:'個步驟', value: () => LS.get('itinerary', []).length },
+  { id:'itin3', icon:'📆', name:'行程大師',   desc:'行程表加入 3 個步驟', target:3, unit:'個步驟', value: () => LS.get('itinerary', []).length },
+  { id:'report1', icon:'📣', name:'互助大使', desc:'提交 1 次過關回報', target:1, unit:'次回報', value: () => LS.get('communityReports', []).length },
+  { id:'report3', icon:'📢', name:'社群之星', desc:'提交 3 次過關回報', target:3, unit:'次回報', value: () => LS.get('communityReports', []).length },
+  { id:'ai1',   icon:'🤖', name:'AI 探索者',  desc:'使用 AI 限時玩樂推薦', target:1, unit:'次使用', value: () => LS.get('aiUsageCount', 0) },
+  { id:'ai3',   icon:'🧠', name:'AI 達人',    desc:'使用 AI 推薦 3 次',   target:3, unit:'次使用', value: () => LS.get('aiUsageCount', 0) },
+  { id:'theme1', icon:'🎨', name:'個人化先鋒', desc:'更換主題色',         target:1, unit:'次',     value: () => LS.get('themeChanged', 0) },
+  { id:'dark1',  icon:'🌙', name:'夜貓子',     desc:'開啟暗黑模式',       target:1, unit:'次',     value: () => LS.get('darkMode', false) ? 1 : 0 }
+];
+function getUnlocked(){ return LS.get('unlockedBadges', {}); }
+function checkBadges(){
+  const unlocked = getUnlocked();
+  const newOnes = [];
+  BADGES.forEach(b => {
+    if (b.value() >= b.target && !unlocked[b.id]) {
+      unlocked[b.id] = Date.now();
+      newOnes.push(b);
+    }
+  });
+  if (newOnes.length) {
+    LS.set('unlockedBadges', unlocked);
+    unlockQueue = newOnes;
+    showNextUnlock();
+    if (currentScreen === 'me') renderBadges();
+  }
+}
+function showNextUnlock(){
+  if (!unlockQueue.length) return;
+  const b = unlockQueue.shift();
+  document.getElementById('buIco').textContent = b.icon;
+  document.getElementById('buName').textContent = b.name;
+  document.getElementById('buDesc').textContent = b.desc;
+  document.getElementById('badgeUnlockOverlay').classList.add('open');
+  haptic();
+}
+function closeBadgeUnlock(){
+  document.getElementById('badgeUnlockOverlay').classList.remove('open');
+  if (unlockQueue.length) setTimeout(showNextUnlock, 350);
+  haptic();
+}
+function renderBadges(){
+  const grid = document.getElementById('badgeGrid'); if (!grid) return;
+  const unlocked = getUnlocked();
+  document.getElementById('badgeProgressLabel').textContent = `${Object.keys(unlocked).length} / ${BADGES.length}`;
+  grid.innerHTML = BADGES.map(b => {
+    const ok = !!unlocked[b.id];
+    const pct = Math.min(100, (b.value() / b.target) * 100);
+    const check = ok ? '<span class="b-check">✓</span>' : '';
+    const bar = !ok ? `<div class="badge-progress-mini"><i style="width:${pct}%"></i></div>` : '';
+    return `<div class="badge-item" onclick="openBadgeDetail('${b.id}')">
+      <div class="b-ico ${ok?'unlocked':''}">${b.icon}${check}</div>
+      <div class="b-name ${ok?'unlocked':''}">${b.name}</div>
+      ${bar}
+    </div>`;
+  }).join('');
+}
+function openBadgeDetail(id){
+  const b = BADGES.find(x => x.id === id); if (!b) return;
+  const unlocked = getUnlocked();
+  const ok = !!unlocked[id];
+  const pct = Math.min(100, (b.value() / b.target) * 100);
+  const icoEl = document.getElementById('bdIco');
+  icoEl.textContent = b.icon;
+  icoEl.className = 'badge-detail-ico' + (ok ? ' unlocked' : '');
+  document.getElementById('bdName').textContent = b.name;
+  document.getElementById('bdDesc').textContent = b.desc;
+  document.getElementById('bdProgress').style.width = pct + '%';
+  document.getElementById('bdCurrent').textContent = `${b.value()} / ${b.target} ${b.unit}`;
+  document.getElementById('bdTarget').textContent = ok ? '✅ 已解鎖' : `${Math.round(pct)}%`;
+  const dt = ok ? new Date(unlocked[id]).toLocaleString('zh-HK') : '';
+  document.getElementById('bdUnlockedAt').textContent = dt ? `🕐 解鎖於 ${dt}` : '';
+  document.getElementById('badgeDetailModal').classList.add('open');
+  haptic();
+}
+function closeBadgeDetail(){
+  document.getElementById('badgeDetailModal').classList.remove('open');
+  haptic();
+}
+
+/* ============================================================
+   地圖（移除邊界 + 雙擊回中心）
+   ============================================================ */
+const mapContainer = document.getElementById('mapContainer');
+const mapObj = document.getElementById('metroMapObj');
+const mapFallback = document.getElementById('mapFallback');
+const zoomIndicator = document.getElementById('zoomIndicator');
+
+['selectstart','dragstart'].forEach(evt => { mapContainer?.addEventListener(evt, e => e.preventDefault()); });
+mapObj?.addEventListener('load', function(){
+  try {
+    svgDoc = mapObj.contentDocument;
+    if (svgDoc) {
+      const s = svgDoc.documentElement;
+      s.setAttribute('shape-rendering', 'geometricPrecision');
+      s.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+      s.style.width = '100%'; s.style.height = '100%'; s.style.margin = '0'; s.style.padding = '0';
+      if (svgDoc.body) svgDoc.body.style.margin = '0';
+    }
+  } catch(e) {}
+  mapFallback?.classList.remove('show');
+  mapObj.classList.add('ready');
+  if (mapInitialized) initMapSize();
+});
+mapObj?.addEventListener('error', () => mapFallback?.classList.add('show'));
+
+function applyMapTransform(){
+  if (!mapObj) return;
+  mapObj.style.transform = `translate(${mapTranslateX}px, ${mapTranslateY}px) scale(${mapScale})`;
+  if (zoomIndicator) zoomIndicator.textContent = mapScale.toFixed(1) + 'x';
+}
+function initMapSize(){
+  if (!mapContainer || !mapObj) return;
+  const cw = mapContainer.clientWidth, ch = mapContainer.clientHeight;
+  if (!cw || !ch) return;
+  let iw = 6124, ih = 3432;
+  if (svgDoc?.documentElement.viewBox?.baseVal?.width) {
+    iw = svgDoc.documentElement.viewBox.baseVal.width;
+    ih = svgDoc.documentElement.viewBox.baseVal.height;
+  }
+  const fit = Math.min(cw / iw, ch / ih);
+  baseWidth = Math.round(iw * fit); baseHeight = Math.round(ih * fit);
+  mapObj.style.width = baseWidth + 'px';
+  mapObj.style.height = baseHeight + 'px';
+  resetZoom();
+}
+function zoomAtPoint(ts, cx, cy){
+  const newScale = Math.min(Math.max(ts, MIN_SCALE), MAX_SCALE);
+  const imgX = (cx - mapTranslateX) / mapScale;
+  const imgY = (cy - mapTranslateY) / mapScale;
+  mapScale = newScale;
+  mapTranslateX = cx - imgX * mapScale;
+  mapTranslateY = cy - imgY * mapScale;
+  applyMapTransform();
+}
+function zoomIn(e){ if (e) e.stopPropagation(); if (mapContainer) zoomAtPoint(mapScale + 0.6, mapContainer.clientWidth/2, mapContainer.clientHeight/2); haptic(); }
+function zoomOut(e){ if (e) e.stopPropagation(); if (mapContainer) zoomAtPoint(mapScale - 0.6, mapContainer.clientWidth/2, mapContainer.clientHeight/2); haptic(); }
+function resetZoom(e){
+  if (e) e.stopPropagation();
+  if (!mapContainer) return;
+  const cw = mapContainer.clientWidth, ch = mapContainer.clientHeight;
+  mapScale = 1;
+  mapTranslateX = (cw - baseWidth) / 2;
+  mapTranslateY = (ch - baseHeight) / 2;
+  applyMapTransform();
+  haptic();
+}
+function isMapControlClick(e){ return e.target.closest('.map-controls') || e.target.closest('.map-btn'); }
+
+if (mapContainer) {
+  mapContainer.addEventListener('touchstart', e => {
+    if (isMapControlClick(e)) return;
+    if (e.touches.length === 1) { isDragging = true; startX = e.touches[0].clientX - mapTranslateX; startY = e.touches[0].clientY - mapTranslateY; }
+    else if (e.touches.length === 2) {
+      isDragging = false;
+      initialDistance = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+      initialScale = mapScale; initialTranslateX = mapTranslateX; initialTranslateY = mapTranslateY;
+      const rect = mapContainer.getBoundingClientRect();
+      initialMidX = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
+      initialMidY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
+    }
+  }, { passive: false });
+
+  mapContainer.addEventListener('touchmove', e => {
+    if (isMapControlClick(e)) return;
+    e.preventDefault();
+    if (isDragging && e.touches.length === 1) {
+      mapTranslateX = e.touches[0].clientX - startX; mapTranslateY = e.touches[0].clientY - startY;
+      applyMapTransform();
+    } else if (e.touches.length === 2) {
+      const rect = mapContainer.getBoundingClientRect();
+      const newMidX = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
+      const newMidY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
+      const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+      const rawScale = initialScale * (dist / initialDistance);
+      const newScale = Math.min(Math.max(rawScale, MIN_SCALE), MAX_SCALE);
+      const imgX = (initialMidX - initialTranslateX) / initialScale;
+      const imgY = (initialMidY - initialTranslateY) / initialScale;
+      mapScale = newScale;
+      mapTranslateX = newMidX - imgX * mapScale;
+      mapTranslateY = newMidY - imgY * mapScale;
+      applyMapTransform();
+    }
+  }, { passive: false });
+
+  mapContainer.addEventListener('touchend', (e) => {
+    isDragging = false;
+    const now = Date.now();
+    if (now - (mapContainer._lastTap || 0) < 300 && e.touches.length === 0 && !isMapControlClick(e)) resetZoom();
+    mapContainer._lastTap = now;
+  });
+
+  mapContainer.addEventListener('pointerdown', e => {
+    if (e.pointerType === 'touch' || isMapControlClick(e)) return;
+    e.preventDefault();
+    isDragging = true;
+    startX = e.clientX - mapTranslateX; startY = e.clientY - mapTranslateY;
+    mapContainer.style.cursor = 'grabbing';
+    try { mapContainer.setPointerCapture(e.pointerId); } catch(err){}
+  });
+  mapContainer.addEventListener('pointermove', e => {
+    if (!isDragging || e.pointerType === 'touch') return;
+    e.preventDefault();
+    mapTranslateX = e.clientX - startX; mapTranslateY = e.clientY - startY;
+    applyMapTransform();
+  });
+  const endPointerDrag = (e) => {
+    if (e.pointerType === 'touch') return;
+    isDragging = false;
+    mapContainer.style.cursor = 'grab';
+    try { mapContainer.releasePointerCapture(e.pointerId); } catch(err){}
+  };
+  mapContainer.addEventListener('pointerup', endPointerDrag);
+  mapContainer.addEventListener('pointercancel', () => { isDragging = false; });
+  mapContainer.addEventListener('wheel', e => {
+    if (isMapControlClick(e)) return;
+    e.preventDefault();
+    const rect = mapContainer.getBoundingClientRect();
+    zoomAtPoint(mapScale + (e.deltaY > 0 ? -0.4 : 0.4), e.clientX - rect.left, e.clientY - rect.top);
+  }, { passive: false });
+  mapContainer.addEventListener('dblclick', e => {
+    if (isMapControlClick(e)) return;
+    e.preventDefault();
+    resetZoom();
+  });
+}
+
+/* ---------- 搜尋 ---------- */
+function openSearch(){ document.getElementById('searchOverlay').classList.add('open'); setTimeout(() => document.getElementById('searchInput').focus(), 260); doSearch(); haptic(); }
+function closeSearch(){ document.getElementById('searchOverlay').classList.remove('open'); document.getElementById('searchInput').value = ''; haptic(); }
+function quickSearch(word){ document.getElementById('searchInput').value = word; doSearch(); }
+function doSearch(){
+  const raw = document.getElementById('searchInput').value.trim();
+  const body = document.getElementById('searchBody');
+  if (!raw) {
+    body.innerHTML = `<p class="so-hint">輸入關鍵字搵路線、口岸或公交</p>
+      <div class="quick-tags">
+        <span onclick="quickSearch('的士')">的士</span><span onclick="quickSearch('福田')">福田</span>
+        <span onclick="quickSearch('K11')">K11</span><span onclick="quickSearch('蓮花山')">蓮花山</span>
+      </div>`;
+    return;
+  }
+  const lower = raw.toLowerCase();
+  const terms = lower.split(/\s+/);
+  const match = (hay) => terms.some(t => hay.toLowerCase().includes(t));
+  const rMatch = routesData.filter(r => match(r.title + r.path + r.kw));
+  const pMatch = portsData.filter(p => match(p.name + p.sub + p.kw + p.tip));
+  const bMatch = busRoutesData.filter(b => match(b.number + b.title + b.roads + b.kw));
+  if (!rMatch.length && !pMatch.length && !bMatch.length) { body.innerHTML = `<div class="empty">找不到「${escapeHTML(raw)}」相關內容</div>`; return; }
+  let html = '';
+  if (rMatch.length) { html += `<div class="result-group">路線（${rMatch.length}）</div>`; html += rMatch.map(r => `<div class="result-item" onclick="closeSearch(); openRoute('${r.id}')"><div class="ri-ico">${r.thumb}</div><div class="ri-txt"><h4>${r.title}</h4><p>${r.catLabel}</p></div></div>`).join(''); }
+  if (pMatch.length) { html += `<div class="result-group">口岸（${pMatch.length}）</div>`; html += pMatch.map(p => `<div class="result-item" onclick="closeSearch(); openPort('${p.id}')"><div class="ri-ico p">🛂</div><div class="ri-txt"><h4>${p.name}</h4><p>${p.sub}</p></div></div>`).join(''); }
+  if (bMatch.length) { html += `<div class="result-group">公交（${bMatch.length}）</div>`; html += bMatch.map(b => `<div class="result-item" onclick="closeSearch(); openBusDetail('${b.id}')"><div class="ri-ico b">🚌</div><div class="ri-txt"><h4>${b.number} · ${b.title}</h4><p>${b.fare}</p></div></div>`).join(''); }
+  body.innerHTML = html;
+}
+
+/* ---------- 匯率 ---------- */
+async function fetchExchangeRate(){
+  try {
+    const res = await fetch('https://api.frankfurter.dev/v1/latest?from=HKD&to=CNY', { signal: AbortSignal.timeout(8000) });
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    if (data.rates?.CNY) {
+      hkdToCny = data.rates.CNY; hkdToCnyDate = data.date;
+      LS.set('lastRate', { rate: hkdToCny, date: hkdToCnyDate });
+      updateRateCard(); updatePayRateDisplay();
+      return;
+    }
+  } catch(e) {}
+  const cached = LS.get('lastRate', null);
+  hkdToCny = cached?.rate || 0.8585;
+  hkdToCnyDate = cached?.date || null;
+  updateRateCard(); updatePayRateDisplay();
+}
+function updateRateCard(){
+  const main = document.getElementById('rateMain'); const sub = document.getElementById('rateSub');
+  if (!main) return;
+  main.textContent = `1 HKD ≈ ${(hkdToCny ?? 0.8585).toFixed(4)} CNY`;
+  if (sub) sub.textContent = hkdToCnyDate ? `ECB 中間價 · ${hkdToCnyDate}` : 'ECB 中間價';
+  doConvert();
+}
+function doConvert(){
+  const inp = document.getElementById('convInput'); if (!inp) return;
+  const amt = parseFloat(inp.value) || 0;
+  const from = document.getElementById('convFrom').value;
+  const to = document.getElementById('convTo').value;
+  const rate = hkdToCny ?? 0.8585;
+  let result = amt;
+  if (from === 'HKD' && to === 'CNY') result = amt * rate;
+  else if (from === 'CNY' && to === 'HKD') result = amt / rate;
+  document.getElementById('convResult').textContent = `≈ ${to === 'CNY' ? '¥' : 'HK$'}${result.toFixed(2)}`;
+}
+function swapCurrency(){ const f = document.getElementById('convFrom'), t = document.getElementById('convTo'); const tmp = f.value; f.value = t.value; t.value = tmp; doConvert(); haptic(); }
+function renderConvTable(){
+  const tbody = document.getElementById('convTableBody'); if (!tbody) return;
+  const q = (document.getElementById('convSearchInput')?.value || '').trim().toLowerCase();
+  const filtered = q ? CONV_TABLE.filter(i => i.tc.toLowerCase().includes(q) || i.sc.toLowerCase().includes(q)) : CONV_TABLE;
+  tbody.innerHTML = filtered.length ? filtered.map(i => `<tr><td class="tc">${i.tc}</td><td class="sc">${i.sc}</td></tr>`).join('') : '<tr><td colspan="2" style="text-align:center;padding:20px;">找不到相關用語</td></tr>';
+}
+
+/* ---------- 支付工具匯率 ---------- */
+const PAY_RATES = {
+  general:  { fee: 0,      note: '以銀行中間價計算，無額外手續費。' },
+  alipayhk: { fee: -0.002, note: 'AlipayHK 跨境付款按中間價，差價約 0.2%。' },
+  wechathk: { fee: -0.003, note: 'WeChat Pay HK 跨境付款差價約 0.3%。' },
+  octopus:  { fee: -0.005, note: '八達通全國通結算差價約 0.5%。' }
+};
+function selectPayMethod(method){
+  currentPayMethod = method;
+  document.querySelectorAll('.pay-method').forEach(el => el.classList.toggle('on', el.dataset.method === method));
+  updatePayRateDisplay();
+  haptic();
+}
+function updatePayRateDisplay(){
+  const valEl = document.getElementById('payRateValue'); const noteEl = document.getElementById('payRateNote');
+  if (!valEl) return;
+  const baseRate = hkdToCny ?? 0.8585;
+  const pay = PAY_RATES[currentPayMethod] || PAY_RATES.general;
+  valEl.textContent = `1 HKD ≈ ${(baseRate * (1 + pay.fee)).toFixed(4)} CNY`;
+  if (noteEl) noteEl.textContent = pay.note;
+}
+
+/* ---------- 主題 / 設定 ---------- */
+const THEMES = {
+  blue:   { primary:'#2B5CFF', hero:'linear-gradient(135deg,#1E3FCC,#2B5CFF 52%,#5B8CFF)' },
+  purple: { primary:'#7C3AED', hero:'linear-gradient(135deg,#5B2BCF,#8C4CFF 52%,#C86BFF)' },
+  green:  { primary:'#0E9F6E', hero:'linear-gradient(135deg,#0A7A56,#0E9F6E 52%,#34D399)' },
+  pink:   { primary:'#D6336C', hero:'linear-gradient(135deg,#A0204A,#D6336C 52%,#F783AC)' },
+  orange: { primary:'#E8590C', hero:'linear-gradient(135deg,#B54008,#E8590C 52%,#FFA94D)' }
+};
+function setTheme(name){
+  const t = THEMES[name] || THEMES.blue;
+  document.documentElement.style.setProperty('--primary', t.primary);
+  document.documentElement.style.setProperty('--hero-grad', t.hero);
+  document.querySelectorAll('.theme-swatch').forEach(el => el.classList.toggle('on', el.dataset.theme === name));
+  LS.set('theme', name);
+  LS.set('themeChanged', (LS.get('themeChanged', 0)) + 1);
+  setTimeout(checkBadges, 300);
+  haptic();
+}
+function toggleDarkMode(){
+  document.body.classList.toggle('dark');
+  const on = document.body.classList.contains('dark');
+  document.getElementById('toggleDark').classList.toggle('on', on);
+  LS.set('darkMode', on);
+  if (LS.get('autoDark', false)) { LS.set('autoDark', false); document.getElementById('toggleAutoDark').classList.remove('on'); }
+  setTimeout(checkBadges, 300);
+  haptic();
+}
+function toggleAutoDark(){
+  const on = !LS.get('autoDark', false);
+  LS.set('autoDark', on);
+  document.getElementById('toggleAutoDark').classList.toggle('on', on);
+  if (on) {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.body.classList.toggle('dark', prefersDark);
+    document.getElementById('toggleDark').classList.toggle('on', prefersDark);
+    LS.set('darkMode', prefersDark);
+    toast(`已跟隨系統：${prefersDark ? '深色' : '淺色'}模式`);
+  } else toast('已停止跟隨系統');
+  haptic();
+}
+if (window.matchMedia) {
+  try {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+      if (LS.get('autoDark', false)) {
+        document.body.classList.toggle('dark', e.matches);
+        document.getElementById('toggleDark').classList.toggle('on', e.matches);
+        LS.set('darkMode', e.matches);
+      }
+    });
+  } catch(err){}
+}
+function changeFontSize(val){
+  document.documentElement.style.setProperty('--font-scale', val);
+  document.getElementById('fontSliderLabel').textContent = Math.round(val * 100) + '%';
+  LS.set('fontScale', val);
+}
+function togglePowerSaver(){
+  const on = !LS.get('powerSaver', false);
+  LS.set('powerSaver', on);
+  document.body.classList.toggle('power-saver', on);
+  document.getElementById('togglePowerSaver').classList.toggle('on', on);
+  toast(on ? '省電模式已開啟 🔋' : '省電模式已關閉');
+  haptic();
+}
+
+/* ---------- AI ---------- */
+function openAiPlanner(){ closeSideMenu(); go('ai'); if (document.getElementById('aiResults').children.length) runAiPlanner(); }
+function pickAiTime(h, el){ aiTime = h; el.parentElement.querySelectorAll('.ai-chip').forEach(c => c.classList.remove('on')); el.classList.add('on'); haptic(); }
+function pickAiInterest(tag, el){ aiInterest = tag; el.parentElement.querySelectorAll('.ai-chip').forEach(c => c.classList.remove('on')); el.classList.add('on'); haptic(); }
+function runAiPlanner(){
+  const port = document.getElementById('aiStartPort').value;
+  const results = document.getElementById('aiResults');
+  const btn = document.getElementById('aiRunBtn');
+  if (!results) return;
+  btn.disabled = true; btn.textContent = '✨ 正在規劃…'; results.innerHTML = '';
+  LS.set('aiUsageCount', (LS.get('aiUsageCount', 0)) + 1);
+  setTimeout(() => {
+    const candidates = routesData
+      .map(r => {
+        const rHours = parseFloat(r.time) || 4;
+        const overTime = rHours > aiTime;
+        const portMatch = r.from === port;
+        const interestMatch = aiInterest === 'all' || (r.interests || []).includes(aiInterest);
+        let score = (interestMatch ? 40 : 0) + (portMatch ? 25 : 0);
+        score += Math.max(0, 30 - Math.abs(rHours - aiTime * 0.8) * 6);
+        if (overTime) score -= 100;
+        return { route: r, score, rHours, portMatch, interestMatch, overTime };
+      })
+      .filter(x => !x.overTime)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3);
+    if (!candidates.length) {
+      results.innerHTML = `<div class="ai-empty">⏰ ${aiTime} 小時內冇啱玩嘅路線</div>`;
+      btn.disabled = false; btn.textContent = '✨ 幫我規劃行程';
+      return;
+    }
+    let html = `<div class="ai-result-head">🎯 為你推薦 <small>共 ${candidates.length} 條</small></div>`;
+    candidates.forEach((c, idx) => {
+      const r = c.route;
+      const fitTag = idx === 0 ? '🥇 最佳' : (idx === 1 ? '🥈 次選' : '🥉 備選');
+      const reasons = [];
+      if (c.portMatch) reasons.push(`從${port}出發`);
+      if (c.interestMatch && aiInterest !== 'all') reasons.push(`符合興趣`);
+      if (c.rHours <= aiTime) reasons.push(`約 ${c.rHours} 小時完成`);
+      html += `<div class="ai-route-card" onclick="openRoute('${r.id}')">
+        <div class="arc-top"><div class="arc-title">${r.thumb} ${r.title}</div><div class="arc-fit">${fitTag}</div></div>
+        <div class="arc-meta"><span>⏱ ${r.duration}</span><span>💰 ${r.cost}</span><span>${r.transit}</span></div>
+        <div class="arc-why">💡 ${reasons.join(' · ') || '綜合推薦'}</div>
+      </div>`;
+    });
+    html += `<div style="text-align:center;margin-top:14px;font-size:11.5px;color:var(--muted);">🤖 由本地規則引擎生成 · 非真實 AI 大模型</div>`;
+    results.innerHTML = html;
+    btn.disabled = false; btn.textContent = '🔄 重新規劃';
+    haptic();
+    setTimeout(checkBadges, 500);
+  }, 400);
+}
+
+/* ---------- 天氣 ---------- */
+async function fetchHkoWeather(){
+  try {
+    const res = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc', { signal: AbortSignal.timeout(8000) });
+    const data = await res.json();
+    if (data?.temperature?.data?.length) {
+      const s = data.temperature.data.find(x => x.place === '香港天文台') || data.temperature.data[0];
+      document.getElementById('wHk').innerHTML = `香港<br><b>${s.value}°C</b>`;
+    }
+  } catch(e){}
+}
+const WMO_CODES = {
+  0:{icon:'☀️',desc:'晴朗'},1:{icon:'🌤️',desc:'大致晴朗'},2:{icon:'⛅',desc:'多雲'},3:{icon:'☁️',desc:'陰天'},
+  61:{icon:'🌧️',desc:'小雨'},63:{icon:'🌧️',desc:'中雨'},65:{icon:'🌧️',desc:'大雨'},
+  80:{icon:'🌦️',desc:'陣雨'},81:{icon:'🌧️',desc:'陣雨'},82:{icon:'⛈️',desc:'強陣雨'},95:{icon:'⛈️',desc:'雷暴'}
+};
+let weatherAdviceType = null;
+async function fetchWeather(){
+  try {
+    const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=22.5431&longitude=114.0579&current=temperature_2m,weather_code&daily=uv_index_max,precipitation_probability_max&timezone=Asia/Shanghai', { signal: AbortSignal.timeout(8000) });
+    const data = await res.json();
+    if (data.current) { weatherData = { sz: data.current, daily: data.daily || {} }; updateWeatherCard(); }
+  } catch(e){}
+}
+function updateWeatherCard(){
+  if (!weatherData) return;
+  const sz = weatherData.sz;
+  const szCode = WMO_CODES[sz.weather_code] || WMO_CODES[0];
+  const wIcon = document.getElementById('wIcon'); const wTemp = document.getElementById('wTemp'); const wDesc = document.getElementById('wDesc');
+  if (wIcon) { wIcon.textContent = szCode.icon; wIcon.classList.remove('skeleton','skeleton-text'); wIcon.style.width='auto'; wIcon.style.height='auto'; wIcon.style.borderRadius='0'; }
+  if (wTemp) { wTemp.textContent = `${Math.round(sz.temperature_2m)}°C`; wTemp.classList.remove('skeleton','skeleton-text'); wTemp.style.width='auto'; wTemp.style.height='auto'; }
+  if (wDesc) { wDesc.textContent = `深圳 · ${szCode.desc}`; wDesc.classList.remove('skeleton','skeleton-text'); wDesc.style.width='auto'; wDesc.style.height='auto'; }
+  const hero = document.getElementById('homeHero');
+  if (hero && !LS.get('theme')) {
+    hero.classList.remove('weather-sunny','weather-rainy','weather-night');
+    const hour = new Date().getHours();
+    if (hour >= 19 || hour < 6) hero.classList.add('weather-night');
+    else if ([61,63,65,80,81,82,95].includes(sz.weather_code)) hero.classList.add('weather-rainy');
+    else if ([0,1].includes(sz.weather_code)) hero.classList.add('weather-sunny');
+  }
+  const wAdvice = document.getElementById('weatherAdvice'); const wAdviceText = document.getElementById('weatherAdviceText');
+  if (wAdvice && wAdviceText && weatherData.daily) {
+    const uv = weatherData.daily.uv_index_max?.[0] || 0;
+    const rain = weatherData.daily.precipitation_probability_max?.[0] || 0;
+    if (rain >= 50) { wAdviceText.textContent = `☔ 今日有雨（${rain}%），建議室內活動。`; wAdvice.classList.add('show'); weatherAdviceType = 'rain'; }
+    else if (uv >= 6) { wAdviceText.textContent = `☀️ UV 指數 ${uv}，注意防曬。`; wAdvice.classList.add('show'); weatherAdviceType = 'sun'; }
+    else wAdvice.classList.remove('show');
+  }
+}
+function goWeatherRoute(){ go('routes'); toast('已為你篩選路線'); }
+
+/* ============================================================
+   香港入境處口岸狀態 API（正確版）
+   來源：data.gov.hk / 入境事務處
+   端點：CPQueueTimeR.json（香港居民）
+   更新：每 15 分鐘
+   ============================================================ */
+async function fetchPortWaitTimes(){
+  const API_URL = 'https://secure1.info.gov.hk/immd/mobileapps/2bb9ae17/data/CPQueueTimeR.json';
+  const attempts = [
+    API_URL,
+    'https://corsproxy.io/?' + encodeURIComponent(API_URL),
+    'https://api.allorigins.win/raw?url=' + encodeURIComponent(API_URL)
+  ];
+  for (const url of attempts) {
+    try {
+      const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      // 根據入境處 Data Dictionary 驗證必要欄位
+      if (!data || typeof data !== 'object' || !data.SBC || !data.LSC) throw new Error('Invalid data structure');
+      realtimePortData = data;
+      updatePortsWithRealtimeData(data);
+      updateLastUpdatedTime(false);
+      return;
+    } catch(e){}
+  }
+  realtimePortData = DEFAULT_PORT_DATA;
+  updatePortsWithRealtimeData(DEFAULT_PORT_DATA);
+  updateLastUpdatedTime(true);
+}
+function updatePortsWithRealtimeData(data){
+  if (!data) data = DEFAULT_PORT_DATA;
+  portsData.forEach(p => {
+    if (!p.cpCode) return;
+    const cp = data[p.cpCode]; if (!cp) return;
+    const depInfo = QUEUE_STATUS[cp.depQueue] || QUEUE_STATUS[0];
+    const arrInfo = QUEUE_STATUS[cp.arrQueue] || QUEUE_STATUS[0];
+    const card = document.querySelector(`.port-card[data-port-id="${p.id}"]`);
+    if (card) {
+      card.querySelector('.port-time').textContent = depInfo.text;
+      card.querySelector('.port-time').classList.remove('skeleton','skeleton-text');
+      card.querySelector('.port-avg').textContent = depInfo.avgMin > 0 ? `平均等候 ${depInfo.avgMin} 分鐘` : '非服務時間';
+      card.querySelector('.port-avg').classList.remove('skeleton','skeleton-text');
+      card.querySelector('.port-tag').className = `port-tag ${depInfo.cls}`;
+      card.querySelector('.port-tag').textContent = depInfo.desc;
+    }
+    const row = document.querySelector(`.port-row[data-port-id="${p.id}"]`);
+    if (row) {
+      row.querySelector('.pr-right strong').textContent = depInfo.text;
+      row.querySelector('.pr-right strong').classList.remove('skeleton','skeleton-text');
+      row.querySelector('.dot').className = `dot ${depInfo.cls}`;
+      row.querySelector('.dot').textContent = depInfo.icon;
+      row.querySelector('.pr-avg').textContent = depInfo.avgMin > 0 ? `平均等候 ${depInfo.avgMin} 分鐘` : '非服務時間';
+      row.querySelector('.pr-avg').classList.remove('skeleton','skeleton-text');
+    }
+  });
+}
+function updateLastUpdatedTime(isOffline){
+  const el = document.getElementById('portUpdateTime'); if (!el) return;
+  if (isOffline) { el.textContent = '⚠️ 離線預估'; el.style.background='#FFF4E5'; el.style.color='#A85E00'; el.style.padding='2px 8px'; el.style.borderRadius='4px'; }
+  else { const n = new Date(); el.textContent = `更新於 ${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`; el.style.background='transparent'; el.style.color='var(--muted)'; el.style.padding='0'; }
+}
+function updateAlertBanner(){
+  const titleEl = document.getElementById('alertTitle'); const textEl = document.getElementById('alertText');
+  if (!titleEl || !textEl) return;
+  let worstPort = null;
+  portsData.forEach(p => {
+    if (!p.cpCode) return;
+    const cp = (realtimePortData || DEFAULT_PORT_DATA)[p.cpCode];
+    if (!cp) return;
+    if (!worstPort || cp.depQueue > worstPort.depQueue) worstPort = { port: p, depQueue: cp.depQueue };
+  });
+  if (worstPort && worstPort.depQueue >= 2) {
+    const info = QUEUE_STATUS[worstPort.depQueue];
+    titleEl.textContent = `${worstPort.port.name}非常繁忙`;
+    textEl.textContent = `出境${info.text}（${info.desc}，平均約 ${info.avgMin} 分鐘），建議考慮其他口岸。`;
+  } else if (worstPort && worstPort.depQueue === 1) {
+    titleEl.textContent = '口岸大致暢順';
+    textEl.textContent = '各口岸等候時間正常，出發前記得檢查最新狀態。';
+  } else {
+    titleEl.textContent = '各口岸暢通';
+    textEl.textContent = '所有口岸目前運作正常，祝你旅途愉快！';
+  }
+}
+function suggestAltPort(){
+  const altId = portsData.find(p => p.id !== preferredPortId)?.id;
+  if (altId) openPort(altId);
+}
+function checkHolidayBanner(){
+  if ([0,6].includes(new Date().getDay())) document.getElementById('holidayBanner').classList.add('show');
+}
+
+/* ---------- 自訂行程 ---------- */
+function openItinerary(){ go('itinerary'); const s = LS.get('itinStartTime','09:00'); const e = LS.get('itinEndTime','18:00'); itineraryStartTime = s; itineraryEndTime = e; document.getElementById('itinStartTime').value = s; document.getElementById('itinEndTime').value = e; updateDurationDisplay(); haptic(); }
+function updateItineraryTimes(){ itineraryStartTime = document.getElementById('itinStartTime').value; itineraryEndTime = document.getElementById('itinEndTime').value; LS.set('itinStartTime', itineraryStartTime); LS.set('itinEndTime', itineraryEndTime); updateDurationDisplay(); renderItinerary(); }
+function updateDurationDisplay(){
+  const el = document.getElementById('itinDuration'); if (!el) return;
+  const [sh,sm] = itineraryStartTime.split(':').map(Number); const [eh,em] = itineraryEndTime.split(':').map(Number);
+  let total = (eh*60+em)-(sh*60+sm); if (total<0) total += 1440;
+  el.textContent = `${Math.floor(total/60)} 小時 ${total%60} 分鐘`;
+}
+function addStepToItinerary(routeId, stepIndex){
+  const r = routesData.find(x => x.id === routeId); if (!r) return;
+  const s = r.steps[stepIndex]; if (!s) return;
+  const key = `${routeId}-${stepIndex}`;
+  if (itinerarySteps.some(x => x.key === key)) { toast('此步驟已在行程中'); return; }
+  itinerarySteps.push({ key, routeTitle: r.title, time: s.time, title: s.title, desc: s.desc, cost: 0, costType: 'other' });
+  LS.set('itinerary', itinerarySteps);
+  toast('已加入自訂行程 ✓');
+  setTimeout(checkBadges, 300);
+  haptic();
+}
+function renderItinerary(){
+  const src = document.getElementById('itinSource'); const sel = document.getElementById('itinSelected');
+  if (!src || !sel) return;
+  const recentIds = LS.get('recentRoutes', ['r1']);
+  const srcRoutes = recentIds.map(id => routesData.find(r => r.id === id)).filter(Boolean);
+  src.innerHTML = srcRoutes.length ? srcRoutes.map(r => `
+    <div style="margin-bottom:14px;">
+      <div style="font-size:calc(13.5px * var(--font-scale));font-weight:800;color:var(--primary);margin-bottom:6px;">${r.thumb} ${r.title}</div>
+      ${r.steps.map((s, i) => `<label class="itin-item">
+        <input type="checkbox" ${itinerarySteps.some(x => x.key === r.id+'-'+i) ? 'checked' : ''} onchange="toggleItineraryItem('${r.id}',${i},this)">
+        <div class="ii-txt"><h5>${s.title}</h5><p>${s.desc}</p></div>
+        <div class="ii-time">${s.time}</div>
+      </label>`).join('')}
+    </div>`).join('') : '<div class="itin-empty">暫無路線資料</div>';
+  sel.innerHTML = itinerarySteps.length ? `
+    <div style="font-size:calc(12.5px * var(--font-scale));color:var(--muted);margin-bottom:8px;">共 ${itinerarySteps.length} 個步驟</div>
+    ${itinerarySteps.map((it, idx) => `<div class="itin-item" style="cursor:default;">
+      <div class="ii-txt"><h5>${idx + 1}. ${it.title}</h5><p>${it.routeTitle} · ${it.desc}</p></div>
+      <input type="number" class="ii-cost" placeholder="¥" value="${it.cost || ''}" onchange="updateStepCost('${it.key}', this.value)">
+      <button class="tl-btn" onclick="removeItineraryItem('${it.key}')" style="margin-left:6px;padding:4px 8px;min-height:32px;">✕</button>
+    </div>`).join('')}` : '<div class="itin-empty">尚未選擇任何步驟</div>';
+  updateItineraryTotals();
+}
+function updateStepCost(key, val){ const s = itinerarySteps.find(x => x.key === key); if (s) { s.cost = parseFloat(val) || 0; LS.set('itinerary', itinerarySteps); updateItineraryTotals(); } }
+function updateItineraryTotals(){
+  const total = itinerarySteps.reduce((sum, it) => sum + (parseFloat(it.cost) || 0), 0);
+  const rate = hkdToCny ?? 0.8585;
+  document.getElementById('itinTotalCny').textContent = `¥ ${total.toFixed(0)}`;
+  document.getElementById('itinTotalHkd').textContent = `HK$ ${(total / rate).toFixed(0)}`;
+}
+function toggleItineraryItem(routeId, stepIndex, checkbox){ if (checkbox.checked) { if (!itinerarySteps.some(x => x.key === `${routeId}-${stepIndex}`)) addStepToItinerary(routeId, stepIndex); } else { itinerarySteps = itinerarySteps.filter(x => x.key !== `${routeId}-${stepIndex}`); LS.set('itinerary', itinerarySteps); } renderItinerary(); haptic(); }
+function removeItineraryItem(key){ itinerarySteps = itinerarySteps.filter(x => x.key !== key); LS.set('itinerary', itinerarySteps); renderItinerary(); haptic(); }
+function clearItinerary(){ showModal('清空行程', '確定要清空？', '—', () => { itinerarySteps = []; LS.set('itinerary', []); renderItinerary(); toast('已清空'); }); }
+function exportText(){
+  if (!itinerarySteps.length) { toast('請先選擇步驟'); return; }
+  let text = `港深通自訂行程\n出發：${itineraryStartTime} · 回程：${itineraryEndTime}\n\n`;
+  text += itinerarySteps.map((it, i) => `${i + 1}. [${it.time}] ${it.title}\n   ${it.desc}`).join('\n\n');
+  fallbackCopy(text);
+}
+
+/* ============================================================
+   社群回報（含重置）
+   ============================================================ */
+function openReportSheet(){
+  reportPort = null;
+  reportTime = null;
+  const opts = document.getElementById('reportPortOptions');
+  if (opts) opts.innerHTML = portsData.map(p => `<button class="report-opt" onclick="selectReportPort('${p.id}',this)">${p.name}</button>`).join('');
+  document.querySelectorAll('#reportTimeOptions .report-opt').forEach(b => b.classList.remove('on'));
+  document.getElementById('reportNote').value = '';
+  document.getElementById('reportSheet').classList.add('open');
+  haptic();
+}
+function closeReportSheet(){ document.getElementById('reportSheet').classList.remove('open'); haptic(); }
+function selectReportPort(id, el){ reportPort = id; el.parentElement.querySelectorAll('.report-opt').forEach(b => b.classList.remove('on')); el.classList.add('on'); haptic(); }
+function selectReportTime(t, el){ reportTime = t; el.parentElement.querySelectorAll('.report-opt').forEach(b => b.classList.remove('on')); el.classList.add('on'); haptic(); }
+function submitReport(){
+  if (!reportPort || !reportTime) { toast('請選擇口岸及等候時間'); return; }
+  const p = portsData.find(x => x.id === reportPort);
+  const reports = LS.get('communityReports', []);
+  reports.unshift({ port: p.name, time: reportTime, note: document.getElementById('reportNote').value.trim(), ts: Date.now() });
+  LS.set('communityReports', reports.slice(0, 20));
+  closeReportSheet();
+  renderCommunityReports();
+  toast('感謝你嘅匿名回報 📣');
+  setTimeout(checkBadges, 500);
+  haptic();
+}
+function renderCommunityReports(){
+  const el = document.getElementById('communityReports'); if (!el) return;
+  const reports = LS.get('communityReports', []);
+  if (!reports.length) { el.innerHTML = '<span style="color:var(--muted);">暫無回報，點右下角 📣 成為第一個分享的港人。</span>'; return; }
+  el.innerHTML = reports.slice(0, 3).map(r => {
+    const ago = Math.round((Date.now() - r.ts) / 60000);
+    return `<div style="padding:6px 0;border-bottom:1px solid var(--line);"><b>${r.port}</b> · ${r.time} <span style="color:var(--muted);font-size:11px;">${ago} 分鐘前</span></div>`;
+  }).join('');
+}
+
+/* ============================================================
+   頭像三連擊 → 回報記錄
+   ============================================================ */
+function handleAvatarTap(){
+  haptic();
+  avatarTapCount++;
+  const avatar = document.getElementById('meAvatar');
+  if (avatar) {
+    avatar.classList.remove('tap-pulse');
+    void avatar.offsetWidth;
+    avatar.classList.add('tap-pulse');
+    setTimeout(() => avatar.classList.remove('tap-pulse'), 350);
+  }
+  clearTimeout(avatarTapTimer);
+  avatarTapTimer = setTimeout(() => { avatarTapCount = 0; }, 2000);
+  if (avatarTapCount === 2) toast('再點一次打開回報記錄 🕵️');
+  if (avatarTapCount >= 3) {
+    clearTimeout(avatarTapTimer);
+    avatarTapCount = 0;
+    openReportsLog();
+  }
+}
+function openReportsLog(){
+  try {
+    renderReportsLog();
+    go('reports-log');
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+  } catch(e) { toast('載入記錄失敗'); }
+}
+function renderReportsLog(){
+  const list = LS.get('communityReports', []) || [];
+  const container = document.getElementById('reportsLogList');
+  if (!container) return;
+  if (!list.length) {
+    container.innerHTML = `<div class="reports-log-empty">📭 暫無回報記錄<br><span style="font-size:12.5px;color:var(--muted);display:inline-block;margin-top:12px;">喺口岸頁提交第一份回報就會顯示喺呢度<br>或點右下角 📣 快速提交</span></div>`;
+    return;
+  }
+  container.innerHTML = list.map(r => `
+    <div class="report-log-card">
+      <div class="report-log-top"><h4>${escapeHTML(r.port || '未知口岸')}</h4><span class="report-log-time">${formatReportTime(r.ts)}</span></div>
+      <div class="report-log-wait">${escapeHTML(r.time || '—')}</div>
+      ${r.note ? `<div class="report-log-note">📝 ${escapeHTML(r.note)}</div>` : ''}
+    </div>`).join('');
+}
+function formatReportTime(ts){
+  const d = new Date(ts); const today = new Date();
+  const isToday = d.toDateString() === today.toDateString();
+  const hh = String(d.getHours()).padStart(2,'0'); const mm = String(d.getMinutes()).padStart(2,'0');
+  return isToday ? `${hh}:${mm}` : `${d.getMonth()+1}/${d.getDate()} ${hh}:${mm}`;
+}
+function exportReportsLog(){
+  const list = LS.get('communityReports', []);
+  if (!list.length) { toast('暫無回報可匯出'); return; }
+  const text = list.map(r => `[${formatReportTime(r.ts)}] ${r.port} · ${r.time}${r.note ? ' · ' + r.note : ''}`).join('\n');
+  fallbackCopy(`港深通 · 過關回報記錄\n共 ${list.length} 筆\n\n${text}`);
+}
+function clearReportsLog(){
+  showModal('清空回報記錄', '確定要清除所有已提交的即時通關回報？', '—', () => {
+    LS.set('communityReports', []);
+    renderReportsLog();
+    renderCommunityReports();
+    toast('已清空回報記錄');
+  });
+}
+
+/* ---------- 快捷島 ---------- */
+function renderShortcutIsland(){
+  document.getElementById('shortcutIsland').innerHTML = `
+    <button class="shortcut-btn" onclick="openAiPlanner()">🤖 AI 推薦</button>
+    <button class="shortcut-btn" onclick="switchTab('port')">🛂 口岸</button>
+    <button class="shortcut-btn" onclick="go('wallet')">💱 匯率</button>
+    <button class="shortcut-btn" onclick="switchTab('routes')">🗺️ 路線</button>
+    <button class="shortcut-btn" onclick="switchTab('metro')">🚇 地鐵</button>`;
+}
+
+/* ---------- 初始化 ---------- */
+(async function init(){
+  if (LS.get('darkMode', false)) { document.body.classList.add('dark'); document.getElementById('toggleDark').classList.add('on'); }
+  if (LS.get('autoDark', false)) {
+    document.getElementById('toggleAutoDark').classList.add('on');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.body.classList.toggle('dark', prefersDark);
+    document.getElementById('toggleDark').classList.toggle('on', prefersDark);
+  }
+  if (LS.get('powerSaver', false)) { document.body.classList.add('power-saver'); document.getElementById('togglePowerSaver').classList.add('on'); }
+  const savedScale = LS.get('fontScale', '1');
+  document.documentElement.style.setProperty('--font-scale', savedScale);
+  const slider = document.getElementById('fontSizeSlider');
+  if (slider) { slider.value = savedScale; document.getElementById('fontSliderLabel').textContent = Math.round(savedScale * 100) + '%'; }
+  const savedTheme = LS.get('theme', 'blue');
+  if (savedTheme !== 'blue') setTheme(savedTheme);
+  else document.querySelectorAll('.theme-swatch').forEach(el => el.classList.toggle('on', el.dataset.theme === 'blue'));
+
+  const savedFav = LS.get('favRoutes', []);
+  savedFav.forEach(id => favSet.add(id));
+  document.getElementById('favCount').textContent = favSet.size;
+  preferredPortId = LS.get('preferredPort', null);
+  updatePreferredPortLabel();
+
+  itinerarySteps = LS.get('itinerary', []).map(x => ({ ...x, cost: x.cost || 0, costType: x.costType || 'other' }));
+  itineraryStartTime = LS.get('itinStartTime', '09:00');
+  itineraryEndTime = LS.get('itinEndTime', '18:00');
+
+  renderHomeRoutes(); renderRoutesList(); renderHomePorts(); renderPortsList();
+  renderBusRouteList(); renderStationList(); renderItinerary();
+  renderFAQ(); updateRateCard(); renderConvTable(); renderEmergency();
+  checkHolidayBanner(); renderShortcutIsland();
+  renderCommunityReports(); renderBadges(); updatePayRateDisplay();
+
+  updatePortsWithRealtimeData(DEFAULT_PORT_DATA);
+  updateAlertBanner();
+
+  fetchExchangeRate();
+  fetchPortWaitTimes();
+  fetchWeather();
+  fetchHkoWeather();
+  setInterval(fetchPortWaitTimes, 15 * 60 * 1000);
+  setInterval(fetchWeather, 30 * 60 * 1000);
+
+  rotateRandomTip();
+  const portTipEl = document.getElementById('portTipText');
+  if (portTipEl) portTipEl.textContent = hkTips[Math.floor(Math.random() * hkTips.length)];
+
+  setTimeout(checkBadges, 1500);
+})();
+</script>
+</body>
+</html>
