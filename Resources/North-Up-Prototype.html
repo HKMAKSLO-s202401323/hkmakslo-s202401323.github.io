@@ -1143,25 +1143,6 @@ body.power-saver .toast{animation:none !important;}
       </div>
     </section>
 
-    <!-- 網絡助手 -->
-    <section class="screen" id="screen-network">
-      <div class="page-head" style="display:flex;align-items:center;gap:12px;">
-        <button class="back" style="background:var(--input-bg);color:var(--text);margin-bottom:0;" onclick="goBack()" aria-label="返回">←</button>
-        <div><h1 style="font-size:calc(21px * var(--font-scale));">內地網絡助手</h1><p style="font-size:calc(12.5px * var(--font-scale));color:var(--muted);margin-top:3px;">eSIM / SIM 檢測 · 漫遊設定</p></div>
-      </div>
-      <div class="body">
-        <div class="net-status"><h3>📡 目前網絡狀態（參考）</h3>
-          <div class="net-status-row"><span>漫遊數據</span><strong>未開啟</strong></div>
-          <div class="net-status-row"><span>本地網絡</span><strong>未連接</strong></div>
-          <div class="net-status-row"><span>APN 設定</span><strong>未設定</strong></div>
-        </div>
-        <div class="net-card"><h4>🎫 內地 eSIM（推薦）</h4><p>無需換卡，掃碼即開通，通常已含「免 VPN」通道。</p></div>
-        <div class="net-card"><h4>📞 香港 SIM 漫遊</h4><p>可接收香港來電及 SMS。APN 為 <b>mobile.three.com.hk</b>（3HK）或 <b>cmhk</b>（中國移動香港）。</p></div>
-        <div class="net-card"><h4>1️⃣ 過關後無法上網</h4><ol><li>設定 → 流動網絡 → 數據漫遊 → <b>開啟</b></li><li>手動選擇 <b>中國移動 / 中國聯通</b></li><li>重啟手機</li></ol></div>
-        <div class="net-card"><h4>4️⃣ APN 設定遺失</h4><p>設定 → 流動網絡 → 存取點名稱（APN）→ 新增或重設。常見 APN：<b>cmnet</b>、<b>3gnet</b>。</p></div>
-      </div>
-    </section>
-
     <!-- 自訂行程 -->
     <section class="screen" id="screen-itinerary">
       <div class="page-head" style="display:flex;align-items:center;gap:12px;">
@@ -1474,132 +1455,14 @@ const DEFAULT_PORT_DATA = {
 
 const emergencyContacts = [
   {name:'深圳報警', tel:'110', desc:'24小時緊急報警', ico:'🚓'},
-  {name:'深圳急救', tel:'120', desc:'24小時醫療急救', ico:'🚑'},
-  {name:'深圳火警', tel:'119', desc:'24小時火警', ico:'🚒'},
-  {name:'香港入境處', tel:'2824 6111', desc:'24小時查詢熱線', ico:'🛂'},
-  {name:'港人求助熱線', tel:'1868', desc:'入境處協助在外港人', ico:'🆘'},
-  {name:'深圳旅遊投訴', tel:'12345', desc:'旅遊糾紛熱線', ico:'📞'},
-  {name:'香港駐深圳聯絡處', tel:'0755-8334 0988', desc:'港人商務求助', ico:'🏢'},
-  {name:'深圳地鐵熱線', tel:'0755-8896 0666', desc:'地鐵查詢', ico:'🚇'}
 ];
 
 const CONV_TABLE = [
-  {tc:'的士', sc:'打車 / 出租車'},{tc:'巴士', sc:'公交車'},{tc:'地鐵', sc:'地鐵'},{tc:'小巴', sc:'小型公交車'},
-  {tc:'過關', sc:'過關 / 通關'},{tc:'回鄉證', sc:'回鄉證 / 港澳通行證'},{tc:'口岸', sc:'口岸'},{tc:'候檢', sc:'排隊 / 候檢'},
-  {tc:'尾班車', sc:'末班車'},{tc:'頭班車', sc:'首班車'},{tc:'轉車', sc:'換乘'},{tc:'塞車', sc:'堵車'},
-  {tc:'泊車', sc:'停車'},{tc:'油站', sc:'加油站'},{tc:'雪櫃', sc:'冰箱'},{tc:'冷氣', sc:'空調'},
-  {tc:'洗衣機', sc:'洗衣機'},{tc:'熱水爐', sc:'熱水器'},{tc:'風扇', sc:'電風扇'},{tc:'膠袋', sc:'塑料袋'},
-  {tc:'厠紙', sc:'廁紙'},{tc:'尿片', sc:'紙尿褲'},{tc:'奶樽', sc:'奶瓶'},{tc:'手袋', sc:'手提包'},
-  {tc:'背囊', sc:'背包'},{tc:'銀包', sc:'錢包'},{tc:'鎖匙', sc:'鑰匙'},{tc:'沖涼', sc:'洗澡'},
-  {tc:'洗頭', sc:'洗發'},{tc:'剃鬚', sc:'刮胡子'},{tc:'食飯', sc:'吃飯'},{tc:'飲茶', sc:'喝茶 / 吃點心'},
-  {tc:'宵夜', sc:'夜宵'},{tc:'晏晝', sc:'中午 / 午飯'},{tc:'外賣', sc:'外賣'},{tc:'堂食', sc:'堂食'},
-  {tc:'凍飲', sc:'冰飲'},{tc:'走冰', sc:'去冰'},{tc:'少甜', sc:'少糖'},{tc:'加底', sc:'加量'},
-  {tc:'飛邊', sc:'去邊'},{tc:'靚仔', sc:'白飯'},{tc:'細蓉', sc:'小碗餛飩面'},{tc:'大蓉', sc:'大碗餛飩面'},
-  {tc:'撈面', sc:'拌面'},{tc:'手信', sc:'伴手禮 / 特產'},{tc:'改衫', sc:'修改衣服'},{tc:'洗衫', sc:'洗衣 / 干洗'},
-  {tc:'買餸', sc:'買菜'},{tc:'街市', sc:'菜市場'},{tc:'便利店', sc:'便利店 / 小賣部'},{tc:'商場', sc:'購物中心'},
-  {tc:'百貨公司', sc:'百貨商場'},{tc:'地鋪', sc:'臨街商鋪'},{tc:'減價', sc:'打折'},{tc:'埋單', sc:'結賬'},
-  {tc:'找錢', sc:'找零'},{tc:'散紙', sc:'零錢'},{tc:'銀紙', sc:'紙幣'},{tc:'毫子', sc:'硬幣'},
-  {tc:'唱錢', sc:'換零錢'},{tc:'碌卡', sc:'刷卡'},{tc:'電子支付', sc:'移動支付'},{tc:'返工', sc:'上班'},
-  {tc:'放工', sc:'下班'},{tc:'OT', sc:'加班'},{tc:'出糧', sc:'發工資'},{tc:'加人工', sc:'漲工資'},
-  {tc:'見工', sc:'面試'},{tc:'老細', sc:'老板'},{tc:'客仔', sc:'客戶'},{tc:'出差', sc:'出差'},
-  {tc:'病假', sc:'病假'},{tc:'年假', sc:'年假'},{tc:'合約', sc:'合同'},{tc:'強積金', sc:'公積金'},
-  {tc:'單位', sc:'房子 / 公寓'},{tc:'租樓', sc:'租房'},{tc:'買樓', sc:'買房'},{tc:'供樓', sc:'還房貸'},
-  {tc:'首期', sc:'首付'},{tc:'按揭', sc:'按揭 / 貸款'},{tc:'業主', sc:'房東'},{tc:'裝修', sc:'裝修'},
-  {tc:'水電煤', sc:'水電燃氣'},{tc:'管理費', sc:'物業費'},{tc:'睇醫生', sc:'看醫生'},{tc:'診所', sc:'診所'},
-  {tc:'藥房', sc:'藥店'},{tc:'食藥', sc:'吃藥'},{tc:'吊鹽水', sc:'打點滴'},{tc:'覆診', sc:'復診'},
-  {tc:'身體檢查', sc:'體檢'},{tc:'感冒', sc:'感冒'},{tc:'發燒', sc:'發燒'},{tc:'喉嚨痛', sc:'喉嚨痛'},
-  {tc:'肚痛', sc:'肚子痛'},{tc:'敏感', sc:'過敏'},{tc:'返學', sc:'上學'},{tc:'放學', sc:'放學'},
-  {tc:'幼稚園', sc:'幼兒園'},{tc:'補習', sc:'補課 / 課外輔導'},{tc:'功課', sc:'作業'},{tc:'成績表', sc:'成績單'},
-  {tc:'家長日', sc:'家長會'},{tc:'睇戲', sc:'看電影'},{tc:'唱K', sc:'唱卡拉OK'},{tc:'打機', sc:'打游戲'},
-  {tc:'行街', sc:'逛街'},{tc:'旅行', sc:'旅游'},{tc:'影相', sc:'拍照'},{tc:'游水', sc:'游泳'},
-  {tc:'踩單車', sc:'騎自行車'},{tc:'行山', sc:'爬山 / 徒步'},{tc:'演唱會', sc:'演唱會'},
-  {tc:'落馬洲', sc:'落馬洲'},{tc:'羅湖', sc:'羅湖'},{tc:'福田', sc:'福田'},{tc:'深圳灣', sc:'深圳灣'},
-  {tc:'蓮塘', sc:'蓮塘'},{tc:'皇崗', sc:'皇崗'},{tc:'華強北', sc:'華強北'},{tc:'東門', sc:'東門'},
-  {tc:'萬象城', sc:'萬象城'},{tc:'海岸城', sc:'海岸城'},{tc:'會展中心', sc:'會展中心'},{tc:'後海', sc:'後海'},
-  {tc:'世界之窗', sc:'世界之窗'},{tc:'歡樂谷', sc:'歡樂谷'},{tc:'甘坑', sc:'甘坑'},{tc:'較場尾', sc:'較場尾'},
-  {tc:'光明', sc:'光明'},{tc:'沙井', sc:'沙井'},{tc:'懷德', sc:'懷德'},{tc:'前海', sc:'前海'},
-  {tc:'蛇口', sc:'蛇口'},{tc:'寶安', sc:'寶安'},{tc:'龍崗', sc:'龍崗'},{tc:'龍華', sc:'龍華'},
-  {tc:'民治', sc:'民治'},{tc:'布吉', sc:'布吉'},{tc:'國貿', sc:'國貿'},{tc:'老街', sc:'老街'},
-  {tc:'深大', sc:'深大'},{tc:'白石洲', sc:'白石洲'},{tc:'車公廟', sc:'車公廟'},{tc:'崗廈', sc:'崗廈'},
-  {tc:'福民', sc:'福民'},{tc:'市民中心', sc:'市民中心'},{tc:'蓮花村', sc:'蓮花村'},{tc:'少年宮', sc:'少年宮'},
-  {tc:'梅林', sc:'梅林'},{tc:'水貝', sc:'水貝'},{tc:'大芬', sc:'大芬'},{tc:'金鐘', sc:'金鐘'},
-  {tc:'中環', sc:'中環'},{tc:'銅鑼灣', sc:'銅鑼灣'},{tc:'旺角', sc:'旺角'},{tc:'尖沙咀', sc:'尖沙咀'},
-  {tc:'屯門', sc:'屯門'},{tc:'元朗', sc:'元朗'},{tc:'大埔', sc:'大埔'},{tc:'上水', sc:'上水'},
-  {tc:'將軍澳', sc:'將軍澳'},{tc:'觀塘', sc:'觀塘'},{tc:'荃灣', sc:'荃灣'},{tc:'東涌', sc:'東涌'},
-  {tc:'九龍塘', sc:'九龍塘'},{tc:'唔該', sc:'謝謝 / 麻煩你'},{tc:'多謝', sc:'謝謝'},{tc:'對唔住', sc:'對不起'},
-  {tc:'冇問題', sc:'沒問題'},{tc:'得閒', sc:'有空'},{tc:'等陣', sc:'等一下'},{tc:'即刻', sc:'馬上'},
-  {tc:'而家', sc:'現在'},{tc:'聽日', sc:'明天'},{tc:'今日', sc:'今天'},{tc:'好正', sc:'很棒'},
-  {tc:'好食', sc:'好吃'},{tc:'好靚', sc:'漂亮'},{tc:'搞掂', sc:'搞定'},{tc:'K11', sc:'K11 Ecoast'},
-  {tc:'萬象前海', sc:'萬象前海'},{tc:'壹方城', sc:'壹方城'},{tc:'深業上城', sc:'深業上城'},{tc:'卓悅中心', sc:'卓悅中心'}
+  {tc:'的士', sc:'打車 / 出租車'},
 ];
 
 /* ---------- 巴士路線數據 ---------- */
 const busRoutesData = [
-  /* ============ 香港專線小巴 ============ */
-  {id:'hkm1',region:'hk',type:'kj',number:'44B',title:'落馬洲（新田）↔ 屯門碼頭',roads:'青山公路、元朗公路',time:'06:30–23:30',fare:'$15.7',interval:'15–20分鐘',kw:'44B 落馬洲 屯門 小巴',stops:['落馬洲（新田）','新田公共運輸交匯處','米埔隴','紅毛橋','大棠路','元朗廣場','元朗站','屯門市中心','屯門碼頭'],amapQuery:'44B 落馬洲 屯門'},
-  {id:'hkm2',region:'hk',type:'kj',number:'44B1',title:'落馬洲（新田）↔ 屯門碼頭（經天水圍）',roads:'青山公路、元朗公路',time:'06:30–23:30',fare:'$15.7',interval:'20–30分鐘',kw:'44B1 落馬洲 屯門 天水圍 小巴',stops:['落馬洲（新田）','新田公共運輸交匯處','米埔隴','紅毛橋','大棠路','元朗廣場','元朗站','天水圍站','天恩邨','屯門市中心','屯門碼頭'],amapQuery:'44B1 落馬洲 屯門'},
-  {id:'hkm3',region:'hk',type:'kj',number:'59K',title:'上水站 ↔ 蓮麻坑（經香園圍口岸）',roads:'新運路、坪輋路、蓮麻坑路',time:'06:30–21:00',fare:'$9.1',interval:'20–30分鐘',kw:'59K 上水 香園圍 蓮塘口岸 小巴',stops:['上水站','上水廣場','石湖墟','粉嶺站','聯和墟','坪輋','香園圍口岸','蓮麻坑'],amapQuery:'59K 上水 蓮麻坑'},
-  {id:'hkm4',region:'hk',type:'kj',number:'59S',title:'上水站 ↔ 香園圍口岸',roads:'新運路、坪輋路',time:'07:00–22:00',fare:'$9.1',interval:'10–15分鐘',kw:'59S 上水 香園圍 蓮塘口岸 小巴',stops:['上水站','上水廣場','石湖墟','粉嶺站','聯和墟','坪輋','香園圍口岸'],amapQuery:'59S 上水 香園圍'},
-  {id:'hkm5',region:'hk',type:'kj',number:'75',title:'元朗（福康街）↔ 落馬洲支線管制站',roads:'青山公路、新田公路',time:'06:00–23:00',fare:'$10.0',interval:'8–15分鐘',kw:'75 元朗 落馬洲 福田口岸 小巴',stops:['元朗（福康街）','元朗大馬路','元朗站','形點','新田','落馬洲支線管制站'],amapQuery:'75 元朗 落馬洲'},
-  {id:'hkm6',region:'hk',type:'kj',number:'78',title:'八鄉路（近大欖隧道轉車站）↔ 新皇崗口岸',roads:'錦田公路、青山公路、新田公路',time:'06:30–22:30',fare:'$9.8',interval:'20–30分鐘',kw:'78 八鄉路 新皇崗口岸 小巴',stops:['八鄉路','錦田','元朗','新田','新皇崗口岸'],amapQuery:'78 八鄉 新皇崗'},
-  {id:'hkm7',region:'hk',type:'kj',number:'79S',title:'粉嶺（聯和墟）↔ 新皇崗口岸（通宵）',roads:'沙頭角公路、新田公路',time:'00:00–05:00',fare:'$15.0',interval:'30–60分鐘',kw:'79S 粉嶺 新皇崗 通宵 小巴',stops:['粉嶺（聯和墟）','粉嶺站','上水','新田','新皇崗口岸'],amapQuery:'79S 粉嶺 新皇崗'},
-  {id:'hkm8',region:'hk',type:'kj',number:'616S',title:'旺角（西洋菜南街）↔ 新皇崗口岸（通宵）',roads:'彌敦道、西九龍走廊、青沙公路、新田公路',time:'00:00–05:00',fare:'$27.2',interval:'30–60分鐘',kw:'616S 旺角 新皇崗 通宵 小巴',stops:['旺角（西洋菜南街）','太子','深水埗','長沙灣','新田','新皇崗口岸'],amapQuery:'616S 旺角 新皇崗'},
-  {id:'hkm9',region:'hk',type:'kj',number:'618',title:'天水圍（天恩邨）↔ 深圳灣口岸',roads:'天恩邨支路、天瑞路、濕地公園路',time:'06:00–22:30',fare:'$15.1',interval:'約20分鐘',kw:'618 天水圍 天恩邨 深圳灣口岸 小巴',stops:['天水圍（天恩邨）','天瑞邨','濕地公園','天葵路','天龍路','天城路','天華路','屏廈路','田廈路','廈村','港深西部公路','深圳灣大橋','深圳灣口岸'],amapQuery:'618 天水圍 深圳灣'},
-  {id:'hkm10',region:'hk',type:'kj',number:'N44B',title:'落馬洲 ↔ 屯門碼頭（通宵）',roads:'青山公路、元朗公路',time:'00:00–05:00',fare:'$19.7',interval:'30–60分鐘',kw:'N44B 落馬洲 屯門 通宵 小巴',stops:['落馬洲','新田','元朗','屯門市中心','屯門碼頭'],amapQuery:'N44B 落馬洲 屯門'},
-  {id:'hkm11',region:'hk',type:'kj',number:'17M',title:'上水站 ↔ 沙頭角',roads:'沙頭角公路',time:'05:50–23:30',fare:'$10.2',interval:'10–20分鐘',kw:'17M 上水 沙頭角 小巴',stops:['上水站','石湖墟','聯和墟','粉嶺樓','軍地','沙頭角'],amapQuery:'17M 上水 沙頭角'},
-  {id:'hkm12',region:'hk',type:'kj',number:'79K',title:'粉嶺（聯和墟）↔ 打鼓嶺（松園下）',roads:'沙頭角公路、坪輋路、蓮麻坑路',time:'06:00–22:00',fare:'$8.5',interval:'20–30分鐘',kw:'79K 粉嶺 打鼓嶺 蓮塘口岸',stops:['粉嶺（聯和墟）','粉嶺站','坪輋','打鼓嶺','蓮麻坑'],amapQuery:'79K 粉嶺 打鼓嶺'},
-  {id:'hkm13',region:'hk',type:'kj',number:'803K',title:'沙田市中心 ↔ 顯徑',roads:'大涌橋路、車公廟路',time:'06:00–23:30',fare:'$5.4',interval:'10–15分鐘',kw:'803K 沙田 顯徑 小巴',stops:['沙田市中心','沙田圍','車公廟','顯徑'],amapQuery:'803K 沙田 顯徑'},
-
-  /* ============ 香港專營巴士 ============ */
-  {id:'hk1',region:'hk',type:'gx',number:'B1',title:'天水圍（天慈邨）↔ 落馬洲站（福田口岸）',roads:'元朗公路、新田公路',time:'06:30–22:30',fare:'$15.1',interval:'15–20分鐘',kw:'B1 天水圍 落馬洲 福田口岸',stops:['天水圍（天慈邨）','天耀邨','天瑞邨','天恩邨','元朗廣場','元朗站','形點','新田','落馬洲站'],amapQuery:'B1 天水圍 落馬洲'},
-  {id:'hk2',region:'hk',type:'gx',number:'B2',title:'元朗站 ↔ 深圳灣口岸',roads:'元朗公路、深圳灣公路大橋',time:'06:30–22:30',fare:'$15.8',interval:'20–30分鐘',kw:'B2 元朗 深圳灣口岸',stops:['元朗站','形點','元朗廣場','朗天路','深圳灣大橋','深圳灣口岸'],amapQuery:'B2 元朗 深圳灣'},
-  {id:'hk3',region:'hk',type:'gx',number:'B2P',title:'天水圍天慈邨 ↔ 深圳灣口岸',roads:'天影路、深圳灣公路大橋',time:'06:30–22:30',fare:'$11.3',interval:'10–25分鐘',kw:'B2P 天水圍 深圳灣口岸',stops:['天水圍天慈邨','天水圍站','天耀邨','深圳灣大橋','深圳灣口岸'],amapQuery:'B2P 天水圍 深圳灣'},
-  {id:'hk4',region:'hk',type:'gx',number:'B2X',title:'天水圍天耀邨 ↔ 深圳灣口岸',roads:'天影路、深圳灣公路大橋',time:'06:30–22:30',fare:'$11.3',interval:'20–30分鐘',kw:'B2X 天水圍 天耀 深圳灣口岸',stops:['天水圍天耀邨','天瑞邨','天水圍站','深圳灣大橋','深圳灣口岸'],amapQuery:'B2X 天水圍 深圳灣'},
-  {id:'hk5',region:'hk',type:'gx',number:'B3',title:'屯門碼頭 ↔ 深圳灣口岸',roads:'屯門公路、深圳灣公路大橋',time:'06:30–23:00',fare:'$16.5',interval:'20–30分鐘',kw:'B3 屯門碼頭 深圳灣口岸',stops:['屯門碼頭','屯門市中心','屯門站','大興邨','深圳灣大橋','深圳灣口岸'],amapQuery:'B3 屯門碼頭 深圳灣'},
-  {id:'hk6',region:'hk',type:'gx',number:'B3A',title:'山景邨 ↔ 深圳灣口岸',roads:'屯門公路、深圳灣公路大橋',time:'06:30–22:30',fare:'$16.5',interval:'20–30分鐘',kw:'B3A 山景 深圳灣口岸',stops:['山景邨','屯門站','屯門市中心','深圳灣大橋','深圳灣口岸'],amapQuery:'B3A 山景 深圳灣'},
-  {id:'hk7',region:'hk',type:'gx',number:'B3M',title:'屯門站（V city）↔ 深圳灣口岸',roads:'屯門公路、深圳灣公路大橋',time:'07:00–22:00',fare:'$16.5',interval:'20–30分鐘',kw:'B3M 屯門站 深圳灣口岸',stops:['屯門站（V city）','屯門市中心','屯門碼頭','深圳灣大橋','深圳灣口岸'],amapQuery:'B3M 屯門站 深圳灣'},
-  {id:'hk8',region:'hk',type:'gx',number:'B3X',title:'屯門市中心 ↔ 深圳灣口岸',roads:'屯門公路、深圳灣公路大橋',time:'24小時',fare:'$16.5',interval:'10–15分鐘',kw:'B3X 屯門 深圳灣口岸',stops:['屯門市中心','屯門站','大興邨','深圳灣大橋','深圳灣口岸'],amapQuery:'B3X 屯門 深圳灣'},
-  {id:'hk9',region:'hk',type:'gx',number:'B7',title:'粉嶺站 ↔ 香園圍口岸',roads:'沙頭角公路、坪輋路',time:'07:00–22:00',fare:'$9.6',interval:'20–30分鐘',kw:'B7 粉嶺 香園圍 蓮塘口岸',stops:['粉嶺站','聯和墟','坪輋','香園圍口岸'],amapQuery:'B7 粉嶺 香園圍'},
-  {id:'hk10',region:'hk',type:'gx',number:'B9',title:'屯門站 ↔ 香園圍口岸',roads:'元朗公路、新田公路',time:'06:30–22:30',fare:'$20.2',interval:'30–60分鐘',kw:'B9 屯門 香園圍 蓮塘口岸',stops:['屯門站','元朗站','形點','新田','坪輋','香園圍口岸'],amapQuery:'B9 屯門 香園圍'},
-  {id:'hk11',region:'hk',type:'gx',number:'B9A',title:'元朗（西）↔ 香園圍口岸',roads:'青山公路、新田公路',time:'06:30–22:30',fare:'$20.2',interval:'30–60分鐘',kw:'B9A 元朗 香園圍 蓮塘口岸',stops:['元朗（西）','元朗廣場','形點I','形點II','新田','坪輋','香園圍口岸'],amapQuery:'B9A 元朗 香園圍'},
-  {id:'hk12',region:'hk',type:'gx',number:'B10',title:'葵翠邨 ↔ 新皇崗口岸',roads:'大欖隧道、新田公路',time:'06:00–00:30',fare:'$12.1',interval:'20–30分鐘',kw:'B10 葵翠 青衣 新皇崗',stops:['葵翠邨公共運輸交匯處','大欖隧道轉車站','青衣站','新田公共運輸交匯處','新皇崗口岸'],amapQuery:'B10 葵翠 新皇崗'},
-  {id:'hk13',region:'hk',type:'gx',number:'B11',title:'天富 ↔ 新皇崗口岸',roads:'元朗公路、新田公路',time:'05:00–01:00',fare:'$10.5',interval:'20–30分鐘',kw:'B11 天富 天水圍 新皇崗',stops:['天富巴士總站','香港濕地公園','美湖居','天慈邨','元朗市中心','新田公共運輸交匯處','新皇崗口岸'],amapQuery:'B11 天富 新皇崗'},
-  {id:'hk14',region:'hk',type:'gx',number:'B12',title:'烏溪沙站 ↔ 新皇崗口岸',roads:'大埔公路、新田公路',time:'06:00–00:00',fare:'$21.0',interval:'30–60分鐘',kw:'B12 烏溪沙 馬鞍山 新皇崗',stops:['烏溪沙站公共運輸交匯處','馬鞍山市中心','科學園','白石角','大埔（廣福轉車站）','新田公共運輸交匯處','新皇崗口岸'],amapQuery:'B12 烏溪沙 新皇崗'},
-  {id:'hk15',region:'hk',type:'gx',number:'B13',title:'小西灣 ↔ 新皇崗口岸',roads:'東區走廊、西隧、新田公路',time:'06:00–00:30',fare:'$27.6',interval:'30分鐘',kw:'B13 小西灣 中環 新皇崗',stops:['小西灣（藍灣半島）','柴灣','筲箕灣','太古','北角','中環','西區海底隧道轉車站','大欖隧道轉車站','新皇崗口岸'],amapQuery:'B13 小西灣 新皇崗'},
-  {id:'hk16',region:'hk',type:'gx',number:'B14',title:'啟德 ↔ 新皇崗口岸',roads:'觀塘繞道、新田公路',time:'08:00–11:00、18:00–21:00',fare:'$20.8',interval:'30–60分鐘',kw:'B14 啟德 觀塘 新皇崗',stops:['啟德（世運道）','大欖隧道轉車站','啟德體育園','新皇崗口岸'],amapQuery:'B14 啟德 新皇崗'},
-  {id:'hk17',region:'hk',type:'gx',number:'B15',title:'青山灣 ↔ 新皇崗口岸',roads:'屯門公路、新田公路',time:'06:00–00:30',fare:'$15.5',interval:'30–60分鐘',kw:'B15 青山灣 屯門 新皇崗',stops:['青山灣','御海灣','安定邨','友愛邨','屯門市中心','屯門站','洪水橋','元朗公路','新田公路','新皇崗口岸'],amapQuery:'B15 青山灣 新皇崗'},
-  {id:'hk18',region:'hk',type:'gx',number:'NB73',title:'沙田市中心 ↔ 新皇崗口岸（通宵線）',roads:'大埔公路、新田公路',time:'23:30–05:30',fare:'$22.6',interval:'30–60分鐘',kw:'NB73 沙田 大埔 新皇崗 通宵',stops:['沙田市中心','上水站','大埔（廣福轉車站）','新田公共運輸交匯處','新皇崗口岸'],amapQuery:'NB73 沙田 新皇崗'},
-
-  /* ============ 深圳公交 ============ */
-  {id:'sz1',region:'sz',type:'gx',number:'M369',title:'民治民塘路總站 → 福田南總站',roads:'羅沙路、沿河路、布心路',time:'06:30–22:30',fare:'¥2–7',interval:'10–15分鐘',kw:'M369 民治 福田 幹線',stops:['民治民塘路總站','民治地鐵站','民樂地鐵站②','梅龍天橋','蓮花北村②','北大醫院①','景新花園①','景秀中學','宏浩花園','景田沃爾瑪','楓丹雅苑','桃源村','鼎勝山鄰','新屋村','龍輝花園②','西麗社區①','西麗法庭①','九祥嶺②','深職院','官龍村','報恩福地','荔枝世界','白芒村','南崗工業區','陽光工業區','應人石路口','創維天橋','一電科技①','台灣工業區','山城工業區','石岩計生中心','浪心村委','河濱花園','石岩街道辦事處','官田村①','寶燃油站','新時代工業區','石岩交警中隊','石岩園嶺村','田心工業','上排村口'],amapQuery:'M369'},
-  {id:'sz2',region:'sz',type:'gx',number:'M371',title:'赤灣凱豐碼頭 → 機場新航站樓',roads:'南海大道、太子路',time:'05:50–22:00',fare:'¥2–10',interval:'15–20分鐘',kw:'M371 赤灣 機場',stops:['赤灣凱豐碼頭','赤灣地鐵站','蛇口網谷','蛇口人民醫院','海上世界','水灣頭','南水村','花果山地鐵站','南油大廈','南海東濱路口','南山郵局','億利達大廈','中油大廈','桂廟路口','南航公司','四方村','荔香中學','桃園南新路口','南貿市場','南頭街道辦事處','星海名城','新安古城','南山公安分局','中山公園東門','南山農批市場','中山園場站','寶安交通運輸局','寶安區政府','寶安體育館','寶安機場新航站樓'],amapQuery:'M371'},
-  {id:'sz3',region:'sz',type:'gx',number:'M506',title:'深圳灣口岸公交總站 → 中山園場站',roads:'東四路、深南大道、南海大道',time:'07:00–22:00',fare:'¥2',interval:'15–20分鐘',kw:'M506 深圳灣口岸',stops:['深圳灣口岸公交首末站','後海濱路口','北師大附中','南門一坊','南海東濱路口','南油大廈','南山郵局','億利達大廈','中油大廈','桂廟路口','南航公司','四方村','荔香中學','桃園南新路口','南貿市場','南頭街道辦事處','星海名城','新安古城','南山公安分局','南山設計產業園','中山公園東門','南山農批市場','中山園場站'],amapQuery:'M506'},
-  {id:'sz4',region:'sz',type:'zb',number:'B618',title:'福田口岸 → 購物公園',roads:'裕亨路、福強路、金田路',time:'07:00–20:00',fare:'¥1',interval:'10–15分鐘',kw:'B618 福田口岸',stops:['福田口岸','福民地鐵站','會展中心地鐵站','購物公園地鐵站'],amapQuery:'B618'},
-  {id:'sz5',region:'sz',type:'zb',number:'B737',title:'深圳灣口岸 → 前海',roads:'東濱路、月亮灣大道',time:'07:00–20:00',fare:'¥1',interval:'15–20分鐘',kw:'B737 深圳灣口岸 前海',stops:['深圳灣口岸','後海濱路口','東濱路','前海路','月亮灣大道','前海石公園'],amapQuery:'B737'},
-  {id:'sz6',region:'sz',type:'nb',number:'N7',title:'布心總站 → 火車站',roads:'布心路、愛國路、東門中路',time:'23:00–01:00',fare:'¥3',interval:'20–30分鐘',kw:'N7 布心 火車站 夜班',stops:['布心總站','布心花園','水庫','碧波花園','天井湖','怡景地鐵站①','羅湖體育館②','廣嶺','西嶺下','聚寶路口','畔山花園','羅湖公安分局','沙頭角海關','沙頭角口岸','三家店','沙頭角郵局①','鹽田區政府','鹽田汽車站','沙頭角保稅區','海港大廈','梅沙醫院','海濱浴場③','東部華僑城','中興通訊學院'],amapQuery:'N7'},
-  {id:'sz7',region:'sz',type:'ly',number:'T529',title:'深圳灣口岸 ↔ 寶安機場',roads:'前海、蛇口郵輪中心、前海石公園',time:'09:00–20:00',fare:'¥5',interval:'約90分鐘一班',kw:'T529 前海 大站快線 文旅',stops:['深圳灣口岸公交首末站','蛇口郵輪中心','前海石公園','灣區之眼','前海壹方城','寶安機場'],amapQuery:'T529'},
-  {id:'sz8',region:'sz',type:'gx',number:'M177',title:'深圳灣口岸 ↔ 蛇口廣場',roads:'後海濱路、工業七路、望海路',time:'06:45–22:00',fare:'¥2',interval:'8–12分鐘',kw:'M177 深圳灣口岸 蛇口 海月 購物',stops:['深圳灣口岸公交首末站','後海濱路口','海月地鐵站②','半島花園北','文竹園','育才二中','海灣新村','招商公園南路口','蛇口戲院','南山婦幼保健院','蛇口廣場公交首末站'],amapQuery:'M177'},
-  {id:'sz25',region:'sz',type:'gx',number:'M133',title:'蓮塘梧桐苑總站 ↔ 南園晗山悅海城總站',roads:'羅沙路、深南路、福民路、濱河大道',time:'06:10–22:30',fare:'¥3',interval:'10–15分鐘',kw:'M133 蓮塘 蛇口 福田 南山 蓮塘口岸',stops:['蓮塘梧桐苑總站','長嶺溝','羅湖公安分局','畔山花園','羅沙路蓮塘①','聚寶路口','蓮塘口岸②','廣嶺小區','羅湖行政服務大廳','羅芳小學','新秀小學','黃貝嶺地鐵站②','黃貝嶺','羅湖體育館','深圳書城','大劇院','地王大廈','紅嶺','園嶺','華強北','華強路','上海賓館','崗廈北地鐵站①','海關綜合大樓','大中華國際廣場','會展中心','購物公園','福民','福田區委','福田交通樞紐','深圳灣公園地鐵站①','濱海之窗②','濱海白石立交','大沖②','科技園②','深大北門②','深圳大學','桂廟新村','南山郵局','南油大廈','蛇口人民醫院','南園晗山悅海城總站'],amapQuery:'M133 蓮塘 蛇口'},
-  {id:'sz26',region:'sz',type:'gx',number:'M191',title:'安居鴻棲台公交首末站 ↔ 大梅沙公交總站',roads:'廣深公路、深南大道、深南東路',time:'06:20–20:30',fare:'¥10',interval:'15–20分鐘',kw:'M191 寶安 南山 福田 羅湖 鹽田 大梅沙',stops:['安居鴻棲台公交首末站','曦城商業中心','西鄉大道西崗路口','西鄉立交①','寶安中心醫院','西鄉路口','上川路口','裕安路口','寶安交通運輸局①','深南北環立交①','南頭①','科技園①','大沖①','白石洲②','世界之窗②','錦繡中華②','僑城東','竹子林②','深航大廈②','深南香蜜立交①','投資大廈','市民中心','大劇院','地王大廈','人民橋','黃貝嶺地鐵站','羅湖體育館①','蓮塘','沙頭角','鹽田港','鹽田區政府','鹽田汽車站','海濱浴場③','大梅沙公交總站'],amapQuery:'M191 寶安 大梅沙'},
-  {id:'sz21',region:'sz',type:'free',number:'福田卓越免費巴',title:'福田口岸 ↺ 卓悅INTOWN / 卓悅中心',roads:'福田口岸 → 國花路口 → 卓悅INTOWN → 卓悅中心One Avenue → 深圳之眼 → 卓悅滙',time:'週末 10:00、15:00、18:00',fare:'免費',interval:'每日 3 班',kw:'福田口岸 免費巴士 卓悅INTOWN',stops:['福田口岸','國花路口','福田·卓悅INTOWN','卓悅中心One Avenue','深圳之眼購物中心','卓悅滙購物中心','深圳之眼購物中心','卓悅中心One Avenue','福田·卓悅INTOWN','國花路口','福田口岸'],amapQuery:'福田口岸 卓悅INTOWN'},
-  {id:'sz22',region:'sz',type:'free',number:'皇崗免費接駁巴',title:'新皇崗口岸 ↺ 福田CBD七大商圈',roads:'皇崗口岸 → 卓悅INTOWN → 會展中心 → 平安金融中心 → 購物公園 → 皇庭廣場 → 卓悅中心 → 深圳之眼',time:'10:00–20:00（半小時一班）',fare:'免費',interval:'30分鐘',kw:'新皇崗口岸 免費巴士 卓悅INTOWN COCO Park',stops:['皇崗口岸','卓悅INTOWN','會展中心','平安金融中心','購物公園（福田星河COCO Park）','皇庭廣場／領展中心城','卓悅中心','深圳之眼','皇崗口岸'],amapQuery:'皇崗口岸 免費接駁巴士'},
-  {id:'sz23',region:'sz',type:'free',number:'B888',title:'羅湖口岸 ↺ 萬象城 / 東門',roads:'羅湖口岸 → 國貿 → 地王大廈 → 大劇院 → 萬象食家 → 萬象城',time:'08:30–19:00',fare:'免費',interval:'預約制',kw:'羅湖口岸 無人駕駛 B888 萬象城 東門',stops:['羅湖口岸','國貿','地王大廈','大劇院','萬象食家','萬象城'],amapQuery:'羅湖口岸 無人駕駛小巴'},
-  {id:'sz24',region:'sz',type:'free',number:'羅湖文旅專線',title:'蓮塘口岸 → 益田假日 → 東門 → 萬象城',roads:'蓮塘口岸 → 益田假日廣場 → 東門步行街 → 深圳萬象城',time:'週末及假期',fare:'免費',interval:'循環線',kw:'羅湖 文旅專線 蓮塘口岸 東門 萬象城 益田假日',stops:['蓮塘口岸','羅湖益田假日廣場','東門步行街（兆鑫匯金廣場）','深圳萬象城'],amapQuery:'羅湖跨境文旅消費專線'},
-  {id:'sz27',region:'sz',type:'free',number:'山姆口岸通',title:'深圳灣口岸 ↺ 前海山姆（免費假日循環）',roads:'前灣、桂灣、萬象前海、前海山姆',time:'週末及公眾假期',fare:'免費',interval:'約30–60分鐘',kw:'山姆口岸通 免費 前海山姆 購物',stops:['深圳灣口岸公交站','前灣地鐵站','桂灣地鐵站','萬象前海','前海山姆會員店','深圳灣口岸公交站'],amapQuery:'山姆口岸通'},
-  {id:'sz28',region:'sz',type:'free',number:'T231',title:'深圳灣口岸 ↺ 寶能太古城',roads:'東濱路、後海大道、海月路',time:'09:00–19:00',fare:'免費',interval:'約15–20分鐘',kw:'T231 寶能免費線 深圳灣口岸',stops:['深圳灣口岸公交首末站','寶能太古城','海月地鐵站（地鐵2/8號線）','深圳灣口岸公交首末站'],amapQuery:'T231 深圳灣口岸 寶能太古城'},
-  {id:'sz29',region:'sz',type:'free',number:'福田歡樂購A線',title:'福田口岸 ⇄ 上沙 ⇄ 深航大廈 ⇄ 福田山姆',roads:'福田口岸 → 上沙 → 深航大廈2 → 市眼科醫院（福田山姆會員店）',time:'週末及公眾假期 10:00–19:00',fare:'免費',interval:'循環線',kw:'福田歡樂購 口岸巴士 福田山姆 免費',stops:['福田口岸','上沙','深航大廈2','市眼科醫院（福田山姆會員店）'],amapQuery:'福田歡樂購口岸巴士'},
-  {id:'sz32',region:'sz',type:'gx',number:'M474',title:'深圳灣口岸 ↔ 世界之窗',roads:'後海大道、白石路、僑城東路',time:'06:30–22:30',fare:'¥2',interval:'15–20分鐘',kw:'M474 深圳灣口岸 世界之窗 白石洲',stops:['深圳灣口岸公交首末站','海德三道','後海地鐵站','白石洲','世界之窗地鐵站'],amapQuery:'M474 深圳灣口岸'},
-  {id:'sz33',region:'sz',type:'gx',number:'高峰專線58',title:'福田口岸 ↔ 華強北',roads:'福強路、華強北路',time:'07:00–09:30、17:30–20:00',fare:'¥2',interval:'10–15分鐘',kw:'高峰專線58 福田口岸 華強北 電子市場',stops:['福田口岸','福民地鐵站','華強北地鐵站','華強路地鐵站'],amapQuery:'高峰專線58 福田口岸'},
-  {id:'sz34',region:'sz',type:'zb',number:'M486',title:'羅湖口岸 ↔ 東門老街',roads:'人民南路、東門中路',time:'07:00–21:00',fare:'¥2',interval:'10–15分鐘',kw:'M486 羅湖口岸 東門 老街 白馬服裝',stops:['羅湖口岸','羅湖地鐵站','國貿地鐵站','東門老街','東門地鐵站'],amapQuery:'M486 羅湖口岸'},
-  {id:'sz35',region:'sz',type:'gx',number:'E11',title:'深圳灣口岸 ↔ 大鵬新區',roads:'濱海大道、東部沿海高速',time:'07:30–19:30',fare:'¥10',interval:'30–60分鐘',kw:'E11 深圳灣口岸 大鵬 溪涌 看海',stops:['深圳灣口岸','後海地鐵站','深圳北站','大鵬中心','溪涌地鐵站'],amapQuery:'E11 深圳灣口岸 大鵬'},
-  {id:'sz36',region:'sz',type:'gx',number:'M520',title:'蛇口郵輪中心 ↔ 深圳灣口岸',roads:'望海路、後海濱路',time:'07:00–21:00',fare:'¥2',interval:'15–20分鐘',kw:'M520 蛇口郵輪中心 深圳灣口岸 海上世界',stops:['蛇口郵輪中心','海上世界','水灣地鐵站','後海地鐵站','深圳灣口岸'],amapQuery:'M520 蛇口 深圳灣'},
-  {id:'sz37',region:'sz',type:'gx',number:'B686',title:'福田口岸 ↔ 蓮花山公園',roads:'福強路、金田路、紅荔路',time:'07:00–20:00',fare:'¥2',interval:'15–20分鐘',kw:'B686 福田口岸 蓮花山公園 少年宮',stops:['福田口岸','福民地鐵站','會展中心地鐵站','市民中心地鐵站','蓮花山公園'],amapQuery:'B686 福田口岸 蓮花山公園'},
-  {id:'sz38',region:'sz',type:'gx',number:'M518',title:'深圳灣口岸 ↔ 太子灣 / K11 Ecoast',roads:'東濱路、望海路、港灣大道',time:'07:00–21:00',fare:'¥2',interval:'15–20分鐘',kw:'M518 深圳灣口岸 K11 Ecoast 太子灣',stops:['深圳灣口岸公交首末站','海月地鐵站','蛇口戲院','太子灣地鐵站','K11 Ecoast'],amapQuery:'M518 深圳灣口岸 K11'},
-  {id:'sz39',region:'sz',type:'gx',number:'B945',title:'K11 Ecoast ↔ 海上世界',roads:'港灣大道、望海路',time:'10:00–22:00',fare:'¥2',interval:'20–30分鐘',kw:'B945 K11 Ecoast 海上世界 蛇口',stops:['K11 Ecoast','太子灣地鐵站','海上世界地鐵站','海上世界'],amapQuery:'B945 K11 海上世界'},
-  {id:'sz40',region:'sz',type:'gx',number:'M558',title:'前海壹方城 ↔ 深圳灣口岸',roads:'前海路、東濱路',time:'07:00–21:30',fare:'¥2',interval:'15–20分鐘',kw:'M558 前海壹方城 深圳灣口岸 萬象前海',stops:['前海壹方城','前海灣地鐵站','桂灣地鐵站','深圳灣口岸'],amapQuery:'M558 前海壹方城'},
-  {id:'sz41',region:'sz',type:'gx',number:'M123',title:'深業上城 ↔ 蓮花山公園',roads:'彩田路、紅荔路',time:'07:00–21:00',fare:'¥2',interval:'10–15分鐘',kw:'M123 深業上城 蓮花山公園 蓮花村',stops:['深業上城','蓮花村地鐵站','蓮花山公園','少年宮地鐵站'],amapQuery:'M123 深業上城 蓮花山'},
-  {id:'sz42',region:'sz',type:'gx',number:'M481',title:'卓悅中心 ↔ 福田口岸',roads:'福華路、金田路',time:'07:30–21:00',fare:'¥2',interval:'15–20分鐘',kw:'M481 卓悅中心 One Avenue 福田口岸',stops:['卓悅中心 One Avenue','會展中心地鐵站','福民地鐵站','福田口岸'],amapQuery:'M481 卓悅中心 福田口岸'},
-  {id:'sz43',region:'sz',type:'gx',number:'M263',title:'龍華壹方天地 ↔ 福田口岸',roads:'龍華大道、梅龍大道',time:'07:00–21:00',fare:'¥2',interval:'20–30分鐘',kw:'M263 龍華壹方天地 福田口岸 龍華',stops:['龍華壹方天地','龍華地鐵站','民治地鐵站','福田口岸'],amapQuery:'M263 龍華壹方天地'}
 ];
 /* ---------- 路線數據（簡化版，保留所有核心路線） ---------- */
 const routesData = [
@@ -1608,221 +1471,25 @@ const routesData = [
     {icon:'🚇',time:'09:20',title:'地鐵 4 號線 → 購物公園站',desc:'福田口岸站上車，2 個站直達。',transit:'🚇 4號線 · 2站 · ¥2',addr:'购物公园地铁站',mapq:'购物公园地铁站'},
     {icon:'🧋',time:'09:35',title:'COCO Park・喜茶＋手信',desc:'喜茶、奈雪、鮑師傅都在此。',addr:'星河COCO Park(福田店)',mapq:'星河COCOPark福田店'},
     {icon:'🛂',time:'11:10',title:'返回福田口岸',desc:'預留 25 分鐘過關緩衝。',transit:'🚇 4號線 · 2站',addr:'福田口岸',mapq:'福田口岸'}
-  ]},
-  {id:'r2',cat:'half',catLabel:'4小時半日',badge:'b2',thumb:'🚶',thumbCls:'a2',title:'萬象天地・誠品＋華強北',from:'福田口岸',path:'福田口岸 → 會展中心 → 華強北',duration:'4小時30分',cost:'¥150',transit:'🚇 5個站',time:'4:30',fee:'¥12',walk:'3.2km',kw:'萬象天地 誠品 華強北 半日',interests:['culture'],steps:[
-    {icon:'🛂',time:'09:00',title:'福田口岸過關',desc:'候檢約 15 分鐘。',addr:'福田口岸',mapq:'福田口岸'},
-    {icon:'🚇',time:'09:25',title:'地鐵 4 號線 → 會展中心站',desc:'3 個站直達。',transit:'🚇 4號線 · 3站 · ¥2',addr:'会展中心地铁站',mapq:'会展中心地铁站'},
-    {icon:'🏬',time:'09:45',title:'萬象天地（誠品生活）',desc:'誠品生活、潮牌、精品咖啡。',transit:'🚶 步行 5分鐘',addr:'深圳万象天地',mapq:'深圳万象天地'},
-    {icon:'🍜',time:'11:20',title:'深圳灣萬象城 · 午餐',desc:'探魚 / 太二 / 綠茶，人均約 ¥80。',addr:'深圳湾万象城',mapq:'深圳湾万象城'},
-    {icon:'💻',time:'12:40',title:'華強北電子市場',desc:'配件、數碼、小家電。',transit:'🚇 1號線 · 1站',addr:'华强北商业区',mapq:'华强北商业区'},
-    {icon:'🛂',time:'13:30',title:'返回福田口岸',desc:'預留 30 分鐘過關。',transit:'🚇 4號線 · 3站',addr:'福田口岸',mapq:'福田口岸'}
-  ]},
-  {id:'r3',cat:'day',catLabel:'一日遊',badge:'b3',thumb:'🗺️',thumbCls:'a3',title:'南山一日遊・萬象天地＋海岸城',from:'深圳灣口岸',path:'深圳灣口岸 → 後海 → 世界之窗',duration:'8小時',cost:'¥280',transit:'🚇 9個站',time:'8:00',fee:'¥18',walk:'5.6km',kw:'南山 萬象天地 海岸城 泡泡瑪特',interests:['culture','outlet'],steps:[
-    {icon:'🛂',time:'09:00',title:'深圳灣口岸過關',desc:'24 小時通關。',addr:'深圳湾口岸',mapq:'深圳湾口岸'},
-    {icon:'🚇',time:'09:30',title:'地鐵 13 號線 → 後海站',desc:'6 個站直達後海。',transit:'🚇 13號線 · 6站 · ¥4',addr:'后海地铁站',mapq:'后海地铁站'},
-    {icon:'🏬',time:'10:10',title:'海岸城購物中心',desc:'8 米高巨型 Zsiga 雕塑。',addr:'南山海岸城购物中心',mapq:'南山海岸城'},
-    {icon:'🍜',time:'12:30',title:'海岸城 · 午餐',desc:'綠茶、太二、探魚。',addr:'南山海岸城',mapq:'南山海岸城'},
-    {icon:'🏙️',time:'14:00',title:'萬象天地',desc:'巨型大象裝置、曼哈頓機位。',transit:'🚇 1號線 · 2站',addr:'深圳万象天地',mapq:'深圳万象天地'},
-    {icon:'🛂',time:'19:00',title:'返回深圳灣口岸',desc:'建議 19:00 前出發。',transit:'🚇 13號線',addr:'深圳湾口岸',mapq:'深圳湾口岸'}
-  ]},
-  {id:'r21',cat:'day',catLabel:'一日遊',badge:'b3',thumb:'🛒',thumbCls:'a4',title:'龍華8號倉Outlet・港人平掃聖地',from:'福田口岸',path:'福田口岸 → 光雅園站 → 龍華8號倉',duration:'6小時',cost:'¥200',transit:'🚇 10號線',time:'6:00',fee:'¥6',walk:'3km',kw:'龍華 8號倉 Outlet Nike Adidas 掃貨',interests:['outlet'],steps:[
-    {icon:'🛂',time:'09:30',title:'福田口岸過關',desc:'出關後轉乘深圳地鐵 10 號線。',addr:'福田口岸',mapq:'福田口岸'},
-    {icon:'🚇',time:'09:50',title:'地鐵 10 號線 → 光雅園站',desc:'約 40 分鐘至光雅園站 C 出口。',transit:'🚇 10號線 · ¥6',addr:'光雅园地铁站',mapq:'光雅园地铁站'},
-    {icon:'🛒',time:'10:30',title:'龍華8號倉・掃貨',desc:'86萬呎，200+商戶，Nike/Adidas/Michael Kors 低至 2-3 折。',addr:'龙华8号仓',mapq:'龙华8号仓'},
-    {icon:'🍜',time:'12:30',title:'場內午餐',desc:'海底撈、太二、喜茶、奈雪一應俱全。',addr:'龙华8号仓',mapq:'龙华8号仓'},
-    {icon:'🛒',time:'14:00',title:'繼續掃貨',desc:'運動鞋、名牌手袋、生活小物。',addr:'龙华8号仓',mapq:'龙华8号仓'},
-    {icon:'🛂',time:'16:00',title:'返回福田口岸',desc:'預留 30 分鐘過關。',transit:'🚇 10號線',addr:'福田口岸',mapq:'福田口岸'}
-  ]},
-  {id:'r31',cat:'flash',catLabel:'2小時快閃',badge:'',thumb:'🆕',thumbCls:'',title:'國貿SPRING・羅湖口岸步行10分鐘新商場',from:'羅湖口岸',path:'羅湖口岸 → 國貿站 → 國貿SPRING',duration:'2小時30分',cost:'¥100',transit:'🚶 步行 10分鐘',time:'2:30',fee:'¥0',walk:'1.5km',kw:'國貿SPRING 羅湖口岸 新商場 星空露台',interests:['culture'],steps:[
-    {icon:'🛂',time:'10:00',title:'羅湖口岸過關',desc:'出關後步行或搭地鐵 1 號線。',addr:'罗湖口岸',mapq:'罗湖口岸'},
-    {icon:'🚶',time:'10:15',title:'步行至國貿SPRING',desc:'羅湖口岸步行約 10 分鐘。',transit:'🚶 步行 10分鐘',addr:'国贸SPRING',mapq:'国贸SPRING'},
-    {icon:'🛍️',time:'10:30',title:'國貿SPRING・購物',desc:'3 萬平方米，50+ 人氣餐廳及潮流品牌。',addr:'深圳国贸SPRING',mapq:'深圳国贸SPRING'},
-    {icon:'🍗',time:'11:30',title:'金光鴿王・乳鴿',desc:'20+ 年老牌乳鴿店，皮脆爆汁。',addr:'深圳国贸SPRING',mapq:'深圳国贸SPRING'},
-    {icon:'🛂',time:'12:30',title:'返回羅湖口岸',desc:'步行或搭地鐵回程。',transit:'🚶 步行 10分鐘',addr:'罗湖口岸',mapq:'罗湖口岸'}
-  ]},
-  {id:'r35',cat:'day',catLabel:'一日遊',badge:'b3',thumb:'🌊',thumbCls:'a3',title:'大鵬溪涌看海・蓮塘直達深圳後花園',from:'蓮塘口岸',path:'蓮塘口岸 → 溪涌站 → 大鵬新區',duration:'7小時',cost:'¥120',transit:'🚇 8號線直達',time:'7:00',fee:'¥8',walk:'5km',kw:'大鵬 溪涌 看海 蓮塘 8號線 海景',interests:['nature'],steps:[
-    {icon:'🛂',time:'09:00',title:'蓮塘口岸過關',desc:'過關後轉乘深圳地鐵 2/8 號線。',addr:'莲塘口岸',mapq:'莲塘口岸'},
-    {icon:'🚇',time:'09:30',title:'地鐵 8 號線 → 溪涌站',desc:'約 40 分鐘直達大鵬新區。',transit:'🚇 8號線 · 約40分鐘 · ¥7',addr:'溪涌地铁站',mapq:'溪涌地铁站'},
-    {icon:'🏖️',time:'10:15',title:'溪涌度假村・私人海灘',desc:'約 600 米私人海灘。',addr:'溪涌度假村',mapq:'溪涌度假村'},
-    {icon:'🥾',time:'11:00',title:'臨海棧道 Citywalk',desc:'沿海邊棧道步行，途經望海雲橋。',transit:'🚶 步行 7km',addr:'溪涌度假村',mapq:'溪涌度假村'},
-    {icon:'🍜',time:'13:00',title:'大鵬中心・海鮮午餐',desc:'大鵬海鮮出名，人均 ¥80。',addr:'大鹏中心',mapq:'大鹏中心'},
-    {icon:'🛂',time:'17:00',title:'返回蓮塘口岸',desc:'搭地鐵 8 號線回程。',transit:'🚇 8號線 · 約40分鐘',addr:'莲塘口岸',mapq:'莲塘口岸'}
-  ]},
-  {id:'r36',cat:'overnight',catLabel:'兩日一夜',badge:'b4',thumb:'🏙️',thumbCls:'a4',title:'深圳地標建築兩日遊・羅湖＋福田＋南山',from:'羅湖口岸',path:'羅湖口岸 → 福田 → 南山 → 深圳灣口岸',duration:'2日',cost:'¥800',transit:'🏨 1晚',time:'2日',fee:'¥20',walk:'6km',kw:'深圳地標 兩日一夜 羅湖 福田 南山',interests:['culture'],steps:[
-    {icon:'🛂',time:'Day1 09:00',title:'羅湖口岸過關 → 福田',desc:'轉地鐵至福田區。',addr:'罗湖口岸',mapq:'罗湖口岸'},
-    {icon:'🏙️',time:'Day1 10:00',title:'京基100 → 市民中心 → 平安金融中心',desc:'打卡深圳地標建築群。',transit:'🚇 1號線',addr:'平安金融中心',mapq:'平安金融中心'},
-    {icon:'🌳',time:'Day1 14:00',title:'蓮花山公園',desc:'俯瞰福田CBD全景。',addr:'莲花山公园',mapq:'莲花山公园'},
-    {icon:'🍜',time:'Day1 18:00',title:'福田COCO Park・晚餐',desc:'探魚／太二／綠茶。',addr:'福田星河COCO Park',mapq:'福田星河COCO Park'},
-    {icon:'🏨',time:'Day1 20:00',title:'入住南山酒店',desc:'南山科技園或海岸城附近酒店，人均約 ¥300。',addr:'南山海岸城',mapq:'南山海岸城'},
-    {icon:'🛂',time:'Day2 15:00',title:'返回深圳灣口岸',desc:'地鐵回程，預留 30 分鐘過關。',transit:'🚇 13號線',addr:'深圳湾口岸',mapq:'深圳湾口岸'}
-  ]},
-  {id:'r42',cat:'flash',catLabel:'2小時快閃',badge:'',thumb:'🌳',thumbCls:'',title:'蓮花山公園・登頂俯瞰福田CBD',from:'福田口岸',path:'福田口岸 → 少年宮站 → 蓮花山公園',duration:'2小時30分',cost:'¥30',transit:'🚇 5個站',time:'2:30',fee:'¥4',walk:'2.5km',kw:'蓮花山公園 福田口岸 行山 城市綠洲 快閃',interests:['nature'],steps:[
-    {icon:'🛂',time:'08:00',title:'福田口岸過關',desc:'早上人流最少。',addr:'福田口岸',mapq:'福田口岸'},
-    {icon:'🚇',time:'08:20',title:'地鐵 4 號線 → 少年宮站',desc:'5 個站直達，F 出口。',transit:'🚇 4號線 · 5站 · ¥4',addr:'少年宫地铁站',mapq:'少年宫地铁站'},
-    {icon:'🌳',time:'08:40',title:'蓮花山公園',desc:'免費入場，山頂廣場可俯瞰福田CBD全景。',addr:'莲花山公园',mapq:'莲花山公园'},
-    {icon:'📸',time:'09:30',title:'山頂廣場・鄧小平雕像',desc:'深圳地標打卡位。',addr:'莲花山公园',mapq:'莲花山公园'},
-    {icon:'🛂',time:'11:00',title:'返回福田口岸',desc:'預留 25 分鐘過關。',transit:'🚇 4號線 · 5站',addr:'福田口岸',mapq:'福田口岸'}
-  ]},
-  {id:'r43',cat:'half',catLabel:'4小時半日',badge:'b2',thumb:'🐟',thumbCls:'a3',title:'海上世界半日遊・明華輪＋蛇口海鮮',from:'深圳灣口岸',path:'深圳灣口岸 → 海上世界 → 蛇口',duration:'4小時',cost:'¥180',transit:'🚇 2號線',time:'4:00',fee:'¥6',walk:'2km',kw:'海上世界 明華輪 蛇口 深圳灣口岸 半日 海鮮',interests:['culture'],steps:[
-    {icon:'🛂',time:'10:00',title:'深圳灣口岸過關',desc:'24 小時通關。',addr:'深圳湾口岸',mapq:'深圳湾口岸'},
-    {icon:'🚇',time:'10:20',title:'地鐵 13 號線 → 後海站 → 2 號線',desc:'轉 2 號線至海上世界站。',transit:'🚇 13→2號線 · ¥5',addr:'海上世界地铁站',mapq:'海上世界地铁站'},
-    {icon:'🚢',time:'11:00',title:'海上世界・明華輪',desc:'豪華郵輪改造，九層設施，海景打卡。',addr:'海上世界',mapq:'海上世界'},
-    {icon:'🍜',time:'12:30',title:'蛇口海鮮街・午餐',desc:'即撈即煮，人均 ¥120。',addr:'蛇口海鲜市场',mapq:'蛇口海鲜市场'},
-    {icon:'🌊',time:'13:30',title:'蛇口海上世界文化藝術中心',desc:'海邊白色建築，展覽與海景。',addr:'海上世界文化艺术中心',mapq:'海上世界文化艺术中心'},
-    {icon:'🛂',time:'14:00',title:'返回深圳灣口岸',desc:'地鐵回程，預留 30 分鐘過關。',transit:'🚇 2→13號線',addr:'深圳湾口岸',mapq:'深圳湾口岸'}
-  ]},
-  {id:'r44',cat:'half',catLabel:'4小時半日',badge:'b2',thumb:'🚴',thumbCls:'a6',title:'深圳灣公園・海濱單車＋人才公園',from:'深圳灣口岸',path:'深圳灣口岸 → 深圳灣公園 → 人才公園',duration:'4小時',cost:'¥80',transit:'🚇 13號線',time:'4:00',fee:'¥4',walk:'8km',kw:'深圳灣公園 單車 人才公園 深圳灣口岸 半日',interests:['nature'],steps:[
-    {icon:'🛂',time:'09:00',title:'深圳灣口岸過關',desc:'過關後步行至深圳灣公園。',addr:'深圳湾口岸',mapq:'深圳湾口岸'},
-    {icon:'🚴',time:'09:20',title:'深圳灣公園・租單車',desc:'共享單車 ¥1.5/15分鐘，沿海濱踩到紅樹林。',addr:'深圳湾公园',mapq:'深圳湾公园'},
-    {icon:'🌅',time:'10:30',title:'紅樹林自然保護區',desc:'觀賞候鳥、紅樹林生態。',addr:'红树林自然保护区',mapq:'红树林自然保护区'},
-    {icon:'🏙️',time:'11:30',title:'人才公園',desc:'深圳人才公園，打卡「來了就是深圳人」。',addr:'人才公园',mapq:'人才公园'},
-    {icon:'🍜',time:'12:30',title:'海岸城・午餐',desc:'綠茶、太二、探魚。',transit:'🚇 2號線 · 1站',addr:'南山海岸城',mapq:'南山海岸城'},
-    {icon:'🛂',time:'13:30',title:'返回深圳灣口岸',desc:'地鐵回程，預留 25 分鐘過關。',transit:'🚇 13號線',addr:'深圳湾口岸',mapq:'深圳湾口岸'}
-  ]},
-  {id:'r45',cat:'half',catLabel:'4小時半日',badge:'b2',thumb:'🏘️',thumbCls:'a5',title:'甘坑客家小鎮・古鎮文青半日遊',from:'福田口岸',path:'福田口岸 → 甘坑站 → 甘坑客家小鎮',duration:'4小時30分',cost:'¥120',transit:'🚇 10號線',time:'4:30',fee:'¥6',walk:'3km',kw:'甘坑 客家小鎮 古鎮 文青 福田口岸 半日',interests:['culture','nature'],steps:[
-    {icon:'🛂',time:'09:30',title:'福田口岸過關',desc:'轉 10 號線。',addr:'福田口岸',mapq:'福田口岸'},
-    {icon:'🚇',time:'09:50',title:'地鐵 10 號線 → 甘坑站',desc:'約 40 分鐘，A 出口。',transit:'🚇 10號線 · ¥6',addr:'甘坑地铁站',mapq:'甘坑地铁站'},
-    {icon:'🏘️',time:'10:30',title:'甘坑客家小鎮・古鎮漫步',desc:'300 年歷史客家圍村，石板街、騎樓、小橋流水。',addr:'甘坑客家小镇',mapq:'甘坑客家小镇'},
-    {icon:'🍜',time:'12:00',title:'客家菜・午餐',desc:'鹽焗雞、釀豆腐，人均 ¥60。',addr:'甘坑客家小镇',mapq:'甘坑客家小镇'},
-    {icon:'📸',time:'13:00',title:'V谷樂園＋小涼帽劇場',desc:'親子打卡熱點。',addr:'甘坑客家小镇',mapq:'甘坑客家小镇'},
-    {icon:'🛂',time:'14:30',title:'返回福田口岸',desc:'地鐵 10 號線回程，預留 30 分鐘過關。',transit:'🚇 10號線',addr:'福田口岸',mapq:'福田口岸'}
-  ]},
-  {id:'r50',cat:'flash',catLabel:'2小時快閃',badge:'',thumb:'🛍️',thumbCls:'',title:'K11 Ecoast・蛇口海濱藝術購物快閃',from:'深圳灣口岸',path:'深圳灣口岸 → 太子灣站 → K11 Ecoast',duration:'2小時30分',cost:'¥120',transit:'🚇 12號線',time:'2:30',fee:'¥4',walk:'1.5km',kw:'K11 Ecoast 蛇口 藝術 購物 深圳灣口岸 快閃 太子灣',interests:['culture','outlet'],steps:[
-    {icon:'🛂',time:'10:00',title:'深圳灣口岸過關',desc:'24 小時通關。',addr:'深圳湾口岸',mapq:'深圳湾口岸'},
-    {icon:'🚇',time:'10:20',title:'地鐵 13 號線 → 後海 → 12 號線 → 太子灣',desc:'轉 12 號線至太子灣站 A 出口。',transit:'🚇 13→12號線 · ¥4',addr:'太子湾地铁站',mapq:'太子湾地铁站'},
-    {icon:'🛍️',time:'10:45',title:'K11 Ecoast・藝術購物',desc:'深圳首個 K11，海濱藝術購物中心，打卡熱點。',addr:'K11 Ecoast',mapq:'K11 Ecoast'},
-    {icon:'☕',time:'12:00',title:'海濱咖啡店',desc:'望海嘆咖啡，人均 ¥50。',addr:'K11 Ecoast',mapq:'K11 Ecoast'},
-    {icon:'🛂',time:'13:00',title:'返回深圳灣口岸',desc:'地鐵回程，預留 25 分鐘過關。',transit:'🚇 12→13號線',addr:'深圳湾口岸',mapq:'深圳湾口岸'}
-  ]},
-  {id:'r51',cat:'half',catLabel:'4小時半日',badge:'b2',thumb:'🎨',thumbCls:'a4',title:'K11 Ecoast＋海上世界藝術半日遊',from:'深圳灣口岸',path:'深圳灣口岸 → 太子灣 → 海上世界',duration:'4小時30分',cost:'¥200',transit:'🚇 12號線',time:'4:30',fee:'¥6',walk:'3km',kw:'K11 Ecoast 海上世界 蛇口 藝術 半日 深圳灣口岸',interests:['culture'],steps:[
-    {icon:'🛂',time:'10:00',title:'深圳灣口岸過關',desc:'24 小時通關。',addr:'深圳湾口岸',mapq:'深圳湾口岸'},
-    {icon:'🚇',time:'10:20',title:'地鐵 13→12 號線 → 太子灣站',desc:'約 20 分鐘。',transit:'🚇 13→12號線 · ¥4',addr:'太子湾地铁站',mapq:'太子湾地铁站'},
-    {icon:'🛍️',time:'10:40',title:'K11 Ecoast・藝術購物',desc:'海濱藝術購物中心，潮牌、藝術展、海景餐廳。',addr:'K11 Ecoast',mapq:'K11 Ecoast'},
-    {icon:'🍜',time:'12:30',title:'K11 海景午餐',desc:'海景餐廳人均 ¥100。',addr:'K11 Ecoast',mapq:'K11 Ecoast'},
-    {icon:'🚢',time:'13:30',title:'海上世界・明華輪',desc:'轉 12 號線至海上世界站，打卡明華輪。',transit:'🚇 12號線 · 2站',addr:'海上世界',mapq:'海上世界'},
-    {icon:'🛂',time:'14:30',title:'返回深圳灣口岸',desc:'地鐵回程，預留 30 分鐘過關。',transit:'🚇 12→13號線',addr:'深圳湾口岸',mapq:'深圳湾口岸'}
-  ]},
-  {id:'r56',cat:'day',catLabel:'一日遊',badge:'b3',thumb:'🏖️',thumbCls:'a3',title:'大梅沙海濱一日遊・蓮塘直達陽光與海灘',from:'蓮塘口岸',path:'蓮塘口岸 → 大梅沙站 → 大梅沙海濱公園',duration:'7小時',cost:'¥100',transit:'🚇 8號線直達',time:'7:00',fee:'¥8',walk:'3km',kw:'大梅沙 海濱 沙灘 蓮塘口岸 一日遊 8號線',interests:['nature'],steps:[
-    {icon:'🛂',time:'09:00',title:'蓮塘口岸過關',desc:'轉 2/8 號線。',addr:'莲塘口岸',mapq:'莲塘口岸'},
-    {icon:'🚇',time:'09:30',title:'地鐵 8 號線 → 大梅沙站',desc:'約 45 分鐘。',transit:'🚇 8號線 · ¥7',addr:'大梅沙地铁站',mapq:'大梅沙地铁站'},
-    {icon:'🏖️',time:'10:20',title:'大梅沙海濱公園',desc:'免費沙灘，水清沙幼。',addr:'大梅沙海滨公园',mapq:'大梅沙海滨公园'},
-    {icon:'🍜',time:'12:30',title:'海鮮午餐',desc:'大梅沙海鮮街，人均 ¥100。',addr:'大梅沙',mapq:'大梅沙'},
-    {icon:'🏄',time:'14:00',title:'水上活動 / 沙灘漫步',desc:'可玩水上電單車、香蕉船。',addr:'大梅沙海滨公园',mapq:'大梅沙海滨公园'},
-    {icon:'🛂',time:'17:00',title:'返回蓮塘口岸',desc:'地鐵 8 號線回程，預留 30 分鐘過關。',transit:'🚇 8號線 · 約45分鐘',addr:'莲塘口岸',mapq:'莲塘口岸'}
-  ]},
-  {id:'r60',cat:'half',catLabel:'4小時半日',badge:'b2',thumb:'🏟️',thumbCls:'a6',title:'深圳灣體育中心「春繭」＋萬象城半日',from:'深圳灣口岸',path:'深圳灣口岸 → 後海站 → 深圳灣體育中心',duration:'4小時',cost:'¥100',transit:'🚇 13號線',time:'4:00',fee:'¥4',walk:'3km',kw:'深圳灣體育中心 春繭 萬象城 深圳灣口岸 半日 打卡',interests:['culture'],steps:[
-    {icon:'🛂',time:'10:00',title:'深圳灣口岸過關',desc:'24 小時通關。',addr:'深圳湾口岸',mapq:'深圳湾口岸'},
-    {icon:'🚇',time:'10:15',title:'地鐵 13 號線 → 後海站',desc:'2 個站直達。',transit:'🚇 13號線 · 2站 · ¥4',addr:'后海地铁站',mapq:'后海地铁站'},
-    {icon:'🏟️',time:'10:30',title:'深圳灣體育中心「春繭」',desc:'標誌性建築，打卡熱點。',addr:'深圳湾体育中心',mapq:'深圳湾体育中心'},
-    {icon:'🛍️',time:'11:30',title:'深圳灣萬象城・購物',desc:'500+ 品牌，午餐選擇多。',addr:'深圳湾万象城',mapq:'深圳湾万象城'},
-    {icon:'🍜',time:'12:30',title:'萬象城・午餐',desc:'遇見小面、探魚、綠茶。',addr:'深圳湾万象城',mapq:'深圳湾万象城'},
-    {icon:'🛂',time:'14:00',title:'返回深圳灣口岸',desc:'地鐵回程，預留 25 分鐘過關。',transit:'🚇 13號線',addr:'深圳湾口岸',mapq:'深圳湾口岸'}
   ]}
 ];
 
 /* ---------- 口岸數據 ---------- */
 const portsData = [
-  {id:'p1',name:'福田口岸',sub:'06:30 – 22:30 · 落馬洲支線',cpCode:'LSC',kw:'福田 落馬洲 東鐵線 4號線 10號線 B1 75',steps:[
-    {icon:'🚇',title:'港鐵東鐵線 → 落馬洲站',desc:'由金鐘出發約 50 分鐘。尾班車約 22:11。'},
-    {icon:'🚌',title:'九巴 B1 線',desc:'天水圍（天慈邨）↔ 落馬洲站（福田口岸），途經元朗市中心。$15.1。'},
-    {icon:'🚐',title:'專線小巴 75 線',desc:'元朗（福康街）↔ 落馬洲支線管制站。$10.0。'}
-  ],tip:'落馬洲站人流一般較羅湖少，過關後可直接轉乘深圳地鐵 4 號線或 10 號線。'},
-  {id:'p2',name:'深圳灣口岸',sub:'06:30 – 24:00 · 跨境巴士',cpCode:'SBC',kw:'深圳灣 屯門 元朗 B2 B3 B3X 13號線 618',steps:[
-    {icon:'🚌',title:'城巴 B3X 線',desc:'屯門市中心 ↔ 深圳灣口岸。$16.5，班次約 10–15 分鐘。'},
-    {icon:'🚌',title:'城巴 B3 / B3A / B3M 線',desc:'B3：屯門碼頭；B3A：山景邨；B3M：屯門站（V city）。$16.5。'},
-    {icon:'🚇',title:'過關後接駁',desc:'深圳地鐵 13 號線深圳灣口岸站。'}
-  ],tip:'深圳灣口岸開放時間為每日上午 6 時 30 分至午夜 12 時正。'},
-  {id:'p3',name:'羅湖口岸',sub:'06:30 – 24:00 · 東鐵線',cpCode:'LWS',kw:'羅湖 東鐵線 人民南 商業城 東門',steps:[
-    {icon:'🚇',title:'港鐵東鐵線 → 羅湖站',desc:'由金鐘出發約 48 分鐘。尾班車約 23:30。'},
-    {icon:'🧭',title:'過關後接駁',desc:'出關即為深圳地鐵 1 號線羅湖站。'}
-  ],tip:'羅湖是最多人用的口岸，平日早上及週日傍晚最擠。'},
-  {id:'p5',name:'蓮塘／香園圍口岸',sub:'07:00 – 22:00 · 新口岸',cpCode:'HYW',kw:'蓮塘 香園圍 79X 59S 59K B7 B9 B9A',steps:[
-    {icon:'🚌',title:'城巴 B7 線',desc:'粉嶺站 ↔ 香園圍口岸。$9.6。'},
-    {icon:'🚌',title:'城巴 B9 線',desc:'屯門站 ↔ 香園圍口岸。$20.2。'}
-  ],tip:'2023 年啟用的新口岸，人流較羅湖、福田少。'},
-  {id:'p6',name:'🆕 新皇崗口岸',sub:'24小時 · 一地兩檢 · 已正式啟用',cpCode:'LMC',kw:'新皇崗 皇崗 落馬洲 B10 B11 B12 B13 B14 B15 NB73',steps:[
-    {icon:'🚌',title:'7 條專營巴士線',desc:'B10、B11、B12、B13、B14、B15 及通宵線 NB73。'},
-    {icon:'🚕',title:'的士服務',desc:'空載的士需先在「公共運輸緩衝區」取籌。'}
-  ],tip:'新皇崗口岸實施「一地兩檢」及「合作查驗、一次放行」，過關時間約 5 分鐘。'}
 ];
 
 const hkTips = [
   '「港車北上」自 2025 年 9 月起優化：每周二、三（公眾假期等指定日子除外），香港車主可免預約經港珠澳大橋直達廣東。',
-  '深圳六大口岸及港珠澳大橋已全面支援「刷臉過關」。預先用回鄉證及內地實名手機號在「移民局小程序」或「粵省事」登記人臉，永久有效。',
-  '深圳地鐵 2025 年 12 月 28 日新增 4 條新線：5 號線西延直達東門購物、8 號線三期大鵬看海、11 號線二期羅湖去機場、13 號線一期北段。',
-  '新皇崗口岸採用「一地兩檢」及「合作查驗、一次放行」，非繁忙時間最快 3–5 分鐘完成過關。',
-  '深圳灣口岸是唯一 24 小時通關的陸路口岸，深夜返港或早機出發都靠它。',
-  '專線小巴 75 線是前往落馬洲支線管制站最便宜的交通工具，只要 $10。',
-  '乘高鐵由西九龍到福田只需 14 分鐘，二等座約 ¥75，比東鐵線快一倍。',
-  '蓮塘口岸的 8 號線直達大鵬溪涌，約 40 分鐘即可看海。',
-  'AlipayHK 已與內地支付寶互通，大型商場、連鎖店普遍可用。',
-  '龍華8號倉係港人最熟嘅深圳Outlet，86萬呎200+商戶，Nike、Adidas、Michael Kors 低至2-3折。',
-  'M133 巴士連接蓮塘口岸與蛇口，途經福田、南山多個商圈，全程 ¥3。',
-  '蓮花山公園免費入場，山頂廣場可俯瞰整個福田CBD，係深圳最抵嘅打卡位。',
-  '甘坑客家小鎮有 300 年歷史，石板街、騎樓、小橋流水，係深圳少有嘅古鎮。',
-  'K11 Ecoast 係深圳首個 K11 藝術購物中心，位於蛇口太子灣，海景打卡一流。',
-  '大梅沙海濱公園免費入場，水清沙幼，係深圳最受歡迎嘅沙灘之一。'
 ];
 
 const stationsData = [
   {name:'福田口岸站', lines:[{l:'4號線',c:'#F39800'},{l:'10號線',c:'#8B6914'}], exits:'A/B/C 出口接駁福田口岸大樓', malls:'福田口岸商業城、皇御苑', toPort:'即為福田口岸'},
-  {name:'羅湖站', lines:[{l:'1號線',c:'#00A651'}], exits:'A 出口直通羅湖口岸大樓', malls:'羅湖商業城、東門老街', toPort:'即為羅湖口岸'},
-  {name:'深圳灣口岸站', lines:[{l:'13號線',c:'#0075C9'}], exits:'A 出口直通深圳灣口岸大樓', malls:'深圳灣公園', toPort:'即為深圳灣口岸'},
-  {name:'蓮塘口岸站', lines:[{l:'2號線',c:'#E60012'},{l:'8號線',c:'#E60012'}], exits:'A 出口直通蓮塘口岸', malls:'蓮塘口岸商業區', toPort:'即為蓮塘口岸'},
-  {name:'皇崗口岸站', lines:[{l:'7號線',c:'#00B2A9'}], exits:'A 出口往新皇崗口岸', malls:'皇崗口岸商業區', toPort:'即為新皇崗口岸'},
-  {name:'購物公園站', lines:[{l:'1號線',c:'#00A651'},{l:'3號線',c:'#8B6914'}], exits:'C 出口往星河 COCO Park', malls:'星河 COCO Park、平安金融中心', toPort:'往福田口岸 2 站'},
-  {name:'會展中心站', lines:[{l:'1號線',c:'#00A651'},{l:'4號線',c:'#F39800'}], exits:'A/B 出口往會展中心，D 出口往皇庭廣場', malls:'皇庭廣場、領展中心城、深圳會展中心', toPort:'往福田口岸 3 站'},
-  {name:'市民中心站', lines:[{l:'2號線',c:'#E60012'},{l:'4號線',c:'#F39800'}], exits:'B 出口往市民中心廣場', malls:'市民中心、深圳書城、蓮花山公園', toPort:'往福田口岸 4 站'},
-  {name:'少年宮站', lines:[{l:'3號線',c:'#8B6914'},{l:'4號線',c:'#F39800'}], exits:'A 出口往蓮花山公園，D 出口往深圳書城', malls:'深圳書城中心城、蓮花山公園', toPort:'往福田口岸 5 站'},
-  {name:'福民站', lines:[{l:'3號線',c:'#8B6914'},{l:'7號線',c:'#00B2A9'}], exits:'A 出口往福民', malls:'水圍村、福民商業區', toPort:'往福田口岸 2 站'},
-  {name:'華強北站', lines:[{l:'2號線',c:'#E60012'},{l:'7號線',c:'#00B2A9'}], exits:'A 出口往華強北電子市場', malls:'華強北商業區、賽格廣場', toPort:'往福田口岸約 20 分鐘'},
-  {name:'老街站', lines:[{l:'1號線',c:'#00A651'},{l:'3號線',c:'#8B6914'}], exits:'A 出口往白馬服裝批發，D 出口往 1234space', malls:'東門步行街、白馬服裝批發、1234space', toPort:'往羅湖口岸 3 站'},
-  {name:'國貿站', lines:[{l:'1號線',c:'#00A651'}], exits:'A 出口往國貿SPRING', malls:'國貿SPRING、國貿大廈', toPort:'往羅湖口岸 1 站'},
-  {name:'大劇院站', lines:[{l:'1號線',c:'#00A651'},{l:'2號線',c:'#E60012'}], exits:'A 出口往萬象城', malls:'萬象城、地王大廈、KK Mall', toPort:'往羅湖口岸 2 站'},
-  {name:'大芬站', lines:[{l:'3號線',c:'#8B6914'}], exits:'A 出口往大芬油畫村', malls:'大芬油畫村', toPort:'往羅湖口岸約 25 分鐘'},
-  {name:'後海站', lines:[{l:'2號線',c:'#E60012'},{l:'11號線',c:'#8B6914'},{l:'13號線',c:'#0075C9'}], exits:'D 出口往海岸城，E 出口往深圳灣萬象城', malls:'海岸城、深圳灣萬象城', toPort:'往深圳灣口岸 2 站'},
-  {name:'世界之窗站', lines:[{l:'1號線',c:'#00A651'},{l:'2號線',c:'#E60012'}], exits:'J 出口往世界之窗', malls:'世界之窗、歡樂谷、錦繡中華', toPort:'往深圳灣口岸約 30 分鐘'},
-  {name:'海上世界站', lines:[{l:'2號線',c:'#E60012'},{l:'12號線',c:'#8B6914'}], exits:'A 出口往海上世界', malls:'海上世界、明華輪、蛇口郵輪中心', toPort:'往深圳灣口岸約 25 分鐘'},
-  {name:'前海灣站', lines:[{l:'1號線',c:'#00A651'},{l:'5號線',c:'#A05EB5'},{l:'11號線',c:'#8B6914'}], exits:'A 出口往前海石公園', malls:'前海石公園、萬象前海、前海壹方城', toPort:'往深圳灣口岸約 20 分鐘'},
-  {name:'太子灣站', lines:[{l:'12號線',c:'#8B6914'}], exits:'A 出口往 K11 Ecoast', malls:'K11 Ecoast、海上世界、太子灣公園', toPort:'往深圳灣口岸約 20 分鐘'},
-  {name:'蓮花村站', lines:[{l:'3號線',c:'#8B6914'},{l:'10號線',c:'#8B6914'}], exits:'A 出口往深業上城', malls:'深業上城、蓮花山公園', toPort:'往福田口岸約 15 分鐘'},
-  {name:'崗廈站', lines:[{l:'1號線',c:'#00A651'},{l:'10號線',c:'#8B6914'}], exits:'A 出口往卓悅中心 One Avenue', malls:'卓悅中心 One Avenue、深圳之眼', toPort:'往福田口岸 3 站'},
-  {name:'溪涌站', lines:[{l:'8號線',c:'#E60012'}], exits:'A 出口往溪涌度假村', malls:'溪涌度假村、玫瑰海岸', toPort:'往蓮塘口岸約 40 分鐘'},
-  {name:'大梅沙站', lines:[{l:'8號線',c:'#E60012'}], exits:'A 出口往大梅沙海濱公園', malls:'大梅沙海濱公園、東部華僑城', toPort:'往蓮塘口岸約 35 分鐘'},
-  {name:'仙湖路站', lines:[{l:'2號線',c:'#E60012'},{l:'8號線',c:'#E60012'}], exits:'A 出口往仙湖植物園', malls:'仙湖植物園、弘法寺', toPort:'往蓮塘口岸約 15 分鐘'}
-];
 
 const faqData = [
-  {q:'香港電子錢包可在內地使用嗎？',a:'AlipayHK、WeChat Pay HK、八達通、銀聯雲閃付、BoC Pay 均支援內地跨境付款，消費時按當時匯率以港元記帳，毋需預先兌換人民幣。'},
-  {q:'在內地使用電子支付要實名認證嗎？',a:'AlipayHK 和 WeChat Pay HK 需完成身份認證方可使用跨境支付功能，一般需綁定香港銀行帳戶或信用卡，並進行人臉識別。'},
-  {q:'八達通全國通卡可以在深圳用嗎？',a:'可以！八達通全國通卡已支援內地 336 個城市，包括深圳。可以直接拍卡搭深圳地鐵同公交，按當日匯率結算，非常方便。'},
-  {q:'口岸等候時間數據係邊度嚟？',a:'本應用顯示嘅等候時間由香港入境事務處提供，透過政府資料一線通（data.gov.hk）每 15 分鐘更新一次。'},
-  {q:'龍華8號倉點去？',a:'福田口岸過關後搭地鐵 10 號線到光雅園站 C 出口，步行數分鐘即達。86萬呎，200+商戶，運動品牌低至 2-3 折。'},
-  {q:'如何選擇合適的口岸？',a:'切忌只考慮「哪個口岸近香港」，應根據目的地選擇。例如去南山用深圳灣口岸，去福田用福田口岸，去羅湖用羅湖口岸。'},
-  {q:'新皇崗口岸有咩特別？',a:'新皇崗口岸已正式啟用，實施一地兩檢及合作查驗一次放行，旅客基本不需等候便可過關。'},
-  {q:'蓮花山公園點去？',a:'福田口岸過關後搭地鐵 4 號線到少年宮站，F 出口步行約 5 分鐘即達。免費入場，山頂廣場可俯瞰福田CBD全景。'},
-  {q:'K11 Ecoast 點去？',a:'深圳灣口岸過關後搭地鐵 13 號線到後海站，轉 12 號線到太子灣站 A 出口，步行約 5 分鐘即達。'},
-  {q:'如果在內地遺失回鄉證怎麼辦？',a:'請立即前往就近的公安局報失，並聯絡香港入境事務處（1868 熱線）及香港駐內地辦事處尋求協助。'},
-  {q:'深圳地鐵營運時間？',a:'深圳地鐵大部分線路營運時間為 06:30 至 23:00 左右，週五及週末部分線路會延長服務時間。'},
   {q:'的士（打車）用咩 App 好？',a:'內地最普及係「滴滴出行」，香港手機號碼可直接註冊。另外高德地圖、美團亦可叫車。深圳的士起錶價約 ¥10。'}
 ];
 
 const metroGraph = {
-  '福田口岸': ['福民', '皇崗口岸'], '皇崗口岸': ['福田口岸', '福民'],
-  '羅湖': ['國貿', '老街'], '深圳灣口岸': ['後海', '前海灣'],
-  '蓮塘口岸': ['仙湖路', '蓮塘'],
-  '福民': ['福田口岸', '皇崗口岸', '會展中心', '崗廈'],
-  '會展中心': ['福民', '購物公園', '崗廈', '市民中心'],
-  '購物公園': ['會展中心'], '市民中心': ['會展中心', '少年宮', '崗廈北'],
-  '少年宮': ['市民中心', '蓮花村'], '蓮花村': ['少年宮', '深業上城'],
-  '深業上城': ['蓮花村'], '崗廈北': ['市民中心', '崗廈'],
-  '崗廈': ['福民', '會展中心', '崗廈北'], '國貿': ['羅湖', '老街'],
-  '老街': ['羅湖', '國貿', '大劇院'], '大劇院': ['老街', '萬象城'], '萬象城': ['大劇院'],
-  '後海': ['深圳灣口岸', '前海灣', '海岸城', '深圳灣萬象城', '世界之窗'],
-  '海岸城': ['後海'], '深圳灣萬象城': ['後海'], '世界之窗': ['後海', '白石洲'],
-  '白石洲': ['世界之窗'], '前海灣': ['深圳灣口岸', '後海', '桂灣', '前海壹方城', '前海石公園'],
-  '桂灣': ['前海灣', '萬象前海'], '萬象前海': ['桂灣'], '前海壹方城': ['前海灣'],
-  '前海石公園': ['前海灣'], '仙湖路': ['蓮塘口岸', '仙湖植物園'],
   '仙湖植物園': ['仙湖路'], '蓮塘': ['蓮塘口岸', '溪涌'], '溪涌': ['蓮塘', '大梅沙'], '大梅沙': ['溪涌']
 };
 
