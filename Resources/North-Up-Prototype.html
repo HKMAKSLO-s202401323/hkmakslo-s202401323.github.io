@@ -1504,18 +1504,18 @@ const DEMO_REVIEWS = {
 
 /* 演示社區回報（不存 localStorage，純展示） */
 const DEMO_REPORTS = [
-  function getUserReports(){
+  {port:'福田口岸', time:'10–20 分鐘', note:'早上 9 點過關，e-道好快', ts: Date.now() - 25 * 60 * 1000, isDemo: true},
+  {port:'深圳灣口岸', time:'少於 10 分鐘', note:'24 小時通關，深夜返港超方便', ts: Date.now() - 48 * 60 * 1000, isDemo: true},
+  {port:'羅湖口岸', time:'20–30 分鐘', note:'星期日傍晚人多，建議提早', ts: Date.now() - 95 * 60 * 1000, isDemo: true},
+  {port:'蓮塘口岸', time:'少於 10 分鐘', note:'新口岸人流少，過關好快', ts: Date.now() - 180 * 60 * 1000, isDemo: true}
+];
+function getUserReports(){
   return LS.get('userReports', []);
 }
 function getReports(){
   // 用戶真實提交排前面，示範數據在後面
   return [...getUserReports(), ...DEMO_REPORTS];
 }
-  {port:'福田口岸', time:'10–20 分鐘', note:'早上 9 點過關，e-道好快', ts: Date.now() - 25 * 60 * 1000, isDemo: true},
-  {port:'深圳灣口岸', time:'少於 10 分鐘', note:'24 小時通關，深夜返港超方便', ts: Date.now() - 48 * 60 * 1000, isDemo: true},
-  {port:'羅湖口岸', time:'20–30 分鐘', note:'星期日傍晚人多，建議提早', ts: Date.now() - 95 * 60 * 1000, isDemo: true},
-  {port:'蓮塘口岸', time:'少於 10 分鐘', note:'新口岸人流少，過關好快', ts: Date.now() - 180 * 60 * 1000, isDemo: true}
-];
 
 /* ---------- 狀態 ---------- */
 let currentScreen = 'home';
