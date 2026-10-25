@@ -1502,12 +1502,19 @@ const DEMO_REVIEWS = {
   ]
 };
 
-/* ---------- 演示社區回報（假數據） ---------- */
+/* 演示社區回報（不存 localStorage，純展示） */
 const DEMO_REPORTS = [
-  {port:'福田口岸', time:'10–20 分鐘', note:'早上 9 點過關，e-道好快', ts: Date.now() - 25 * 60 * 1000},
-  {port:'深圳灣口岸', time:'少於 10 分鐘', note:'24 小時通關，深夜返港超方便', ts: Date.now() - 48 * 60 * 1000},
-  {port:'羅湖口岸', time:'20–30 分鐘', note:'星期日傍晚人多，建議提早', ts: Date.now() - 95 * 60 * 1000},
-  {port:'蓮塘口岸', time:'少於 10 分鐘', note:'新口岸人流少，過關好快', ts: Date.now() - 180 * 60 * 1000}
+  function getUserReports(){
+  return LS.get('userReports', []);
+}
+function getReports(){
+  // 用戶真實提交排前面，示範數據在後面
+  return [...getUserReports(), ...DEMO_REPORTS];
+}
+  {port:'福田口岸', time:'10–20 分鐘', note:'早上 9 點過關，e-道好快', ts: Date.now() - 25 * 60 * 1000, isDemo: true},
+  {port:'深圳灣口岸', time:'少於 10 分鐘', note:'24 小時通關，深夜返港超方便', ts: Date.now() - 48 * 60 * 1000, isDemo: true},
+  {port:'羅湖口岸', time:'20–30 分鐘', note:'星期日傍晚人多，建議提早', ts: Date.now() - 95 * 60 * 1000, isDemo: true},
+  {port:'蓮塘口岸', time:'少於 10 分鐘', note:'新口岸人流少，過關好快', ts: Date.now() - 180 * 60 * 1000, isDemo: true}
 ];
 
 /* ---------- 狀態 ---------- */
@@ -2032,34 +2039,62 @@ function updateFavBtn(){
 
 /* ---------- 徽章 ---------- */
 const BADGES = [
-  { id:'port1', icon:'🛂', name:'口岸新手', cond: () => LS.get('visitedPorts', []).length >= 1 },
-  { id:'port3', icon:'🏅', name:'口岸達人', cond: () => LS.get('visitedPorts', []).length >= 3 },
-  { id:'port5', icon:'👑', name:'口岸大師', cond: () => LS.get('visitedPorts', []).length >= 5 },
-  { id:'fav3', icon:'⭐', name:'收藏家', cond: () => favSet.size >= 3 },
-  { id:'fav10', icon:'🌟', name:'收藏狂熱', cond: () => favSet.size >= 10 },
-  { id:'itin3', icon:'📅', name:'行程規劃師', cond: () => LS.get('itinerary', []).length >= 3 },
-  { id:'route5', icon:'🗺️', name:'路線達人', cond: () => (LS.get('recentRoutes', []).length >= 5) },
-  { id:'report1', icon:'📣', name:'互助大使', cond: () => LS.get('communityReports', []).length >= 1 }
+  { id:'port1',  icon:'🛂', name:'口岸新手',   desc:'首次打卡任何口岸',         target:1,  unit:'個口岸', value: () => LS.get('visitedPorts', []).length },
+  { id:'port3',  icon:'🏅', name:'口岸達人',   desc:'打卡 3 個不同口岸',        target:3,  unit:'個口岸', value: () => LS.get('visitedPorts', []).length },
+  { id:'port5',  icon:'👑', name:'口岸大師',   desc:'打卡全部 5 個口岸',        target:5,  unit:'個口岸', value: () => LS.get('visitedPorts', []).length },
+  { id:'fav3',   icon:'⭐', name:'收藏家',     desc:'收藏 3 條路線',            target:3,  unit:'條路線', value: () => favSet.size },
+  { id:'fav10',  icon:'🌟', name:'收藏狂熱',   desc:'收藏 10 條路線',           target:10, unit:'條路線', value: () => favSet.size },
+  { id:'itin3',  icon:'📅', name:'行程規劃師', desc:'行程表加入 3 個步驟',      target:3,  unit:'個步驟', value: () => LS.get('itinerary', []).length },
+  { id:'route5', icon:'🗺️', name:'路線達人',   desc:'瀏覽 5 條不同路線',        target:5,  unit:'條路線', value: () => (LS.get('recentRoutes', []).length) },
+  { id:'report1',icon:'📣', name:'互助大使',   desc:'提交 1 次過關回報（真實提交）', target:1, unit:'次回報', value: () => getUserReports().length }
 ];
 function checkBadges(){
   const unlocked = LS.get('unlockedBadges', {});
+  let changed = false;
   BADGES.forEach(b => {
-    if (b.cond() && !unlocked[b.id]) {
+    if (b.value() >= b.target && !unlocked[b.id]) {
       unlocked[b.id] = Date.now();
       LS.set('unlockedBadges', unlocked);
       toast(`🎉 解鎖徽章：${b.name}`);
+      changed = true;
     }
   });
-  if (currentScreen === 'me') renderBadges();
+  if (changed && currentScreen === 'me') renderBadges();
 }
 function renderBadges(){
+  function openBadgeDetail(id){
+  const b = BADGES.find(x => x.id === id); if (!b) return;
+  const unlocked = LS.get('unlockedBadges', {});
+  const ok = !!unlocked[id];
+  const val = b.value();
+  const pct = Math.min(100, (val / b.target) * 100);
+  const icoEl = document.getElementById('bdIco');
+  icoEl.textContent = b.icon;
+  icoEl.className = 'badge-detail-ico' + (ok ? ' unlocked' : '');
+  document.getElementById('bdName').textContent = b.name;
+  document.getElementById('bdDesc').textContent = b.desc;
+  document.getElementById('bdProgress').style.width = pct + '%';
+  document.getElementById('bdCurrent').textContent = `${val} / ${b.target} ${b.unit}`;
+  document.getElementById('bdTarget').textContent = ok ? '✅ 已解鎖' : `${Math.round(pct)}%`;
+  const dt = ok ? new Date(unlocked[id]).toLocaleString('zh-HK') : '';
+  document.getElementById('bdUnlockedAt').textContent = dt ? `🕐 解鎖於 ${dt}` : '';
+  document.getElementById('badgeDetailModal').classList.add('open');
+  haptic();
+}
+function closeBadgeDetail(){
+  document.getElementById('badgeDetailModal').classList.remove('open');
+  haptic();
+}
   const grid = document.getElementById('badgeGrid'); if (!grid) return;
   const unlocked = LS.get('unlockedBadges', {});
   const count = Object.keys(unlocked).length;
   document.getElementById('badgeProgressLabel').textContent = `${count} / ${BADGES.length}`;
   grid.innerHTML = BADGES.map(b => {
     const ok = !!unlocked[b.id];
-    return `<div class="badge-item"><div class="b-ico ${ok?'unlocked':''}">${b.icon}</div><div class="b-name ${ok?'unlocked':''}">${b.name}</div></div>`;
+    return `<div class="badge-item" onclick="openBadgeDetail('${b.id}')" role="button" tabindex="0">
+      <div class="b-ico ${ok?'unlocked':''}">${b.icon}${ok ? '<span class="b-check">✓</span>' : ''}</div>
+      <div class="b-name ${ok?'unlocked':''}">${b.name}</div>
+    </div>`;
   }).join('');
 }
 
