@@ -2062,7 +2062,19 @@ function checkBadges(){
   if (changed && currentScreen === 'me') renderBadges();
 }
 function renderBadges(){
-  function openBadgeDetail(id){
+  const grid = document.getElementById('badgeGrid'); if (!grid) return;
+  const unlocked = LS.get('unlockedBadges', {});
+  const count = Object.keys(unlocked).length;
+  document.getElementById('badgeProgressLabel').textContent = `${count} / ${BADGES.length}`;
+  grid.innerHTML = BADGES.map(b => {
+    const ok = !!unlocked[b.id];
+    return `<div class="badge-item" onclick="openBadgeDetail('${b.id}')" role="button" tabindex="0">
+      <div class="b-ico ${ok?'unlocked':''}">${b.icon}${ok ? '<span class="b-check">✓</span>' : ''}</div>
+      <div class="b-name ${ok?'unlocked':''}">${b.name}</div>
+    </div>`;
+  }).join('');
+}
+function openBadgeDetail(id){
   const b = BADGES.find(x => x.id === id); if (!b) return;
   const unlocked = LS.get('unlockedBadges', {});
   const ok = !!unlocked[id];
@@ -2085,19 +2097,7 @@ function closeBadgeDetail(){
   document.getElementById('badgeDetailModal').classList.remove('open');
   haptic();
 }
-  const grid = document.getElementById('badgeGrid'); if (!grid) return;
-  const unlocked = LS.get('unlockedBadges', {});
-  const count = Object.keys(unlocked).length;
-  document.getElementById('badgeProgressLabel').textContent = `${count} / ${BADGES.length}`;
-  grid.innerHTML = BADGES.map(b => {
-    const ok = !!unlocked[b.id];
-    return `<div class="badge-item" onclick="openBadgeDetail('${b.id}')" role="button" tabindex="0">
-      <div class="b-ico ${ok?'unlocked':''}">${b.icon}${ok ? '<span class="b-check">✓</span>' : ''}</div>
-      <div class="b-name ${ok?'unlocked':''}">${b.name}</div>
-    </div>`;
-  }).join('');
-}
-
+  
 /* ---------- 地鐵圖 ---------- */
 const mapContainer = document.getElementById('mapContainer');
 const mapObj = document.getElementById('metroMapObj');
