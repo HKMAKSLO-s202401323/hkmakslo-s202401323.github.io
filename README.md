@@ -1,6 +1,7 @@
 # HKMAKSLO_AI-LAB (Website Hosting)
-Experimental hosting for repository HKMAKSLO_AI-LAB. This website will only store limited active versions until moving to the main repository.
-   Developer reminder: Version control required
+  Experimental hosting for repository HKMAKSLO_AI-LAB. This website will only store limited active versions until moving to the main repository.
+  Please use the links below to reach into the app builds.
+  North-Up Link is an app produced by HKMAKSLO-AICMLAB, ALL RIGHTS RESERVED.
 ## Links:
 <a href="https://forms.gle/ZABaHFU9J826uc1o9">Click here to go to App's Suggestion/Bug Report Form</a>
 
